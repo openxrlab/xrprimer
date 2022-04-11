@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f40cf7738..279329874 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -639,7 +639,7 @@ install ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/UseEigen3.cmake
+           DESTINATION ${CMAKEPACKAGE_INSTALL_DIR} )
+ 
+ # Add uninstall target
+-add_custom_target ( uninstall
++add_custom_target (eigen_uninstall
+     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/EigenUninstall.cmake)
+ 
+ if (EIGEN_SPLIT_TESTSUITE)
