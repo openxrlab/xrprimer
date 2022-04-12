@@ -5,7 +5,7 @@ index ea7e9b84..a21c3935 100644
 @@ -146,33 +146,33 @@ endif()
  set_property(CACHE CERES_THREADING_MODEL PROPERTY STRINGS
    ${CERES_THREADING_MODELS_AVAILABLE})
- 
+
 -option(MINIGLOG "Use a stripped down version of glog." OFF)
 -option(GFLAGS "Enable Google Flags." ON)
 +option(MINIGLOG "Use a stripped down version of glog." ON)
