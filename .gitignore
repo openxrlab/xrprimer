@@ -1,3 +1,19 @@
+# pycache
+*.pyc
+
+# pip egg info
+*.egg-info
+
+# pytest
+.benchmarks
+.pytest_cache
+
+# pre-commit
+*.isort.cfg
+
+
+# pre-commit
+python/test/data
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,visualstudio,visualstudiocode,qtcreator
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,visualstudio,visualstudiocode,qtcreator

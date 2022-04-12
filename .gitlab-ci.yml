@@ -1,9 +1,10 @@
 stages:
-  - test
+  - test_cpp
+
 
 T:x86_64-linux:
   image: registry.sensetime.com/kestrel/kestrel_ci:1.4-ubuntu18.04-amd64-gcc75
-  stage: test
+  stage: test_cpp
   script:
     - export HTTPS_PROXY=http://172.16.1.135:3128 # for github clone
     - cmake -S. -Bbuild -DENABLE_TEST=ON
