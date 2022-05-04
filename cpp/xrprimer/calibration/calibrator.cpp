@@ -355,14 +355,14 @@ void MultiCalibrator::optimizeExtrinsics() {
   std::vector<Eigen::Matrix3Xd> p3ds(p2ds.size(),
                                      Eigen::Matrix3Xd(3, pointCount));
 
-  std::vector<Eigen::Vector2f> point2ds;
-  std::vector<MathUtil::Matrix34f> projs;
   Eigen::Vector3d point3d;
-  point2ds.resize(pointCount);
-  projs.resize(pointCount);
 
   ceres::Problem problem;
   for (int imgIdx = 0; imgIdx < p2ds.size(); imgIdx++) {
+    std::vector<std::vector<Eigen::Vector2f>> point2ds;
+    std::vector<std::vector<MathUtil::Matrix34f>> projs;
+    point2ds.resize(pointCount);
+    projs.resize(pointCount);
     // triangulate
     int camIdx = 0;
     for (const auto &iter : p2ds[imgIdx]) {
@@ -372,18 +372,18 @@ void MultiCalibrator::optimizeExtrinsics() {
       }
 
       for (size_t i = 0; i < pointCount; i++) {
-        point2ds[i] = Eigen::Vector2f(iter[i].x, iter[i].y);
+        point2ds[i].push_back(Eigen::Vector2f(iter[i].x, iter[i].y));
 
         MathUtil::Matrix34f proj;
         proj.leftCols<3>() = cam.extrinsic_r_;
         proj.col(3) = cam.extrinsic_t_;
         proj = cam.intrinsic33() * proj;
-        projs[i] = std::move(proj);
+        projs[i].push_back(std::move(proj));
       }
     }
 
     for (int i = 0; i < pointCount; i++) {
-      triangulate_points(point2ds, projs, point3d);
+      triangulate_points(point2ds[i], projs[i], point3d);
       p3ds[imgIdx].col(i) = point3d;
     }
 
