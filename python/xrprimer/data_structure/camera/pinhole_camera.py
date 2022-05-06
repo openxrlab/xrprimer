@@ -187,14 +187,14 @@ class PinholeCameraParameter(PinholeCameraParameter_cpp):
         """
         super().SaveFile(filename)
 
-    def dump(self, json_path: str) -> None:
+    def dump(self, filename: str) -> None:
         """Dump camera name and parameters to a json file.
 
         Args:
-            json_path (str):
+            filename (str):
                 Path to the dumped json file.
         """
-        self.SaveFile(json_path)
+        self.SaveFile(filename)
 
     def LoadFile(self, filename: str) -> int:
         """Load camera name and parameters from a dumped json file.
@@ -208,11 +208,11 @@ class PinholeCameraParameter(PinholeCameraParameter_cpp):
         """
         super().LoadFile(filename)
 
-    def load(self, json_path: str) -> int:
+    def load(self, filename: str) -> None:
         """Load camera name and parameters from a dumped json file.
 
         Args:
-            json_path (str):
+            filename (str):
                 Path to the dumped json file.
         """
-        self.LoadFile(json_path)
+        self.LoadFile(filename)

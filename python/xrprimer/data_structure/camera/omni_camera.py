@@ -174,14 +174,14 @@ class OmniCameraParameter(OmniCameraParameterr_cpp):
         """
         super().SaveFile(filename)
 
-    def dump(self, json_path: str) -> None:
+    def dump(self, filename: str) -> None:
         """Dump camera name and parameters to a json file.
 
         Args:
-            json_path (str):
+            filename (str):
                 Path to the dumped json file.
         """
-        self.SaveFile(json_path)
+        self.SaveFile(filename)
 
     def LoadFile(self, filename: str) -> int:
         """Load camera name and parameters from a dumped json file.
@@ -195,34 +195,14 @@ class OmniCameraParameter(OmniCameraParameterr_cpp):
         """
         super().LoadFile(filename)
 
-    def load(self, json_path: str) -> int:
+    def load(self, filename: str) -> None:
         """Load camera name and parameters from a dumped json file.
 
         Args:
-            json_path (str):
+            filename (str):
                 Path to the dumped json file.
         """
-        self.LoadFile(json_path)
-
-    def set_distortion_coefficients(self, dist_coeff_k: list,
-                                    dist_coeff_p: list) -> None:
-        """Set distortion coefficients from list.
-
-        Args:
-            dist_coeff_k (list):
-                List of float. [k1, k2, k3, k4, k5, k6].
-                When length of list is n and n<6,
-                only the first n coefficients will be set.
-            dist_coeff_p (list):
-                List of float. [p1, p2].
-                To set only p1, pass [p1].
-        """
-        assert len(dist_coeff_k) <= 6
-        assert len(dist_coeff_p) <= 2
-        for k_index, k_value in enumerate(dist_coeff_k):
-            setattr(self, f'k{k_index+1}', k_value)
-        for p_index, p_value in enumerate(dist_coeff_p):
-            setattr(self, f'p{p_index+1}', p_value)
+        self.LoadFile(filename)
 
     def set_omni_param(self,
                        xi: Union[float, None] = None,
@@ -246,3 +226,23 @@ class OmniCameraParameter(OmniCameraParameterr_cpp):
             D_input = np.array(D)
             D_attr[:len(D)] = D_input
             setattr(self, 'D', D_attr)
+
+    def set_distortion_coefficients(self, dist_coeff_k: list,
+                                    dist_coeff_p: list) -> None:
+        """Set distortion coefficients from list.
+
+        Args:
+            dist_coeff_k (list):
+                List of float. [k1, k2, k3, k4, k5, k6].
+                When length of list is n and n<6,
+                only the first n coefficients will be set.
+            dist_coeff_p (list):
+                List of float. [p1, p2].
+                To set only p1, pass [p1].
+        """
+        assert len(dist_coeff_k) <= 6
+        assert len(dist_coeff_p) <= 2
+        for k_index, k_value in enumerate(dist_coeff_k):
+            setattr(self, f'k{k_index+1}', k_value)
+        for p_index, p_value in enumerate(dist_coeff_p):
+            setattr(self, f'p{p_index+1}', p_value)
