@@ -5,7 +5,7 @@
 - [Installation](#installation)
   - [Requirements](#requirements)
   - [Prepare environment](#prepare-environment)
-  - [Install XRprimer(python)](#install-xrprimerpython)
+  - [Install XRPrimer(python)](#install-xrprimerpython)
 
 <!-- TOC -->
 
@@ -24,7 +24,7 @@ conda create -n openxrlab python=3.8 -y
 conda activate openxrlab
 ```
 
-## Install XRprimer(python)
+## Install XRPrimer(python)
 
 
 a. Install build requirements and then install xrprimer.
