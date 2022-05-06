@@ -1,17 +1,14 @@
-import copy
-from typing import TypeVar, Union
+from typing import Union
 
 import numpy as np
-from xrprimer_cpp.camera import \
-    PinholeCameraParameter as PinholeCameraParameter_cpp
-
-_PinholeCameraParameter = TypeVar('_PinholeCameraParameter')
+from xrprimer_cpp.camera import OmniCameraParameter as OmniCameraParameterr_cpp
 
 
-class PinholeCameraParameter(PinholeCameraParameter_cpp):
+class OmniCameraParameter(OmniCameraParameterr_cpp):
     ATTR_NAMES = [
         'name', 'intrinsic', 'extrinsic_r', 'extrinsic_t', 'height', 'width',
-        'world2cam', 'convention'
+        'world2cam', 'convention', 'k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'p1',
+        'p2', 'xi', 'D'
     ]
 
     def __init__(self,
@@ -22,30 +19,20 @@ class PinholeCameraParameter(PinholeCameraParameter_cpp):
                  height: int = 1080,
                  width: int = 1920,
                  world2cam: bool = True,
-                 convention: str = 'opencv') -> None:
+                 convention: str = 'opencv',
+                 dist_coeff_k: list = [],
+                 dist_coeff_p: list = [],
+                 xi: float = 0.0,
+                 D: list = None) -> None:
         super().__init__()
         self.name = name
         self.set_KRT(K, R, T)
         self.set_resolution(height=height, width=width)
         self.world2cam = world2cam
         self.convention = convention
-
-    def clone(self) -> _PinholeCameraParameter:
-        """Clone a new CameraPrameter instance like self.
-
-        Returns:
-            PinholeCameraParameter
-        """
-        new_cam_param = self.__class__(
-            K=copy.deepcopy(self.get_intrinsic(k_dim=4)),
-            R=copy.deepcopy(self.extrinsic_r),
-            T=copy.deepcopy(self.extrinsic_t),
-            name=self.name,
-            height=self.height,
-            width=self.width,
-            world2cam=self.world2cam,
-            convention=self.convention)
-        return new_cam_param
+        self.set_distortion_coefficients(
+            dist_coeff_k=dist_coeff_k, dist_coeff_p=dist_coeff_p)
+        self.set_omni_param(xi=xi, D=D)
 
     def set_KRT(self,
                 K: Union[list, None] = None,
@@ -216,3 +203,46 @@ class PinholeCameraParameter(PinholeCameraParameter_cpp):
                 Path to the dumped json file.
         """
         self.LoadFile(json_path)
+
+    def set_distortion_coefficients(self, dist_coeff_k: list,
+                                    dist_coeff_p: list) -> None:
+        """Set distortion coefficients from list.
+
+        Args:
+            dist_coeff_k (list):
+                List of float. [k1, k2, k3, k4, k5, k6].
+                When length of list is n and n<6,
+                only the first n coefficients will be set.
+            dist_coeff_p (list):
+                List of float. [p1, p2].
+                To set only p1, pass [p1].
+        """
+        assert len(dist_coeff_k) <= 6
+        assert len(dist_coeff_p) <= 2
+        for k_index, k_value in enumerate(dist_coeff_k):
+            setattr(self, f'k{k_index+1}', k_value)
+        for p_index, p_value in enumerate(dist_coeff_p):
+            setattr(self, f'p{p_index+1}', p_value)
+
+    def set_omni_param(self,
+                       xi: Union[float, None] = None,
+                       D: Union[list, None] = None) -> None:
+        """Set distortion coefficients from list.
+
+        Args:
+            dist_coeff_k (list):
+                List of float. [k1, k2, k3, k4, k5, k6].
+                When length of list is n and n<6,
+                only the first n coefficients will be set.
+            dist_coeff_p (list):
+                List of float. [p1, p2].
+                To set only p1, pass [p1].
+        """
+        if xi is not None:
+            setattr(self, 'xi', xi)
+        if D is not None:
+            assert len(D) <= 4
+            D_attr = np.zeros(shape=(4))
+            D_input = np.array(D)
+            D_attr[:len(D)] = D_input
+            setattr(self, 'D', D_attr)

@@ -1,3 +1,6 @@
+import shutil
+import site
+
 from setuptools import find_packages, setup
 
 
@@ -90,6 +93,10 @@ def parse_requirements(fname='requirements.txt', with_version=True):
     return packages
 
 
+site_packages_dir = site.getsitepackages()[0]
+shutil.copy('../build/lib/xrprimer_cpp.cpython-38-x86_64-linux-gnu.so',
+            site_packages_dir)
+
 setup(
     name='xrprimer',
     version=get_version(),
@@ -113,6 +120,6 @@ setup(
         'Programming Language :: Python :: 3.9',
     ],
     license='Apache License 2.0',
-    # tests_require=parse_requirements('requirements/tests.txt'),
-    # install_requires=parse_requirements('requirements/runtime.txt'),
+    tests_require=parse_requirements('requirements/test.txt'),
+    install_requires=parse_requirements('requirements/runtime.txt'),
     zip_safe=False)

@@ -6,8 +6,8 @@ import pytest
 from xrprimer.data_structure.camera.pinhole_camera import \
     PinholeCameraParameter  # noqa:E501
 
-input_dir = 'test/data/camera_parameter/input'
-output_dir = 'test/data/output/camera_parameter'
+input_dir = 'test/data/test_data_structure/camera_parameter'
+output_dir = 'test/data/output/test_pinhole_camera_parameter'
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -18,15 +18,17 @@ def fixture():
 
 
 def test_load():
-    input_json_path = os.path.join(input_dir, 'xrprimer_cam_param_dump_0.json')
+    input_json_path = os.path.join(input_dir,
+                                   'xrprimer_pinh_cam_param_dump_0.json')
     camera_parameter = PinholeCameraParameter(name='load_json')
     camera_parameter.load(input_json_path)
 
 
 def test_dump():
-    input_json_path = os.path.join(input_dir, 'xrprimer_cam_param_dump_0.json')
+    input_json_path = os.path.join(input_dir,
+                                   'xrprimer_pinh_cam_param_dump_0.json')
     output_json_path = os.path.join(output_dir,
-                                    'xrprimer_cam_param_dump_0.json')
+                                    'xrprimer_pinh_cam_param_dump_0.json')
     camera_parameter = PinholeCameraParameter(name='dump_json')
     camera_parameter.load(input_json_path)
     camera_parameter.dump(output_json_path)
@@ -35,7 +37,8 @@ def test_dump():
 
 
 def test_inverse():
-    input_json_path = os.path.join(input_dir, 'xrprimer_cam_param_dump_1.json')
+    input_json_path = os.path.join(input_dir,
+                                   'xrprimer_pinh_cam_param_dump_1.json')
     camera_parameter = PinholeCameraParameter(name='load_json')
     camera_parameter.load(input_json_path)
     origin_world2cam = camera_parameter.world2cam
