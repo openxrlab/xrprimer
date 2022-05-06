@@ -10,7 +10,11 @@
 
 class XRPRIMER_EXPORT BaseCameraParameter {
 public:
-  BaseCameraParameter() = default;
+  virtual ~BaseCameraParameter() = default;
+
+  BaseCameraParameter()
+      : BaseCameraParameter(Eigen::Matrix4f::Zero(), Eigen::Matrix3f::Zero(),
+                            Eigen::Vector3f::Zero()) {}
 
   BaseCameraParameter(const std::string &name, int width, int height,
                       bool world2cam, const Eigen::Matrix4f &intrinsic,
@@ -27,8 +31,6 @@ public:
       : BaseCameraParameter("default", 1920, 1080, true, intrinsic, extrinsic_r,
                             extrinsic_t, "opencv") {}
 
-  virtual ~BaseCameraParameter() = default;
-
   void set_intrinsic(int width, int height, double fx, double fy, double cx,
                      double cy, bool perspective = true);
   void set_intrinsic(const Eigen::Matrix3f &mat, bool prespective = true);
@@ -37,8 +39,9 @@ public:
   //
   // interface
   //
-  virtual void SaveFile(const std::string &filename) = 0;
-  virtual void LoadFile(const std::string &filename) = 0;
+  virtual std::string ClassName() const = 0;
+  virtual bool SaveFile(const std::string &filename) const = 0;
+  virtual bool LoadFile(const std::string &filename) = 0;
 
   //
   // properties
@@ -47,10 +50,10 @@ public:
   Eigen::Matrix4f intrinsic_;
   Eigen::Matrix3f extrinsic_r_;
   Eigen::Vector3f extrinsic_t_;
-  bool world2cam_;
-  std::string convention_; // opencv or other
   int width_;
   int height_;
+  bool world2cam_;
+  std::string convention_; // opencv or other
 
 private:
   bool IsPerspective() const;

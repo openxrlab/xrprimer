@@ -16,4 +16,9 @@ if(NOT jsoncpp_POPULATED)
     set(JSONCPP_WITH_PKGCONFIG_SUPPORT OFF)
     FetchContent_Populate(jsoncpp)
     add_subdirectory(${jsoncpp_SOURCE_DIR} ${jsoncpp_BINARY_DIR})
+    target_compile_options(jsoncpp_static PRIVATE -fPIC)
+    set_target_properties(jsoncpp_static PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
+    )
 endif()

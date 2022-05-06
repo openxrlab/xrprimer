@@ -7,10 +7,10 @@
 #include "data_structure/camera/pinhole_camera.h"
 
 struct MultiCalibrator {
-
+  MultiCalibrator(std::vector<PinholeCameraParameter> &cms) : cams(cms){};
   cv::Size patternSize;  ///< chess pattern size
   cv::Size2f squareSize; ///< chess size
-  std::vector<PinholeCameraParameter> cams;
+  std::vector<PinholeCameraParameter> &cams;
   std::vector<std::vector<int>> foundCornersList;
   // frames/camera/points
   std::vector<std::vector<std::vector<cv::Point2f>>> p2ds;

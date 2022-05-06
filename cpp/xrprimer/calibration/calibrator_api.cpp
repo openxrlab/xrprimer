@@ -17,10 +17,9 @@ void CalibrateMultiPinholeCamera(const std::string &calib_config_json,
                                      &img_groups, // frames/cameras/path
                                  std::vector<PinholeCameraParameter> &cameras) {
 
-  MultiCalibrator calibrator;
+  MultiCalibrator calibrator(cameras);
   {
     // TODO: maybe use construtor
-    calibrator.cams = cameras;
     Json::Value calib_config; // will contains the root value after parsing.
     Json::Reader reader;
     reader.parse(calib_config_json, calib_config, false);
@@ -49,5 +48,4 @@ void CalibrateMultiPinholeCamera(const std::string &calib_config_json,
   }
   calibrator.optimizeExtrinsics();
   calibrator.NormalizeCamExtrinsics();
-  cameras = calibrator.cams;
 }

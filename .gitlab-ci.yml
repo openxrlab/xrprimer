@@ -13,3 +13,6 @@ T:x86_64-linux:
     - wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
     - ln -sfn xrprimer/test test
     - ./bin/ut_test
+    - PYTHONPATH=./lib/ python ../cpp/tests/test_multi_camera_calibrator.py
+
+
