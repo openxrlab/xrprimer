@@ -1,12 +1,13 @@
-import json
-from typing import Union
+import copy
+from typing import TypeVar, Union
 
 import numpy as np
+from xrprimer_cpp.camera import BaseCameraParameter as BaseCameraParameter_cpp
 
-from xrprimer.transform.camera.convention import downgrade_k_4x4, upgrade_k_3x3
+_BaseCameraParameter = TypeVar('_BaseCameraParameter')
 
 
-class BaseCameraParameter():
+class BaseCameraParameter(BaseCameraParameter_cpp):
     ATTR_NAMES = [
         'name', 'intrinsic', 'extrinsic_r', 'extrinsic_t', 'height', 'width',
         'world2cam', 'convention'
@@ -21,14 +22,172 @@ class BaseCameraParameter():
                  width: int = 1920,
                  world2cam: bool = True,
                  convention: str = 'opencv') -> None:
-        for attr_name in self.__class__.ATTR_NAMES:
-            setattr(self, attr_name, None)
-
+        super().__init__()
         self.name = name
         self.set_KRT(K, R, T)
         self.set_resolution(height=height, width=width)
         self.world2cam = world2cam
         self.convention = convention
+
+    def set_intrinsic(self,
+                      mat3x3: Union[list, None] = None,
+                      width: int = None,
+                      height: int = None,
+                      fx: float = None,
+                      fy: float = None,
+                      cx: float = None,
+                      cy: float = None,
+                      perspective: bool = True) -> None:
+        """Set the intrinsic of a camera. Note that mat3x3 has a higher
+        priority than fx, fy, cx, cy.
+
+        Args:
+            mat3x3 (list, optional):
+                A nested list of intrinsic matrix,
+                in shape (3, 3). If mat is given,
+                fx, fy, cx, cy will be ignored.
+                Defaults to None.
+            width (int):
+                Width of the screen.
+            height (int):
+                Height of the screen.
+            fx (float, optional):
+                Focal length. Defaults to None.
+            fy (float, optional):
+                Focal length. Defaults to None.
+            cx (float, optional):
+                Camera principal point. Defaults to None.
+            cy (float, optional):
+                Camera principal point. Defaults to None.
+            perspective (bool, optional):
+                Whether it is a perspective camera, if not,
+                it's orthographics. Defaults to True.
+        """
+        if mat3x3 is not None:
+            mat3x3 = np.asarray(mat3x3)
+            super().set_intrinsic(mat3x3=mat3x3, perspective=perspective)
+        elif width is not None and\
+                height is not None and\
+                fx is not None and\
+                fy is not None and\
+                cx is not None and\
+                cy is not None:
+            super().set_intrinsic(
+                width=width, height=height, fx=fx, fy=fy, cx=cx, cy=cy)
+        else:
+            raise ValueError
+
+    def get_intrinsic(self, k_dim: int = 3) -> list:
+        """Get intrinsic K matrix.
+
+        Args:
+            k_dim (int, optional):
+                If 3, returns a 3x3 mat.
+                Else if 4, returns a 4x4 mat.
+                Defaults to 3.
+
+        Raises:
+            ValueError: k_dim is neither 3 nor 4.
+
+        Returns:
+            list: Nested list of float32, 4x4 or 3x3 K mat.
+        """
+        if k_dim == 4:
+            return self.intrinsic.tolist()
+        elif k_dim == 3:
+            return super().intrinsic33().tolist()
+        else:
+            raise ValueError
+
+    def set_resolution(self, height: int, width: int) -> None:
+        """Set resolution of the camera.
+
+        Args:
+            height (int):
+                Height of the screen.
+            width (int):
+                Width of the screen.
+        """
+        self.height = height
+        self.width = width
+
+    def inverse_extrinsic(self) -> None:
+        """Inverse the direction of extrinsics, between world to camera and
+        camera to world."""
+        r_mat = np.asarray(self.extrinsic_r)
+        t_vec = np.asarray(self.extrinsic_t)
+        r_mat = np.linalg.inv(r_mat).reshape(3, 3)
+        t_vec = -np.dot(r_mat, t_vec).reshape(3)
+        self.extrinsic_r = r_mat.tolist()
+        self.extrinsic_t = t_vec.tolist()
+        self.world2cam = not self.world2cam
+
+    def SaveFile(self, filename: str) -> int:
+        """Dump camera name and parameters to a json file.
+
+        Args:
+            filename (str):
+                Path to the dumped json file.
+
+        Returns:
+            int: returns 0.
+        """
+        super().SaveFile(filename)
+
+    def dump(self, json_path: str) -> None:
+        """Dump camera name and parameters to a json file.
+
+        Args:
+            json_path (str):
+                Path to the dumped json file.
+        """
+        self.SaveFile(json_path)
+
+    def LoadFile(self, filename: str) -> int:
+        """Load camera name and parameters from a dumped json file.
+
+        Args:
+            filename (str):
+                Path to the dumped json file.
+
+        Returns:
+            int: returns 0.
+        """
+        super().LoadFile(filename)
+
+    def load(self, json_path: str) -> int:
+        """Load camera name and parameters from a dumped json file.
+
+        Args:
+            json_path (str):
+                Path to the dumped json file.
+        """
+        self.LoadFile(json_path)
+
+    def clone(self) -> _BaseCameraParameter:
+        """Clone a new CameraPrameter instance like self.
+
+        Returns:
+            BaseCameraParameter
+        """
+        new_cam_param = self.__class__(
+            K=copy.deepcopy(self.get_intrinsic(k_dim=4)),
+            R=copy.deepcopy(self.extrinsic_r),
+            T=copy.deepcopy(self.extrinsic_t),
+            name=self.name,
+            height=self.height,
+            width=self.width,
+            world2cam=self.world2cam,
+            convention=self.convention)
+        return new_cam_param
+
+    def intrinsic33(self) -> list:
+        """Get an intrinsic matrix in shape (3, 3).
+
+        Returns:
+            list: A nested list of intrinsic matrix.
+        """
+        return super().intrinsic33()
 
     def set_KRT(self,
                 K: Union[list, None] = None,
@@ -54,103 +213,13 @@ class BaseCameraParameter():
         """
         if K is not None:
             if len(K) == 4:
-                self.intrinsic = K
+                self.intrinsic = np.asarray(K)
             else:
-                self.intrinsic = upgrade_k_3x3(np.asarray(K)).reshape(
-                    4, 4).tolist()
+                self.set_intrinsic(mat3x3=K, perspective=True)
         if R is not None:
-            self.extrinsic_r = R
+            self.extrinsic_r = np.asarray(R)
         if T is not None:
-            self.extrinsic_t = T
+            self.extrinsic_t = np.asarray(T)
         if world2cam is not None:
             assert isinstance(world2cam, bool)
             self.world2cam = world2cam
-
-    def get_intrinsic(self, k_dim: int = 3) -> list:
-        """Get intrinsic K matrix.
-
-        Args:
-            k_dim (int, optional):
-                If 3, returns a 3x3 mat.
-                Else if 4, returns a 4x4 mat.
-                Defaults to 3.
-
-        Raises:
-            ValueError: k_dim is neither 3 nor 4.
-
-        Returns:
-            list: Nested list of float32, 4x4 or 3x3 K mat.
-        """
-        if k_dim == 4:
-            return self.intrinsic
-        elif k_dim == 3:
-            return downgrade_k_4x4(np.asarray(self.intrinsic)).reshape(
-                3, 3).tolist()
-        else:
-            raise ValueError
-
-    def set_resolution(self, height: int, width: int) -> None:
-        self.height = height
-        self.width = width
-
-    def inverse_extrinsic(self) -> None:
-        r_mat = np.asarray(self.extrinsic_r)
-        t_vec = np.asarray(self.extrinsic_t)
-        r_mat = np.linalg.inv(r_mat).reshape(3, 3)
-        t_vec = -np.dot(r_mat, t_vec).reshape(3)
-        self.extrinsic_r = r_mat.tolist()
-        self.extrinsic_t = t_vec.tolist()
-        self.world2cam = not self.world2cam
-
-    def to_dict(self) -> dict:
-        """Dump camera name and parameters to dict.
-
-        Returns:
-            dict:
-                A dict with all attributes.
-        """
-        dump_dict = {}
-        for attr_name in self.__class__.ATTR_NAMES:
-            attr_value = getattr(self, attr_name)
-            dump_dict[attr_name] = attr_value
-        return dump_dict
-
-    def load_from_dict(self, attr_dict: dict) -> None:
-        """Load camera name and parameters from dict.
-
-        Args:
-            attr_dict (dict): dict of attributes
-        """
-        not_matched_keys = []
-        for key, value in attr_dict.items():
-            if key in self.__class__.ATTR_NAMES:
-                setattr(self, key, value)
-            else:
-                not_matched_keys.append(key)
-        if len(not_matched_keys) > 0:
-            # cast a warning in the future
-            print('The following keys do not match definition:\n',
-                  not_matched_keys)
-
-    def dump(self, json_path: str) -> None:
-        """Dump camera name and parameters to a json file.
-
-        Returns:
-            dict:
-                Put self.name and self.parameters_dict
-                in one dict, and dump them to a json file.
-        """
-        dump_dict = self.to_dict()
-        with open(json_path, 'w') as f_write:
-            json.dump(dump_dict, f_write)
-
-    def load(self, json_path: str) -> None:
-        """Load camera name and parameters from a dumped json file.
-
-        Args:
-            json_path (str):
-                Path to the dumped json file.
-        """
-        with open(json_path, 'r') as f_read:
-            dumped_dict = json.load(f_read)
-        self.load_from_dict(dumped_dict)

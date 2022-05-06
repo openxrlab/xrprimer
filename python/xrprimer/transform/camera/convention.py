@@ -35,9 +35,11 @@ def upgrade_k_3x3(k: np.ndarray, is_perspective: bool = True) -> np.ndarray:
         k_ret[:, 3, 2] = 1
         k_ret[:, 2, 3] = 1
     else:
-        k_ret = np.eye((k_batch.shape[0], 4, 4), dtype=k_batch.dtype)
+        k_ret = np.zeros((k_batch.shape[0], 4, 4), dtype=k_batch.dtype)
         k_ret[:, :2, :2] = k_batch[:, :2, :2]
         k_ret[:, :2, 3:] = k_batch[:, :2, 2:]
+        k_ret[:, 2, 2] = 1
+        k_ret[:, 3, 3] = 1
     ret_shape = [4, 4]
     for dim_index in range(k.ndim - 3, -1, -1):
         ret_shape.insert(0, k.shape[dim_index])
@@ -65,10 +67,12 @@ def downgrade_k_4x4(k: np.ndarray) -> np.ndarray:
     if is_perspective:
         k_ret = np.zeros((k_batch.shape[0], 3, 3), dtype=k_batch.dtype)
         k_ret[:, :2, :3] = k_batch[:, :2, :3]
+        k_ret[:, 2, 2] = 1
     else:
-        k_ret = np.eye((k_batch.shape[0], 3, 3), dtype=k_batch.dtype)
+        k_ret = np.zeros((k_batch.shape[0], 3, 3), dtype=k_batch.dtype)
         k_ret[:, :2, :2] = k_batch[:, :2, :2]
         k_ret[:, :2, 2:3] = k_batch[:, :2, 3:4]
+        k_ret[:, 2, 2] = 1
     ret_shape = [3, 3]
     for dim_index in range(k.ndim - 3, -1, -1):
         ret_shape.insert(0, k.shape[dim_index])
