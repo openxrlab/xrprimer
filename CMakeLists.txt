@@ -11,6 +11,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/eigen.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/ceres.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/opencv.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/jsoncpp.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/pybind11.cmake)
 
 include(cmake/utils.cmake)
 get_revison_from_vcs(${CMAKE_SOURCE_DIR} GIT_REV)
@@ -40,8 +41,10 @@ set(META_NAME_VERSION        "${META_PROJECT_NAME} v${META_VERSION} (${META_VERS
 #
 # options
 #
-option(BUILD_SHARED_LIBS      "Build shared instead of static libraries."             OFF)
+option(BUILD_SHARED_LIBS     "Build shared instead of static libraries."             OFF)
 option(ENABLE_TEST           "Build unit test case."                                 OFF)
+option(PYTHON_BINDING        "Enable Python binding."                                ON)
+
 
 project(${META_PROJECT_NAME} VERSION  ${META_VERSION} LANGUAGES CXX)
 
