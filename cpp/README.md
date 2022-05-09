@@ -1,6 +1,6 @@
-# XR primer library (CPP)
+# XRPrimer library (CPP)
 
-## System requirements
+## Requirements
 + C++11 compiler
 + CMake 3.15+
 
