@@ -2,6 +2,7 @@ import copy
 from typing import TypeVar, Union
 
 import numpy as np
+
 from xrprimer_cpp.camera import BaseCameraParameter as BaseCameraParameter_cpp
 
 _BaseCameraParameter = TypeVar('_BaseCameraParameter')

@@ -1,6 +1,7 @@
 from typing import Union
 
 import numpy as np
+
 from xrprimer_cpp.camera import OmniCameraParameter as OmniCameraParameterr_cpp
 
 

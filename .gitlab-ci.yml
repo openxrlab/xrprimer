@@ -1,18 +1,57 @@
+image: registry.sensetime.com/kestrel/kestrel_ci:1.4-ubuntu18.04-amd64-gcc75
+
 stages:
-  - test_cpp
+  - lint_python
+  - test_cpp_python
 
 
-T:x86_64-linux:
-  image: registry.sensetime.com/kestrel/kestrel_ci:1.4-ubuntu18.04-amd64-gcc75
-  stage: test_cpp
+before_script:
+  - echo $PATH
+  - gcc --version
+  - python --version
+  - pip --version
+  - export http_proxy=http://172.16.1.135:3128/
+  - export https_proxy=http://172.16.1.135:3128/
+  - export HTTP_PROXY=http://172.16.1.135:3128/
+  - export HTTPS_PROXY=http://172.16.1.135:3128/
+  - pip install -r python/requirements/prerequisite.txt
+  - pip install -r python/requirements/test.txt
+
+lint_python:
+  stage: lint_python
   script:
-    - export HTTPS_PROXY=http://172.16.1.135:3128 # for github clone
+    - cd python && pre-commit install
+    - pre-commit run --all-files --verbose
+    - echo "Docstring coverage results:"
+    - interrogate -vinmMI -f 40 xrprimer/
+    - cd ..
+
+test_cpp_python:
+  stage: test_cpp_python
+  script:
+    - pip install torch==1.8.2+cpu torchvision==0.9.2+cpu -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
+    - pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cpu/torch1.7.0/index.html
     - cmake -S. -Bbuild -DENABLE_TEST=ON
     - cmake --build build -j4
+    - cd python && pip install -e . && cd ..
+    - pip uninstall opencv-python opencv-python-headless -y
+    - pip install opencv-python-headless
+    - unset http_proxy
+    - unset https_proxy
+    - unset HTTP_PROXY
+    - unset HTTPS_PROXY
+    - wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz
     - cd build
-    - wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
+    - cp ../xrprimer.tar.gz ./ && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
     - ln -sfn xrprimer/test test
     - ./bin/ut_test
     - PYTHONPATH=./lib/ python ../cpp/tests/test_multi_camera_calibrator.py
-
-
+    - cd ..
+    - cd python/test
+    - cp ../../xrprimer.tar.gz ./
+    - tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
+    - cp -r xrprimer/test/data ./
+    - rm -rf xrprimer && cd ..
+    - echo "Start testing..."
+    - coverage run --source xrprimer -m pytest -s test/
+    - coverage report -m

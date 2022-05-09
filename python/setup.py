@@ -1,3 +1,4 @@
+import glob
 import shutil
 import site
 
@@ -94,8 +95,8 @@ def parse_requirements(fname='requirements.txt', with_version=True):
 
 
 site_packages_dir = site.getsitepackages()[0]
-shutil.copy('../build/lib/xrprimer_cpp.cpython-38-x86_64-linux-gnu.so',
-            site_packages_dir)
+lib_path = glob.glob('../build/lib/xrprimer_cpp*.so')[0]
+shutil.copy(lib_path, site_packages_dir)
 
 setup(
     name='xrprimer',
