@@ -2,6 +2,7 @@ import copy
 from typing import TypeVar, Union
 
 import numpy as np
+
 from xrprimer_cpp.camera import \
     PinholeCameraParameter as PinholeCameraParameter_cpp
 

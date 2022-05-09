@@ -1,3 +1,6 @@
 coverage
+interrogate
 numpy
+opencv-python-headless
+pre-commit
 pytest
