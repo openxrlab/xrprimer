@@ -201,11 +201,11 @@ class OpencvTriangulator(BaseTriangulator):
         triangulation_mat = np.zeros(shape=(len(self.camera_parameters), 3, 4))
         for camera_index in range(len(self.camera_parameters)):
             triangulation_mat[camera_index, :, :3] = np.array(
-                self.camera_parameters[camera_index].extrinsic_r).reshape(
-                    3, 3)
+                self.camera_parameters[camera_index].get_extrinsic_r(
+                )).reshape(3, 3)
             triangulation_mat[camera_index, :, 3:] = np.array(
-                self.camera_parameters[camera_index].extrinsic_t).reshape(
-                    3, 1)
+                self.camera_parameters[camera_index].get_extrinsic_t(
+                )).reshape(3, 1)
             triangulation_mat[camera_index] = np.matmul(
                 np.array(self.camera_parameters[camera_index].get_intrinsic(
                     k_dim=3)), triangulation_mat[camera_index])
@@ -269,8 +269,10 @@ class OpencvTriangulator(BaseTriangulator):
         projected_error = np.zeros_like(points2d)
         for camera_index in range(len(self.camera_parameters)):
             cam_param = self.camera_parameters[camera_index]
-            r_mat = np.array(cam_param.extrinsic_r).astype(points3d.dtype)
-            t_vec = np.array(cam_param.extrinsic_t).astype(points3d.dtype)
+            r_mat = np.array(cam_param.get_extrinsic_r()).astype(
+                points3d.dtype)
+            t_vec = np.array(cam_param.get_extrinsic_t()).astype(
+                points3d.dtype)
             k_mat = np.array(cam_param.get_intrinsic(3)).astype(points3d.dtype)
             projected_points, _ = cv2.projectPoints(
                 objectPoints=points3d,

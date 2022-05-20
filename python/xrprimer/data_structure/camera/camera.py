@@ -1,11 +1,9 @@
 import copy
-from typing import TypeVar, Union
+from typing import Union
 
 import numpy as np
 
 from xrprimer_cpp.camera import BaseCameraParameter as BaseCameraParameter_cpp
-
-_BaseCameraParameter = TypeVar('_BaseCameraParameter')
 
 
 class BaseCameraParameter(BaseCameraParameter_cpp):
@@ -15,15 +13,18 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
     ]
 
     def __init__(self,
-                 K: Union[list, None] = None,
-                 R: Union[list, None] = None,
-                 T: Union[list, None] = None,
+                 K: Union[list, np.ndarray, None] = None,
+                 R: Union[list, np.ndarray, None] = None,
+                 T: Union[list, np.ndarray, None] = None,
                  name: str = 'default',
                  height: int = 1080,
                  width: int = 1920,
                  world2cam: bool = True,
                  convention: str = 'opencv') -> None:
-        super().__init__()
+        super().__init__(
+            intrinsic=np.zeros((4, 4)),
+            extrinsic_r=np.zeros((3, 3)),
+            extrinsic_t=np.ones((3, )))
         self.name = name
         self.set_KRT(K, R, T)
         self.set_resolution(height=height, width=width)
@@ -31,7 +32,7 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
         self.convention = convention
 
     def set_intrinsic(self,
-                      mat3x3: Union[list, None] = None,
+                      mat3x3: Union[list, np.ndarray, None] = None,
                       width: int = None,
                       height: int = None,
                       fx: float = None,
@@ -76,7 +77,74 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
             super().set_intrinsic(
                 width=width, height=height, fx=fx, fy=fy, cx=cx, cy=cy)
         else:
-            raise ValueError
+            raise ValueError(
+                'Either mat3x3 or (h, w, fx/y, cx/y) should be offered.')
+
+    def set_resolution(self, height: int, width: int) -> None:
+        """Set resolution of the camera.
+
+        Args:
+            height (int):
+                Height of the screen.
+            width (int):
+                Width of the screen.
+        """
+        self.height = height
+        self.width = width
+
+    def set_KRT(self,
+                K: Union[list, np.ndarray, None] = None,
+                R: Union[list, np.ndarray, None] = None,
+                T: Union[list, np.ndarray, None] = None,
+                world2cam: Union[bool, None] = None) -> None:
+        """Set K, R to matrix and T to vector.
+
+        Args:
+            K (Union[list, np.ndarray, None]):
+                Nested list of float32, 4x4 or 3x3 K mat.
+                Defaults to None, intrisic will not be changed.
+            R (Union[list, np.ndarray, None]):
+                Nested list of float32, 3x3 R mat.
+                Defaults to None, extrisic_r will not be changed.
+            T (Union[list, np.ndarray, None]):
+                List of float32, T vector.
+                Defaults to None, extrisic_t will not be changed.
+            world2cam (Union[bool, None], optional):
+                Whether the R, T transform points from world space
+                to camera space.
+                Defaults to None, self.world2cam will not be changed.
+        """
+        if K is not None:
+            if len(K) == 4:
+                self.intrinsic = np.asarray(K)
+            else:
+                self.set_intrinsic(mat3x3=K, perspective=True)
+        if R is not None:
+            self.extrinsic_r = np.asarray(R)
+        if T is not None:
+            self.extrinsic_t = np.asarray(T)
+        if world2cam is not None:
+            assert isinstance(world2cam, bool)
+            self.world2cam = world2cam
+
+    def inverse_extrinsic(self) -> None:
+        """Inverse the direction of extrinsics, between world to camera and
+        camera to world."""
+        r_mat = np.asarray(self.extrinsic_r)
+        t_vec = np.asarray(self.extrinsic_t)
+        r_mat = np.linalg.inv(r_mat).reshape(3, 3)
+        t_vec = -np.dot(r_mat, t_vec).reshape(3)
+        self.extrinsic_r = r_mat
+        self.extrinsic_t = t_vec
+        self.world2cam = not self.world2cam
+
+    def intrinsic33(self) -> np.ndarray:
+        """Get an intrinsic matrix in shape (3, 3).
+
+        Returns:
+            ndarray: An ndarray of intrinsic matrix.
+        """
+        return super().intrinsic33()
 
     def get_intrinsic(self, k_dim: int = 3) -> list:
         """Get intrinsic K matrix.
@@ -98,30 +166,23 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
         elif k_dim == 3:
             return super().intrinsic33().tolist()
         else:
-            raise ValueError
+            raise ValueError('k_dim is neither 3 nor 4.')
 
-    def set_resolution(self, height: int, width: int) -> None:
-        """Set resolution of the camera.
+    def get_extrinsic_r(self) -> list:
+        """Get extrinsic rotation matrix.
 
-        Args:
-            height (int):
-                Height of the screen.
-            width (int):
-                Width of the screen.
+        Returns:
+            list: Nested list of float32, 3x3 R mat.
         """
-        self.height = height
-        self.width = width
+        return self.extrinsic_r.tolist()
 
-    def inverse_extrinsic(self) -> None:
-        """Inverse the direction of extrinsics, between world to camera and
-        camera to world."""
-        r_mat = np.asarray(self.extrinsic_r)
-        t_vec = np.asarray(self.extrinsic_t)
-        r_mat = np.linalg.inv(r_mat).reshape(3, 3)
-        t_vec = -np.dot(r_mat, t_vec).reshape(3)
-        self.extrinsic_r = r_mat.tolist()
-        self.extrinsic_t = t_vec.tolist()
-        self.world2cam = not self.world2cam
+    def get_extrinsic_t(self) -> list:
+        """Get extrinsic translation vector.
+
+        Returns:
+            list: Nested list of float32, T vec of length 3.
+        """
+        return self.extrinsic_t.reshape(3).tolist()
 
     def SaveFile(self, filename: str) -> int:
         """Dump camera name and parameters to a json file.
@@ -165,7 +226,7 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
         """
         self.LoadFile(filename)
 
-    def clone(self) -> _BaseCameraParameter:
+    def clone(self) -> 'BaseCameraParameter':
         """Clone a new CameraPrameter instance like self.
 
         Returns:
@@ -181,46 +242,3 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
             world2cam=self.world2cam,
             convention=self.convention)
         return new_cam_param
-
-    def intrinsic33(self) -> list:
-        """Get an intrinsic matrix in shape (3, 3).
-
-        Returns:
-            list: A nested list of intrinsic matrix.
-        """
-        return super().intrinsic33()
-
-    def set_KRT(self,
-                K: Union[list, None] = None,
-                R: Union[list, None] = None,
-                T: Union[list, None] = None,
-                world2cam: Union[bool, None] = None) -> None:
-        """Set K, R to matrix and T to vector.
-
-        Args:
-            K (Union[list, None]):
-                Nested list of float32, 4x4 or 3x3 K mat.
-                Defaults to None, intrisic will not be changed.
-            R (Union[list, None]):
-                Nested list of float32, 3x3 R mat.
-                Defaults to None, extrisic_r will not be changed.
-            T (Union[list, None]):
-                List of float32, T vector.
-                Defaults to None, extrisic_t will not be changed.
-            world2cam (Union[bool, None], optional):
-                Whether the R, T transform points from world space
-                to camera space.
-                Defaults to None, self.world2cam will not be changed.
-        """
-        if K is not None:
-            if len(K) == 4:
-                self.intrinsic = np.asarray(K)
-            else:
-                self.set_intrinsic(mat3x3=K, perspective=True)
-        if R is not None:
-            self.extrinsic_r = np.asarray(R)
-        if T is not None:
-            self.extrinsic_t = np.asarray(T)
-        if world2cam is not None:
-            assert isinstance(world2cam, bool)
-            self.world2cam = world2cam
