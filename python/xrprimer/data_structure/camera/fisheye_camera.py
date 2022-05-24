@@ -56,6 +56,27 @@ class FisheyeCameraParameter(FisheyeCameraParameter_cpp,
         for p_index, p_value in enumerate(dist_coeff_p):
             setattr(self, f'p{p_index+1}', p_value)
 
+    def get_distortion_coefficients(self) -> list:
+        """Get distortion coefficients in self.convention.
+
+        Raises:
+            NotImplementedError: convention not supported.
+
+        Returns:
+            list: A list of distortion coefficients, in a
+            turn defined by self.convention.
+        """
+        dist_coeff_list = []
+        if self.convention == 'opencv':
+            dist_coeff_names = ['k1', 'k2', 'p1', 'p2', 'k3', 'k4', 'k5', 'k6']
+            for coeff_name in dist_coeff_names:
+                dist_coeff_list.append(getattr(self, coeff_name, 0.0))
+        else:
+            raise NotImplementedError(
+                f'Distortion for camera in {self.convention}' +
+                ' has not been supported .')
+        return dist_coeff_list
+
     def clone(self) -> 'FisheyeCameraParameter':
         """Clone a new CameraPrameter instance like self.
 
