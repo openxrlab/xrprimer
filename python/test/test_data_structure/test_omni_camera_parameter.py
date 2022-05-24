@@ -21,12 +21,11 @@ def fixture():
 
 
 def test_load():
-    input_json_path = os.path.join(input_dir,
-                                   'xrprimer_omni_cam_param_dump_0.json')
-    camera_parameter = OmniCameraParameter(name='load')
+    input_json_path = os.path.join(input_dir, 'omni_param_at_origin.json')
+    camera_parameter = OmniCameraParameter(name='test_load')
     camera_parameter.load(input_json_path)
     assert camera_parameter.get_intrinsic(k_dim=4)[0][0] - focal_length_x < eps
-    camera_parameter = OmniCameraParameter(name='LoadFile')
+    camera_parameter = OmniCameraParameter(name='test_LoadFile')
     camera_parameter.LoadFile(input_json_path)
     assert camera_parameter.get_intrinsic(k_dim=4)[0][0] - focal_length_x < eps
     k33_0 = camera_parameter.intrinsic33()
@@ -35,16 +34,14 @@ def test_load():
 
 
 def test_dump():
-    input_json_path = os.path.join(input_dir,
-                                   'xrprimer_omni_cam_param_dump_0.json')
-    output_json_path = os.path.join(output_dir,
-                                    'xrprimer_omni_cam_param_dump_0.json')
-    camera_parameter = OmniCameraParameter(name='dump')
+    input_json_path = os.path.join(input_dir, 'omni_param_at_origin.json')
+    output_json_path = os.path.join(output_dir, 'omni_param_at_origin.json')
+    camera_parameter = OmniCameraParameter(name='test_dump')
     camera_parameter.load(input_json_path)
     camera_parameter.dump(output_json_path)
     assert os.path.exists(output_json_path)
     os.remove(output_json_path)
-    camera_parameter = OmniCameraParameter(name='SaveFile')
+    camera_parameter = OmniCameraParameter(name='test_SaveFile')
     camera_parameter.load(input_json_path)
     camera_parameter.SaveFile(output_json_path)
     assert os.path.exists(output_json_path)
@@ -52,7 +49,7 @@ def test_dump():
 
 
 def test_set_distortion():
-    camera_parameter = OmniCameraParameter(name='set_distortion')
+    camera_parameter = OmniCameraParameter(name='test_set_distortion')
     # set correctly
     camera_parameter.set_distortion_coefficients(
         dist_coeff_k=[1, 2, 3, 4, 5, 6], dist_coeff_p=[1, 2])
@@ -92,9 +89,8 @@ def test_set_omni_param():
 
 
 def test_inverse():
-    input_json_path = os.path.join(input_dir,
-                                   'xrprimer_omni_cam_param_dump_1.json')
-    camera_parameter = OmniCameraParameter(name='load_json')
+    input_json_path = os.path.join(input_dir, 'omni_param_not_at_origin.json')
+    camera_parameter = OmniCameraParameter(name='test_inverse')
     camera_parameter.load(input_json_path)
     origin_world2cam = camera_parameter.world2cam
     origin_intrinsic00 = camera_parameter.get_intrinsic(k_dim=4)[0][0]
@@ -112,9 +108,8 @@ def test_inverse():
 
 
 def test_clone():
-    input_json_path = os.path.join(input_dir,
-                                   'xrprimer_omni_cam_param_dump_1.json')
-    camera_parameter = OmniCameraParameter(name='src')
+    input_json_path = os.path.join(input_dir, 'omni_param_not_at_origin.json')
+    camera_parameter = OmniCameraParameter(name='test_clone')
     camera_parameter.load(input_json_path)
     cloned_camera_parameter = camera_parameter.clone()
     assert isinstance(cloned_camera_parameter, OmniCameraParameter)

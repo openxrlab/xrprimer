@@ -73,7 +73,7 @@ class OpencvTriangulator(BaseTriangulator):
         """
         assert len(points) == len(self.camera_parameters)
         points = np.array(points)
-        # todo: undistort
+        # TODO: undistort
         if points_mask is not None:
             points_mask = np.array(points_mask)
         else:

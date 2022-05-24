@@ -50,7 +50,7 @@ class BaseTriangulator:
             if cam_param.world2cam:
                 cam_param.inverse_extrinsic()
             if cam_param.convention != camera_convention:
-                # todo: convert camera convention
+                # TODO: convert camera convention
                 raise NotImplementedError
             self.camera_parameters.append(cam_param)
 
