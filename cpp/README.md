@@ -17,7 +17,7 @@ On Linux or Macos
 # export HTTPS_PROXY=http://proxy.sensetime.com:3128/
 
 cmake -S. -Bbuild [Compilation options]
-cmake --build . --target install -j4
+cmake --build build --target install -j4
 ```
 
 ## Compilation options
@@ -33,7 +33,7 @@ CPP
 ```bash
 # compiler
 cmake -S. -Bbuild -DENABLE_TEST=ON
-cmake --build . --target -j4
+cmake --build build --target -j4
 #run test
 cd build
 wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
@@ -44,6 +44,7 @@ ln -sfn xrprimer/test test
 Python
 ```bash
 cmake -S. -Bbuild
+cmake --build build --target -j4
 cd build
 wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
 PYTHONPATH=./lib/ python ../cpp/tests/test_multi_camera_calibrator.py

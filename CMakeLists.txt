@@ -1,27 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
-#
-# default install path
-#
-
-#
-# install external deps
-#
-include(${CMAKE_SOURCE_DIR}/cmake/eigen.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/ceres.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/opencv.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/jsoncpp.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/pybind11.cmake)
-
 include(cmake/utils.cmake)
 get_revison_from_vcs(${CMAKE_SOURCE_DIR} GIT_REV)
-
-
-set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install CACHE PATH "default install prefix" FORCE)
-# if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    
-# endif()
-
 
 #
 # meta info
@@ -38,6 +18,58 @@ set(META_VERSION_REVISION    "${GIT_REV}")
 set(META_VERSION             "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}")
 set(META_NAME_VERSION        "${META_PROJECT_NAME} v${META_VERSION} (${META_VERSION_REVISION})")
 
+project(${META_PROJECT_NAME} VERSION ${META_VERSION} LANGUAGES CXX)
+
+#
+# default install path
+#
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install CACHE PATH "default install prefix" FORCE)
+endif()
+
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+#
+# install external deps
+#
+option(BUILD_EXTERNAL "force build third deps." OFF)
+
+if(BUILD_EXTERNAL)
+    # build local
+    include(${CMAKE_SOURCE_DIR}/cmake/external/eigen.cmake)
+    include(${CMAKE_SOURCE_DIR}/cmake/external/ceres.cmake)
+    include(${CMAKE_SOURCE_DIR}/cmake/external/opencv.cmake)
+    include(${CMAKE_SOURCE_DIR}/cmake/external/jsoncpp.cmake)
+    include(${CMAKE_SOURCE_DIR}/cmake/external/pybind11.cmake)
+else()
+    # use conan
+    include(${CMAKE_SOURCE_DIR}/cmake/conan.cmake)
+
+    conan_cmake_autodetect(settings)
+    conan_cmake_install(PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
+                    BUILD missing
+                    REMOTE xrlab
+                    SETTINGS ${settings})
+    conan_load_buildinfo()
+
+    set(Eigen3_DIR "${CONAN_EIGEN_ROOT}/share/eigen3/cmake")
+    set(Ceres_DIR "${CONAN_CERES-SOLVER_ROOT}/lib/cmake/Ceres")
+    set(OpenCV_DIR "${CONAN_OPENCV_ROOT}/lib/cmake/opencv4")
+    set(jsoncpp_DIR "${CONAN_JSONCPP_ROOT}/lib/cmake/jsoncpp")
+    set(pybind11_DIR "${CONAN_PYBIND11_ROOT}/share/cmake/pybind11")
+    set(GTest_DIR "${CONAN_GTEST_ROOT}/lib/cmake/GTest")
+    find_package(Eigen3 REQUIRED)
+    find_package(Ceres REQUIRED)
+    find_package(OpenCV REQUIRED)
+    find_package(pybind11 REQUIRED)
+    find_package(jsoncpp REQUIRED)
+    find_package(GTest REQUIRED CONFIG)
+    XRLAB_INSTALL_DEPS(TARGETS EIGEN CERES-SOLVER OPENCV JSONCPP)
+endif()
+
 #
 # options
 #
@@ -45,8 +77,6 @@ option(BUILD_SHARED_LIBS     "Build shared instead of static libraries."        
 option(ENABLE_TEST           "Build unit test case."                                 OFF)
 option(PYTHON_BINDING        "Enable Python binding."                                ON)
 
-
-project(${META_PROJECT_NAME} VERSION  ${META_VERSION} LANGUAGES CXX)
 
 #
 # Set policies
@@ -61,7 +91,7 @@ cmake_policy(SET CMP0077 NEW) # ENABLE CMP0077: option() honors normal variables
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #
-# c++17
+# c++11
 #
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -73,7 +103,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 
+# include(GNUInstallDirs)
+
 #
 # cpp
 #
 add_subdirectory(cpp)
+
+

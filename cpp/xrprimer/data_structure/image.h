@@ -4,31 +4,151 @@
 #include <stdint.h>
 #include <vector>
 
+enum PixelFormat {
+  NONE,
+  RGB24,
+  BGR24,
+  RGBA,
+  GRAY8,
+  GRAY16BE,
+  GRAY16LE,
+  FORMAT_NUM,
+};
+
 class Image {
 
 public:
-  Image() = default;
-  ~Image() = default;
+  Image();
+  ~Image();
 
-  Image(int width, int height, int channels, int bytes_per_channel, void *data);
-  Image(int width, int height, int channels, int bytes_per_channel);
-  Image(int width, int height, int channesl);
-  Image(int width, int height);
+  /**
+   * @brief Construct a new Image object
+   *
+   * @param width
+   * @param height
+   * @param format
+   */
+  Image(int width, int height, PixelFormat format);
+
+  /**
+   * @brief Construct a new Image object
+   *
+   * @param width
+   * @param height
+   * @param widthStep
+   * @param format
+   */
+  Image(int width, int height, int widthStep, PixelFormat format);
+
+  /**
+   * @brief Construct a new Image object
+   *
+   * @param width
+   * @param height
+   * @param widthStep
+   * @param format
+   * @param data Pointer to the user data. constructors that take data
+   * and step parameters do not allocate data. Instead, they just
+   * initialize the header that points to the specified data, which means
+   * that no data is copied. This operation is very efficient and can be used to
+   * process external data using `Image` class. The external data is not
+   * automatically deallocated, so you should take care of it.
+   */
+  Image(int width, int height, int widthStep, PixelFormat format, void *data);
 
   Image(const Image &other);
   Image(Image &&other);
   Image &operator=(const Image &other);
   Image &operator=(Image &&other);
 
+  /**
+   * @brief Image width in pixels.
+   *
+   * @return int
+   */
   int width() const;
-  int height() const;
-  void set_width(int width);
-  void set_height(int height);
 
-  void *Data() const;
-  void *MutableData();
+  /**
+   * @brief Image height in pixels.
+   *
+   * @return int
+   */
+  int height() const;
+
+  /**
+   * @brief Image format @see PixelFormat
+   *
+   * @return PixelFormat
+   */
+  PixelFormat format() const;
+
+  /**
+   * @brief the size of each pixel in bytes
+   *
+   * @return int  same as channels() * depth()
+   */
+  int elemSize() const;
+
+  /**
+   * @brief Image channels, supporet 1,2,3 or 4
+   *
+   * @return int
+   */
+  int channels() const;
+
+  /**
+   * @brief Image per channel bytes
+   *
+   * @return int, supported 1,2,3,4
+   */
+  int depth() const;
+
+  /**
+   * @brief Size of aligned image row in bytes.
+   *
+   * @return int
+   */
+  int step() const;
+
+  /**
+   * @brief Size of aligned image row in bytes.
+   *
+   * @return void*
+   */
+  const void *data() const;
+
+  /**
+   * @brief Pointer to aligned image data
+   *
+   * @return void*
+   */
+  void *mutable_data();
+
+  /**
+   * @brief
+   *
+   * @return Image
+   */
+  Image clone() const;
+
+  /**
+   * @brief
+   *
+   * @param image
+   * @return true
+   * @return false
+   */
+  bool copyTo(Image *image);
+
+  /**
+   * @brief
+   *
+   * @return true
+   * @return false
+   */
+  bool empty();
 
 private:
   class Impl;
-  std::shared_ptr<Impl> impl_;
+  std::shared_ptr<Impl> impl_ = nullptr;
 };
