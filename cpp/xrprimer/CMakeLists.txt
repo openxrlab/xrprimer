@@ -48,4 +48,3 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     FILES_MATCHING
         PATTERN "*.h"
 )
-
