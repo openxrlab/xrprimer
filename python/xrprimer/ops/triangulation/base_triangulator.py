@@ -1,5 +1,5 @@
 from operator import itemgetter
-from typing import Union
+from typing import List, Union
 
 import numpy as np
 
@@ -9,21 +9,17 @@ from xrprimer.data_structure.camera.pinhole_camera import \
 
 # Super class of all triangulators, cannot be built
 class BaseTriangulator:
+    CAMERA_CONVENTION = 'opencv'
 
-    def __init__(self,
-                 camera_parameters: list,
-                 camera_convention: str = 'opencv') -> None:
+    def __init__(
+            self, camera_parameters: List[Union[PinholeCameraParameter,
+                                                str]]) -> None:
         """BaseTriangulator for points triangulation.
 
         Args:
-            camera_parameters (list):
+            camera_parameters (List[Union[PinholeCameraParameter, str]]):
                 A list of PinholeCameraParameter, or a list
                 of paths to dumped PinholeCameraParameters.
-            camera_convention (str, optional):
-                Expected convention name of cameras.
-                If camera_parameters do not match expectation,
-                convert them to the correct convention.
-                Defaults to 'opencv'.
             multiview_reduction (Literal['mean', 'median']):
                 When more than 2 views are provided, how to
                 reduce among view pairs.
@@ -33,11 +29,25 @@ class BaseTriangulator:
             TypeError:
                 Some element of camera_parameters is neither
                 PinholeCameraParameter nor str.
+        """
+        self.camera_parameters = []
+        self.set_cameras(camera_parameters)
+
+    def set_cameras(
+            self, camera_parameters: List[Union[PinholeCameraParameter,
+                                                str]]) -> None:
+        """Set cameras for this triangulator.
+
+        Args:
+            camera_parameters (List[Union[PinholeCameraParameter, str]]):
+                A list of PinholeCameraParameter, or a list
+                of paths to dumped PinholeCameraParameters.
+
+        Raises:
             NotImplementedError:
                 Some camera_parameter from camera_parameters
-                has a different camera convention from expectation.
+                has a different camera convention from class requirement.
         """
-        self.camera_convention = camera_convention
         self.camera_parameters = []
         for input_cam_param in camera_parameters:
             if isinstance(input_cam_param, str):
@@ -45,11 +55,9 @@ class BaseTriangulator:
                 cam_param.load(input_cam_param)
             else:
                 cam_param = input_cam_param.clone()
-                # raise TypeError('Wrong type of camera_parameters element:' +
-                #                 f' {type(input_cam_param)}')
             if cam_param.world2cam:
                 cam_param.inverse_extrinsic()
-            if cam_param.convention != camera_convention:
+            if cam_param.convention != self.__class__.CAMERA_CONVENTION:
                 # TODO: convert camera convention
                 raise NotImplementedError
             self.camera_parameters.append(cam_param)
@@ -175,7 +183,5 @@ class BaseTriangulator:
                 with selected cameras.
         """
         new_cam_param_list = self.__get_camera_parameters_slice__(index)
-        new_triangulator = self.__class__(
-            camera_parameters=new_cam_param_list,
-            camera_convention=self.camera_convention)
+        new_triangulator = self.__class__(camera_parameters=new_cam_param_list)
         return new_triangulator

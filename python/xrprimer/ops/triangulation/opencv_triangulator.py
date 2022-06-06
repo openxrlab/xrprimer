@@ -16,19 +16,13 @@ class OpencvTriangulator(BaseTriangulator):
     def __init__(
             self,
             camera_parameters: list,
-            camera_convention: str = 'opencv',
             multiview_reduction: Literal['mean', 'median'] = 'mean') -> None:
         """BaseTriangulator for points triangulation.
 
         Args:
             camera_parameters (list):
-                A list of PinholeCameraParameter, or a list
-                of paths to dumped PinholeCameraParameters.
-            camera_convention (str, optional):
-                Expected convention name of cameras.
-                If camera_parameters do not match expectation,
-                convert them to the correct convention.
-                Defaults to 'opencv'.
+                A list of FisheyeCameraParameter, or a list
+                of PinholeCameraParameter.
             multiview_reduction (Literal['mean', 'median']):
                 When more than 2 views are provided, how to
                 reduce among view pairs.
@@ -42,9 +36,7 @@ class OpencvTriangulator(BaseTriangulator):
                 Some camera_parameter from camera_parameters
                 has a different camera convention from expectation.
         """
-        super().__init__(
-            camera_parameters=camera_parameters,
-            camera_convention=camera_convention)
+        super().__init__(camera_parameters=camera_parameters)
         self.multiview_reduction = multiview_reduction
 
     def triangulate(
@@ -302,6 +294,5 @@ class OpencvTriangulator(BaseTriangulator):
         new_cam_param_list = self.__get_camera_parameters_slice__(index)
         new_triangulator = self.__class__(
             camera_parameters=new_cam_param_list,
-            camera_convention=self.camera_convention,
             multiview_reduction=self.multiview_reduction)
         return new_triangulator
