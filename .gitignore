@@ -494,3 +494,4 @@ ext/*
 /install
 _ext/*
 inbox/*
+**/build/

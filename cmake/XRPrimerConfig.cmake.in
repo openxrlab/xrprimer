@@ -1,0 +1,36 @@
+# ===================================================================================
+#  The XRPrimer CMake configuration file
+#
+#             ** File generated automatically, do not modify **
+#
+#  Usage from an external project:
+#    In your CMakeLists.txt, add these lines:
+#
+#    find_package(XRPrimer REQUIRED)
+#    target_link_libraries(MY_TARGET_NAME XRPrimer::XRPrimer)
+#
+#
+# ===================================================================================
+
+### Initialisation performed by CONFIGURE_PACKAGE_CONFIG_FILE:
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+set(Eigen3_DIR "${PACKAGE_PREFIX_DIR}/share/eigen3/cmake")
+set(Ceres_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/Ceres/")
+set(OpenCV_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/opencv4")
+set(jsoncpp_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/jsoncpp")
+set(jsoncpp_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/spdlog")
+set(PnpSolver_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake")
+
+find_dependency(Eigen3 REQUIRED CONFIG)
+find_dependency(Ceres REQUIRED CONFIG)
+find_dependency(OpenCV REQUIRED CONFIG)
+find_dependency(jsoncpp REQUIRED CONFIG)
+find_dependency(spdlog REQUIRED CONFIG)
+find_dependency(PnpSolver REQUIRED CONFIG)
+
+IF(NOT TARGET XRPrimer::xrprimer)
+  INCLUDE("${CMAKE_CURRENT_LIST_DIR}/xrprimer-targets.cmake")
+ENDIF()

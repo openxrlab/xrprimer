@@ -3,7 +3,7 @@ image: registry.sensetime.com/kestrel/kestrel_ci:1.4-ubuntu18.04-amd64-gcc75
 stages:
   - lint_python
   - test_cpp_python
-
+  - deploy
 
 before_script:
   - echo $PATH
@@ -20,10 +20,11 @@ before_script:
   - unset https_proxy
   - unset HTTP_PROXY
   - unset HTTPS_PROXY
-  
+
 
 lint_python:
   stage: lint_python
+  dependencies: []
   script:
     - cd python && pre-commit install
     - export http_proxy=http://172.16.1.135:3128/
@@ -41,6 +42,7 @@ lint_python:
 
 test_cpp_python:
   stage: test_cpp_python
+  dependencies: []
   script:
     - echo "--- config conan remote and login --- "
     - conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
@@ -48,7 +50,7 @@ test_cpp_python:
     - pip install torch==1.8.2+cpu torchvision==0.9.2+cpu -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html -i https://pypi.douban.com/simple/
     - pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cpu/torch1.7.0/index.html -i https://pypi.douban.com/simple/
     - cmake -S. -Bbuild -DENABLE_TEST=ON
-    - cmake --build build -j4
+    - cmake --build build -j4 --target install
     - cd python && pip install -e . && cd ..
     - pip uninstall opencv-python opencv-python-headless -y
     - pip install opencv-python-headless -i https://pypi.douban.com/simple/
@@ -68,3 +70,27 @@ test_cpp_python:
     - echo "Start testing..."
     - coverage run --source xrprimer -m pytest -s test/
     - coverage report -m
+
+D:cpp_library:
+  stage: deploy
+  dependencies: []
+  script:
+    - echo "--- config conan remote and login --- "
+    - conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
+    - conan user -p ${CONAN_PROFILE} -r xrlab openxrlab-conan
+    - cmake -S. -Bbuild -DENABLE_TEST=ON
+    - cmake --build build -j4 --target install
+    - echo "--- upload to minio ---"
+    - PKG_NAME=${CI_PROJECT_NAME}-${CI_COMMIT_REF_NAME}-Linux-x86_64--${CI_COMMIT_SHORT_SHA}-ubuntu18.04.tar.gz
+    - cd install && tar -zcvf ../${PKG_NAME} * && cd ../
+    - wget http://file.kestrel.sensetime.com/software/mc &&  chmod +x mc
+    - ./mc alias set minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+    - ./mc cp ${PKG_NAME} minio/xrprimer
+  only:
+    - tags
+  artifacts:
+    name: ${CI_PROJECT_NAME}-${CI_COMMIT_REF_NAME}-Linux-x86_64-${CI_COMMIT_SHA}
+    when: on_success
+    expire_in: 2 hrs
+    paths:
+      - install/
