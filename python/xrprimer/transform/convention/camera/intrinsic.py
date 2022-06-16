@@ -52,8 +52,6 @@ def downgrade_k_4x4(k: np.ndarray) -> np.ndarray:
     Args:
         K (np.ndarray):
             Input 4x4 intrinsic matrix, left mm defined.
-        is_perspective (bool, optional): whether is perspective projection.
-            Defaults to True.
 
     Returns:
         np.ndarray:
