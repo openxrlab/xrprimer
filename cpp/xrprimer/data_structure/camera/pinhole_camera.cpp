@@ -4,20 +4,20 @@
 #include <iostream>
 
 std::string PinholeCameraParameter::ClassName() const {
-  return "PinholeCameraParameter";
+    return "PinholeCameraParameter";
 }
 
 bool PinholeCameraParameter::SaveFile(const std::string &filename) const {
-  Json::Value obj;
-  SaveBaseCameraParameter(obj, *this);
-  return JsonToFile(obj, filename);
+    Json::Value obj;
+    SaveBaseCameraParameter(obj, *this);
+    return JsonToFile(obj, filename);
 }
 
 bool PinholeCameraParameter::LoadFile(const std::string &filename) {
-  Json::Value obj;
+    Json::Value obj;
 
-  if (JsonFromFile(obj, filename)) {
-    return LoadBaseCameraParameter(obj, *this);
-  }
-  return false;
+    if (JsonFromFile(obj, filename)) {
+        return LoadBaseCameraParameter(obj, *this);
+    }
+    return false;
 }
