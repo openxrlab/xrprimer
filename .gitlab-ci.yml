@@ -10,8 +10,16 @@ before_script:
   - gcc --version
   - python --version
   - pip --version
-  - pip install -r python/requirements/prerequisite.txt -i https://pypi.douban.com/simple/
-  - pip install -r python/requirements/test.txt -i https://pypi.douban.com/simple/
+  - export http_proxy=http://172.16.1.135:3128/
+  - export https_proxy=http://172.16.1.135:3128/
+  - export HTTP_PROXY=http://172.16.1.135:3128/
+  - export HTTPS_PROXY=http://172.16.1.135:3128/
+  - pip install -r python/requirements/prerequisite.txt
+  - pip install -r python/requirements/test.txt
+  - unset http_proxy
+  - unset https_proxy
+  - unset HTTP_PROXY
+  - unset HTTPS_PROXY
   
 
 lint_python:
