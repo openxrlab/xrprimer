@@ -57,7 +57,7 @@ def undistort_camera(
 
 def undistort_images(
         distorted_cam: FisheyeCameraParameter,
-        image_array: np.ndarray) -> Tuple[np.ndarray, PinholeCameraParameter]:
+        image_array: np.ndarray) -> Tuple[PinholeCameraParameter, np.ndarray]:
     """Undistort a FisheyeCameraParameter to PinholeCameraParameter, and
     undistort an array of images shot on a fisheye camera.
 
@@ -67,7 +67,7 @@ def undistort_images(
             resolution, intrinsic mat
             and distortion coefficients will be used.
         image_array (np.ndarray):
-            An array of images, in shape [frame_n, height, width, channel_n].
+            An array of images, in shape [n_frame, height, width, n_channel].
 
     Raises:
         NotImplementedError: Camera convention not supported.
@@ -106,7 +106,8 @@ def undistort_points(
         distorted_cam: FisheyeCameraParameter,
         points: np.ndarray) -> Tuple[PinholeCameraParameter, np.ndarray]:
     """Undistort a FisheyeCameraParameter to PinholeCameraParameter, and
-    undistort an array of points in fisheye camera screen.
+    undistort an array of points in fisheye camera screen. Parameters and
+    points will be casted to np.float64 before operation.
 
     Args:
         distorted_cam (FisheyeCameraParameter):
@@ -114,9 +115,9 @@ def undistort_points(
             resolution, intrinsic mat
             and distortion coefficients will be used.
         points (np.ndarray):
-            An array of points, in shape [..., 2].
-            ... could be [point_n, ], [frame_n, point_n, ]
-            [frame_n, object_n, point_n, ], etc.
+            An array of points, in shape [..., 2], int or float.
+            ... could be [n_point, ], [n_frame, n_point, ]
+            [n_frame, n_object, n_point, ], etc.
 
     Raises:
         NotImplementedError: Camera convention not supported.
@@ -126,7 +127,8 @@ def undistort_points(
             PinholeCameraParameter:
                 Undistorted camera parameter.
             np.ndarray:
-                Corrected points location in the same shape as input.
+                Corrected points location in the same shape as input,
+                dtype is np.float64.
     """
     # prepare input of cv2.undistortPoints
     if distorted_cam.convention != 'opencv':
@@ -144,9 +146,8 @@ def undistort_points(
     shape_backup = points.shape
     # opencv expects (n, 1, 2)
     points = points.reshape(-1, 1, 2)
-    corrected_points = np.zeros_like(points)
     corrected_points = cv2.undistortPoints(
-        points,
+        points.astype(np.float64),
         cameraMatrix=distorted_intrinsic33,
         distCoeffs=dist_coeff_np,
         P=corrected_intrinsic33)

@@ -1,8 +1,14 @@
-from typing import Union
+from typing import List, Union
 
 import cv2
 import numpy as np
 
+from xrprimer.data_structure.camera import (
+    FisheyeCameraParameter,
+    PinholeCameraParameter,
+)
+from xrprimer.transform.camera.distortion import undistort_points
+from ..projection.opencv_projector import OpencvProjector
 from .base_triangulator import BaseTriangulator
 
 try:
@@ -48,10 +54,10 @@ class OpencvTriangulator(BaseTriangulator):
         Args:
             points (Union[np.ndarray, list, tuple]):
                 An ndarray or a nested list of points2d, in shape
-                [view_number, point_number 2].
+                [n_view, n_point 2].
             points_mask (Union[np.ndarray, list, tuple], optional):
                 An ndarray or a nested list of mask, in shape
-                [view_number, point_number 1].
+                [n_view, n_point 1].
                 If points_mask[index] == 1, points[index] is valid
                 for triangulation, else it is ignored.
                 If points_mask[index] == np.nan, the whole pair will
@@ -61,25 +67,32 @@ class OpencvTriangulator(BaseTriangulator):
         Returns:
             np.ndarray:
                 An ndarray of points3d, in shape
-                [point_number, 3].
+                [n_point, 3].
         """
         assert len(points) == len(self.camera_parameters)
         points = np.array(points)
-        # TODO: undistort
+        undistorted_cam_list = []
+        for view_idx, view_cam in enumerate(self.camera_parameters):
+            if isinstance(view_cam, FisheyeCameraParameter):
+                undistorted_cam, points[view_idx, ...] = undistort_points(
+                    distorted_cam=view_cam, points=points[view_idx, ...])
+                undistorted_cam_list.append(undistorted_cam)
+            else:
+                undistorted_cam_list.append(view_cam)
+        triangulation_mat = self.__class__.prepare_triangulation_mat(
+            undistorted_cam_list)
         if points_mask is not None:
             points_mask = np.array(points_mask)
         else:
             points_mask = np.ones_like(points[:, :, :1])
-        triangulation_mat = self.__prepare_triangulation_mat__()
-        view_number = len(self.camera_parameters)
-        point_number = points.shape[1]
-        pair_number = int(view_number * (view_number - 1) / 2)
-        triangulation_results = np.zeros(shape=(pair_number, point_number, 3))
-        triangulation_result_mask = np.zeros(
-            shape=(pair_number, point_number, 1))
+        n_view = len(self.camera_parameters)
+        n_point = points.shape[1]
+        n_pair = int(n_view * (n_view - 1) / 2)
+        triangulation_results = np.zeros(shape=(n_pair, n_point, 3))
+        triangulation_result_mask = np.zeros(shape=(n_pair, n_point, 1))
         pair_count = 0
-        for view_index_0 in range(view_number):
-            for view_index_1 in range(view_index_0 + 1, view_number, 1):
+        for view_index_0 in range(n_view):
+            for view_index_1 in range(view_index_0 + 1, n_view, 1):
                 # if mask of one point is 0 or nan,
                 # the pair fails(masked by nan)
                 pair_mask = points_mask[view_index_0, ...] * \
@@ -126,10 +139,10 @@ class OpencvTriangulator(BaseTriangulator):
         Args:
             points (Union[np.ndarray, list, tuple]):
                 An ndarray or a nested list of points2d, in shape
-                [view_number, 2].
+                [n_view, 2].
             points_mask (Union[np.ndarray, list, tuple], optional):
                 An ndarray or a nested list of mask, in shape
-                [view_number, 1].
+                [n_view, 1].
                 If points_mask[index] == 1, points[index] is valid
                 for triangulation, else it is ignored.
                 Defaults to None.
@@ -141,17 +154,26 @@ class OpencvTriangulator(BaseTriangulator):
         """
         assert len(points) == len(self.camera_parameters)
         points = np.array(points)
+        undistorted_cam_list = []
+        for view_idx, view_cam in enumerate(self.camera_parameters):
+            if isinstance(view_cam, FisheyeCameraParameter):
+                undistorted_cam, points[view_idx, ...] = undistort_points(
+                    distorted_cam=view_cam, points=points[view_idx, ...])
+                undistorted_cam_list.append(undistorted_cam)
+            else:
+                undistorted_cam_list.append(view_cam)
+        triangulation_mat = self.__class__.prepare_triangulation_mat(
+            undistorted_cam_list)
         if points_mask is not None:
             points_mask = np.array(points_mask)
         else:
             points_mask = np.ones_like(points[:, :1])
-        triangulation_mat = self.__prepare_triangulation_mat__()
-        view_number = len(self.camera_parameters)
+        n_view = len(self.camera_parameters)
         triangulation_results = []
-        for view_index_0 in range(view_number):
+        for view_index_0 in range(n_view):
             if points_mask[view_index_0, 0] != 1:
                 continue
-            for view_index_1 in range(view_index_0 + 1, view_number, 1):
+            for view_index_1 in range(view_index_0 + 1, n_view, 1):
                 if points_mask[view_index_1, 0] != 1:
                     continue
                 point4d_hom = cv2.triangulatePoints(
@@ -180,47 +202,6 @@ class OpencvTriangulator(BaseTriangulator):
                     f'Wrong reduction_method: {self.multiview_reduction}')
         return point3d
 
-    def __prepare_triangulation_mat__(self) -> np.ndarray:
-        """Prepare projection matrix for triangulation. According to opencv,
-
-        ProjectionMatrix = [intrinsic33] * [extrinsic_r|extrinsic_t]
-
-        Returns:
-            np.ndarray:
-                The projection matrix in shape
-                [cam_num, 3, 4].
-        """
-        triangulation_mat = np.zeros(shape=(len(self.camera_parameters), 3, 4))
-        for camera_index in range(len(self.camera_parameters)):
-            triangulation_mat[camera_index, :, :3] = np.array(
-                self.camera_parameters[camera_index].get_extrinsic_r(
-                )).reshape(3, 3)
-            triangulation_mat[camera_index, :, 3:] = np.array(
-                self.camera_parameters[camera_index].get_extrinsic_t(
-                )).reshape(3, 1)
-            triangulation_mat[camera_index] = np.matmul(
-                np.array(self.camera_parameters[camera_index].get_intrinsic(
-                    k_dim=3)), triangulation_mat[camera_index])
-        return triangulation_mat
-
-    def __prepare_distortion__(self) -> list:
-        """Prepare distortion argument for opencv.
-
-        Returns:
-            list: list of distCoeffs, len(list) == cam_num.
-        """
-        distortion_list = []
-        for cam_param in self.camera_parameters:
-            if hasattr(cam_param, 'k1'):
-                dist_coeffs = np.array([
-                    cam_param.k1, cam_param.k2, cam_param.p1, cam_param.p2,
-                    cam_param.k3, cam_param.k4, cam_param.k5, cam_param.k6
-                ])
-            else:
-                dist_coeffs = 0.0
-            distortion_list.append(dist_coeffs)
-        return distortion_list
-
     def get_reprojection_error(
             self,
             points2d: Union[np.ndarray, list, tuple],
@@ -232,13 +213,13 @@ class OpencvTriangulator(BaseTriangulator):
         Args:
             points2d (Union[np.ndarray, list, tuple]):
                 An ndarray or a nested list of points2d, in shape
-                [view_number, point_number, 2].
+                [n_view, n_point, 2].
             points3d (Union[np.ndarray, list, tuple]):
                 An ndarray or a nested list of points3d, in shape
-                [point_number, 3].
+                [n_point, 3].
             points_mask (Union[np.ndarray, list, tuple], optional):
                 An ndarray or a nested list of mask, in shape
-                [view_number, point_number, 1].
+                [n_view, n_point, 1].
                 If points_mask[index] == 1, points[index] is valid
                 for triangulation, else it is ignored.
                 If points_mask[index] == np.nan, the whole pair will
@@ -247,37 +228,26 @@ class OpencvTriangulator(BaseTriangulator):
 
         Returns:
             np.ndarray:
-                An ndarray in shape [view_number, point_number, 2],
+                An ndarray in shape [n_view, n_point, 2],
                 record offset alone x, y axis of each point2d.
         """
-        distortion_list = self.__prepare_distortion__()
-        points3d = points3d.copy().reshape(-1, 3)
+        projector = self.get_projector()
+        points3d = np.array(points3d).reshape(-1, 3)
         points2d_shape_backup = points2d.shape
-        view_number = points2d_shape_backup[0]
-        points2d = points2d.copy().reshape(view_number, -1, 2)
+        n_view = points2d_shape_backup[0]
+        points2d = np.array(points2d).reshape(n_view, -1, 2)
         if points_mask is None:
             points_mask = np.ones_like(points2d[..., :1])
-        points_mask = points_mask.copy().reshape(view_number, -1, 1)
-        projected_error = np.zeros_like(points2d)
-        for camera_index in range(len(self.camera_parameters)):
-            cam_param = self.camera_parameters[camera_index]
-            r_mat = np.array(cam_param.get_extrinsic_r()).astype(
-                points3d.dtype)
-            t_vec = np.array(cam_param.get_extrinsic_t()).astype(
-                points3d.dtype)
-            k_mat = np.array(cam_param.get_intrinsic(3)).astype(points3d.dtype)
-            projected_points, _ = cv2.projectPoints(
-                objectPoints=points3d,
-                rvec=r_mat,
-                tvec=t_vec,
-                cameraMatrix=k_mat,
-                distCoeffs=distortion_list[camera_index])
-            projected_points = projected_points.reshape(-1, 2)
-            projected_error[camera_index, :, :] = \
-                projected_points - points2d[camera_index, :, :]
+        points_mask = np.array(points_mask).reshape(n_view, -1, 1)
+        projected_points = projector.project(points3d)
+        projected_error = projected_points - points2d
         points_mask = np.repeat(points_mask, 2, axis=2)
         projected_error = projected_error * points_mask
         return projected_error
+
+    def get_projector(self) -> OpencvProjector:
+        projector = OpencvProjector(camera_parameters=self.camera_parameters)
+        return projector
 
     def __getitem__(self, index: Union[slice, int, list, tuple]):
         """Slice the triangulator by batch dim.
@@ -296,3 +266,34 @@ class OpencvTriangulator(BaseTriangulator):
             camera_parameters=new_cam_param_list,
             multiview_reduction=self.multiview_reduction)
         return new_triangulator
+
+    @classmethod
+    def prepare_triangulation_mat(
+            cls,
+            camera_parameters: List[PinholeCameraParameter]) -> np.ndarray:
+        """Prepare projection matrix for triangulation. According to opencv,
+
+        ProjectionMatrix = [intrinsic33] * [extrinsic_r|extrinsic_t]
+
+        Args:
+            camera_parameters (List[PinholeCameraParameter]):
+                A list of pinhole camera parameters.
+
+        Returns:
+            np.ndarray:
+                The projection matrix in shape
+                [n_camera, 3, 4].
+        """
+        triangulation_mat = np.zeros(shape=(len(camera_parameters), 3, 4))
+        for camera_index in range(len(camera_parameters)):
+            triangulation_mat[camera_index, :, :3] = np.array(
+                camera_parameters[camera_index].get_extrinsic_r()).reshape(
+                    3, 3)
+            triangulation_mat[camera_index, :, 3:] = np.array(
+                camera_parameters[camera_index].get_extrinsic_t()).reshape(
+                    3, 1)
+            triangulation_mat[camera_index] = np.matmul(
+                np.array(
+                    camera_parameters[camera_index].get_intrinsic(k_dim=3)),
+                triangulation_mat[camera_index])
+        return triangulation_mat

@@ -9,5 +9,5 @@ TRIANGULATORS.register_module(
 
 
 def build_triangulator(cfg) -> BaseTriangulator:
-    """Build detector."""
+    """Build triangulator."""
     return TRIANGULATORS.build(cfg)

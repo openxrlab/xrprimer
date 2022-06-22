@@ -17,7 +17,7 @@ a. Assign camera  parameters manually.
 from xrprimer.data_structure.camera.pinhole_camera import PinholeCameraParameter
 
 cam_param_list = []
-for kinect_index in range(view_number):
+for kinect_index in range(n_view):
     cam_param = PinholeCameraParameter(
     	name=f'cam_{kinect_index:02d}',
     	world2cam=True)
@@ -35,7 +35,7 @@ b. Load dumped camera  parameter files.
 from xrprimer.data_structure.camera.pinhole_camera import PinholeCameraParameter
 
 cam_param_list = []
-for kinect_index in range(view_number):
+for kinect_index in range(n_view):
     cam_param_path = os.path.join(input_dir,
                                     f'cam_{kinect_index:02d}.json')
     cam_param = PinholeCameraParameter()
@@ -68,7 +68,7 @@ triangulator = build_triangulator(triangulator_config)
 If there's only one point in 3D space, we could use `triangulate_single_point()`.
 
 ```python
-# points2d in shape [view_number, 2], in type numpy.ndarray, or nested list/tuple
+# points2d in shape [n_view, 2], in type numpy.ndarray, or nested list/tuple
 point3d = triangulator.triangulate_single_point(points2d)
 # points3d in shape [3, ], in type numpy.ndarray
 ```
@@ -76,15 +76,15 @@ point3d = triangulator.triangulate_single_point(points2d)
 For more than one point, `triangulate()` is recommended.
 
 ```python
-# points2d in shape [view_number, point_number, 2], in type numpy.ndarray, or nested list/tuple
+# points2d in shape [n_view, n_point, 2], in type numpy.ndarray, or nested list/tuple
 point3d = triangulator.triangulate(points2d)
-# points3d in shape [point_number, 3], in type numpy.ndarray
+# points3d in shape [n_point, 3], in type numpy.ndarray
 ```
 
 In multi-view scenario, not every view is helpful. To filter the good sources in 2D space, `points_mask` is introduced.
 
 ```python
-# points_mask in shape [view_number, point_number 1]
+# points_mask in shape [n_view, n_point 1]
 # 			point0			point1		point2
 # view0		0				nan			1
 # view1		1				nan			1
