@@ -1,6 +1,7 @@
 import os
 import shutil
 
+import cv2
 import numpy as np
 import pytest
 
@@ -30,82 +31,100 @@ def fixture():
 def test_undistort_camera():
     # test only distort camera parameter
     input_json_path = os.path.join(input_dir, 'fisheye_param_at_origin.json')
-    fisheye_cam_param = FisheyeCameraParameter(name='distort')
-    fisheye_cam_param.load(input_json_path)
-    intrinsic_backup = np.asarray(fisheye_cam_param.get_intrinsic())
-    new_camera_param = undistort_camera(distorted_cam=fisheye_cam_param)
-    assert isinstance(new_camera_param, PinholeCameraParameter)
+    fisheye_param = FisheyeCameraParameter(name='distort')
+    fisheye_param.load(input_json_path)
+    intrinsic_backup = np.asarray(fisheye_param.get_intrinsic())
+    new_cam_param = undistort_camera(distorted_cam=fisheye_param)
+    assert isinstance(new_cam_param, PinholeCameraParameter)
     # test input not changed
     assert np.all(
-        intrinsic_backup == np.asarray(fisheye_cam_param.get_intrinsic()))
+        intrinsic_backup == np.asarray(fisheye_param.get_intrinsic()))
     # test raises
-    pytorch3d_cam = fisheye_cam_param.clone()
+    pytorch3d_cam = fisheye_param.clone()
     pytorch3d_cam.convention = 'pytorch3d'
     with pytest.raises(NotImplementedError):
-        new_camera_param, new_img = undistort_camera(
-            distorted_cam=pytorch3d_cam)
+        new_cam_param, new_img = undistort_camera(distorted_cam=pytorch3d_cam)
     omni_cam = OmniCameraParameter(convention='opencv')
     with pytest.raises(AssertionError):
-        new_camera_param = undistort_camera(distorted_cam=omni_cam)
+        new_cam_param = undistort_camera(distorted_cam=omni_cam)
 
 
 def test_undistort_images():
-    input_json_path = os.path.join(input_dir, 'fisheye_param_at_origin.json')
-    fisheye_cam_param = FisheyeCameraParameter(name='distort')
-    fisheye_cam_param.load(input_json_path)
-    intrinsic_backup = np.asarray(fisheye_cam_param.get_intrinsic())
-    test_image = np.ones(
-        shape=[2, fisheye_cam_param.height, fisheye_cam_param.width, 3],
-        dtype=np.uint8)
-    image_backup = test_image.copy()
-    new_camera_param, new_img = undistort_images(
-        distorted_cam=fisheye_cam_param, image_array=test_image)
+    fisheye_param = FisheyeCameraParameter(name='distort')
+    fisheye_param.load(os.path.join(input_dir, 'dist_fisheye_param.json'))
+    intrinsic_backup = np.asarray(fisheye_param.get_intrinsic())
+    test_img = cv2.imread(filename=os.path.join(input_dir, 'dist_img.png'))
+    test_imgs = np.expand_dims(test_img, axis=0)
+    test_imgs = np.repeat(test_imgs, 2, axis=0)
+    img_backup = test_img.copy()
+    new_cam_param, new_img = undistort_images(
+        distorted_cam=fisheye_param, image_array=test_imgs)
     # test input not changed
     assert np.all(
-        intrinsic_backup == np.asarray(fisheye_cam_param.get_intrinsic()))
-    assert np.all(image_backup == test_image)
+        intrinsic_backup == np.asarray(fisheye_param.get_intrinsic()))
+    assert np.all(img_backup == test_imgs)
     # test output
-    assert isinstance(new_camera_param, PinholeCameraParameter)
-    assert np.all(new_img.shape == test_image.shape)
+    assert isinstance(new_cam_param, PinholeCameraParameter)
+    assert np.all(new_img.shape == test_imgs.shape)
+    undist_img = new_img[0]
+    cv2.imwrite(
+        filename=os.path.join(output_dir, 'undist_img.jpg'), img=undist_img)
     # test raises
-    pytorch3d_cam = fisheye_cam_param.clone()
+    pytorch3d_cam = fisheye_param.clone()
     pytorch3d_cam.convention = 'pytorch3d'
     with pytest.raises(NotImplementedError):
-        new_camera_param, new_img = undistort_images(
-            distorted_cam=pytorch3d_cam, image_array=test_image)
+        new_cam_param, new_img = undistort_images(
+            distorted_cam=pytorch3d_cam, image_array=test_imgs)
 
 
 def test_undistort_points():
-    input_json_path = os.path.join(input_dir, 'fisheye_param_at_origin.json')
-    fisheye_cam_param = FisheyeCameraParameter(name='distort')
-    fisheye_cam_param.load(input_json_path)
-    intrinsic_backup = np.asarray(fisheye_cam_param.get_intrinsic())
-    test_points = np.ones(shape=[10, 2])
-    points_backup = test_points.copy()
-    new_camera_param, new_points = undistort_points(
-        distorted_cam=fisheye_cam_param, points=test_points)
+    fisheye_param = FisheyeCameraParameter(name='distort')
+    fisheye_param.load(os.path.join(input_dir, 'dist_fisheye_param.json'))
+    intrinsic_backup = np.asarray(fisheye_param.get_intrinsic())
+    corners_points = np.array([[791, 78], [1196, 19], [1215, 494], [1167, 534],
+                               [851, 529], [808, 491]],
+                              dtype=np.int32)
+    points_backup = corners_points.copy()
+    new_cam_param, new_points = undistort_points(
+        distorted_cam=fisheye_param, points=corners_points)
     # test input not changed
     assert np.all(
-        intrinsic_backup == np.asarray(fisheye_cam_param.get_intrinsic()))
-    assert np.all(points_backup == test_points)
+        intrinsic_backup == np.asarray(fisheye_param.get_intrinsic()))
+    assert np.all(points_backup == corners_points)
     # test output
-    assert isinstance(new_camera_param, PinholeCameraParameter)
-    assert np.all(new_points.shape == test_points.shape)
+    assert isinstance(new_cam_param, PinholeCameraParameter)
+    assert np.all(new_points.shape == corners_points.shape)
+    # visualize results
+    distort_img = cv2.imread(filename=os.path.join(input_dir, 'dist_img.png'))
+    _, new_img = undistort_images(
+        distorted_cam=fisheye_param,
+        image_array=np.expand_dims(distort_img, axis=0))
+    for point in corners_points.astype(np.int32):
+        cv2.circle(img=distort_img, center=point, radius=3, color=(0, 0, 255))
+    cv2.imwrite(
+        filename=os.path.join(output_dir, 'dist_img_with_points.jpg'),
+        img=distort_img)
+    new_img = new_img[0]
+    for point in new_points.astype(np.int32):
+        cv2.circle(img=new_img, center=point, radius=3, color=(0, 0, 255))
+    cv2.imwrite(
+        filename=os.path.join(output_dir, 'undist_img_with_points.jpg'),
+        img=new_img)
     # test another shape
     test_points = np.ones(shape=[4, 3, 2, 2])
     points_backup = test_points.copy()
-    new_camera_param, new_points = undistort_points(
-        distorted_cam=fisheye_cam_param, points=test_points)
+    new_cam_param, new_points = undistort_points(
+        distorted_cam=fisheye_param, points=test_points)
     # test input not changed
     assert np.all(
-        intrinsic_backup == np.asarray(fisheye_cam_param.get_intrinsic()))
+        intrinsic_backup == np.asarray(fisheye_param.get_intrinsic()))
     assert np.all(points_backup == test_points)
     # test output
-    assert isinstance(new_camera_param, PinholeCameraParameter)
+    assert isinstance(new_cam_param, PinholeCameraParameter)
     assert np.all(new_points.shape == test_points.shape)
     # test raises
-    pytorch3d_cam = fisheye_cam_param.clone()
+    pytorch3d_cam = fisheye_param.clone()
     pytorch3d_cam.convention = 'pytorch3d'
     with pytest.raises(NotImplementedError):
-        new_camera_param, new_points = undistort_points(
+        new_cam_param, new_points = undistort_points(
             distorted_cam=pytorch3d_cam, points=test_points)

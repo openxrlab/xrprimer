@@ -5,19 +5,18 @@ from typing import List, Union
 import numpy as np
 
 from xrprimer.data_structure.camera import PinholeCameraParameter
-from ..projection.base_projector import BaseProjector
 
 # yapf: enable
 
 
-# Super class of all triangulators, cannot be built
-class BaseTriangulator:
+# Super class of all projectors, cannot be built
+class BaseProjector:
     CAMERA_CONVENTION = 'opencv'
 
     def __init__(
             self, camera_parameters: List[Union[PinholeCameraParameter,
                                                 str]]) -> None:
-        """BaseTriangulator for points triangulation.
+        """BaseProjector for points projection.
 
         Args:
             camera_parameters (List[Union[PinholeCameraParameter, str]]):
@@ -39,7 +38,7 @@ class BaseTriangulator:
     def set_cameras(
             self, camera_parameters: List[Union[PinholeCameraParameter,
                                                 str]]) -> None:
-        """Set cameras for this triangulator.
+        """Set cameras for this projector.
 
         Args:
             camera_parameters (List[Union[PinholeCameraParameter, str]]):
@@ -65,88 +64,43 @@ class BaseTriangulator:
                 raise NotImplementedError
             self.camera_parameters.append(cam_param)
 
-    def triangulate(
+    def project(
             self,
             points: Union[np.ndarray, list, tuple],
             points_mask: Union[np.ndarray, list, tuple] = None) -> np.ndarray:
-        """Triangulate points with self.camera_parameters.
+        """Project points with self.camera_parameters.
 
         Args:
             points (Union[np.ndarray, list, tuple]):
-                An ndarray or a nested list of points2d, in shape
-                [n_view, n_point 2].
-            points_mask (Union[np.ndarray, list, tuple], optional):
-                An ndarray or a nested list of mask, in shape
-                [n_view, n_point 1].
-                If points_mask[index] == 1, points[index] is valid
-                for triangulation, else it is ignored.
-                If points_mask[index] == np.nan, the whole pair will
-                be ignored and not counted by any method.
-                Defaults to None.
-
-        Returns:
-            np.ndarray:
-                An ndarray of points3d, in shape
-                [n_point, 3].
-        """
-        raise NotImplementedError
-
-    def triangulate_single_point(
-            self,
-            points: Union[np.ndarray, list, tuple],
-            points_mask: Union[np.ndarray, list, tuple] = None) -> np.ndarray:
-        """Triangulate a single point with self.camera_parameters.
-
-        Args:
-            points (Union[np.ndarray, list, tuple]):
-                An ndarray or a nested list of points2d, in shape
-                [n_view, 2].
-            points_mask (Union[np.ndarray, list, tuple], optional):
-                An ndarray or a nested list of mask, in shape
-                [n_view, 1].
-                If points_mask[index] == 1, points[index] is valid
-                for triangulation, else it is ignored.
-                Defaults to None.
-
-        Returns:
-            np.ndarray:
-                An ndarray of points3d, in shape
-                [3, ].
-        """
-        raise NotImplementedError
-
-    def get_projector(self) -> BaseProjector:
-        projector = BaseProjector(camera_parameters=self.camera_parameters)
-        return projector
-
-    def get_reprojection_error(
-            self,
-            points2d: Union[np.ndarray, list, tuple],
-            points3d: Union[np.ndarray, list, tuple],
-            points_mask: Union[np.ndarray, list, tuple] = None) -> np.ndarray:
-        """Get reprojection error between reprojected points2d and input
-        points2d.
-
-        Args:
-            points2d (Union[np.ndarray, list, tuple]):
-                An ndarray or a nested list of points2d, in shape
-                [n_view, n_point, 2].
-            points3d (Union[np.ndarray, list, tuple]):
                 An ndarray or a nested list of points3d, in shape
                 [n_point, 3].
             points_mask (Union[np.ndarray, list, tuple], optional):
                 An ndarray or a nested list of mask, in shape
-                [n_view, n_point, 1].
+                [n_point, 1].
                 If points_mask[index] == 1, points[index] is valid
-                for triangulation, else it is ignored.
-                If points_mask[index] == np.nan, the whole pair will
-                be ignored and not counted by any method.
+                for projection, else it is ignored.
                 Defaults to None.
 
         Returns:
             np.ndarray:
-                An ndarray in shape [n_view, n_point, 2],
-                record offset alone x, y axis of each point2d.
+                An ndarray of points2d, in shape
+                [n_view, n_point, 2].
+        """
+        raise NotImplementedError
+
+    def project_single_point(
+            self, points: Union[np.ndarray, list, tuple]) -> np.ndarray:
+        """Project a single point with self.camera_parameters.
+
+        Args:
+            points (Union[np.ndarray, list, tuple]):
+                An ndarray or a list of points3d, in shape
+                [3].
+
+        Returns:
+            np.ndarray:
+                An ndarray of points2d, in shape
+                [n_view, 2].
         """
         raise NotImplementedError
 
@@ -176,18 +130,19 @@ class BaseTriangulator:
         new_cam_param_list = list(new_cam_param_list)
         return new_cam_param_list
 
-    def __getitem__(self, index: Union[slice, int, list, tuple]):
-        """Slice the triangulator by batch dim.
+    def __getitem__(self, index: Union[slice, int, list,
+                                       tuple]) -> 'BaseProjector':
+        """Slice the projector by batch dim.
 
         Args:
             index (Union[slice, int, list, tuple]):
                 The index for slicing.
 
         Returns:
-            Triangulator:
-                A sliced Triangulator of origin class,
+            BaseProjector:
+                A sliced Projector of origin class,
                 with selected cameras.
         """
         new_cam_param_list = self.__get_camera_parameters_slice__(index)
-        new_triangulator = self.__class__(camera_parameters=new_cam_param_list)
-        return new_triangulator
+        new_projector = self.__class__(camera_parameters=new_cam_param_list)
+        return new_projector
