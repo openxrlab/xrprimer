@@ -27,12 +27,18 @@ static void SaveMatrixToJson(Json::Value &obj, const std::string &key, T mat) {
 }
 
 template <typename T>
-static void LoadMatrixFromJson(const Json::Value &obj, const std::string &key,
+static bool LoadMatrixFromJson(const Json::Value &obj, const std::string &key,
                                T &mat) {
     int rows = mat.rows();
     int cols = mat.cols();
 
     Json::Value array = obj[key];
+
+    if (array.empty()) {
+        std::cerr << "Not found key:[" << key << "] in json file" << std::endl;
+        return false;
+    }
+
     if (cols == 1) {
         for (int r = 0; r < rows; r++) {
             mat(r, 0) = array[r].asFloat();
@@ -45,6 +51,7 @@ static void LoadMatrixFromJson(const Json::Value &obj, const std::string &key,
             }
         }
     }
+    return true;
 }
 
 static void SaveBaseCameraParameter(Json::Value &obj,
@@ -64,9 +71,11 @@ static bool LoadBaseCameraParameter(const Json::Value &obj,
                                     BaseCameraParameter &param) {
 
     std::string cls_name = obj["class_name"].asString();
+    bool ret = false;
+
     if (cls_name != "" && cls_name != param.ClassName()) {
         std::cerr << "Invalid " << param.ClassName() << " format json file\n";
-        return false;
+        return ret;
     }
 
     param.name_ = obj["name"].asString();
@@ -75,10 +84,10 @@ static bool LoadBaseCameraParameter(const Json::Value &obj,
     param.convention_ = obj["convention"].asString();
     param.world2cam_ = obj["world2cam"].asBool();
 
-    LoadMatrixFromJson(obj, "intrinsic", param.intrinsic_);
-    LoadMatrixFromJson(obj, "extrinsic_r", param.extrinsic_r_);
-    LoadMatrixFromJson(obj, "extrinsic_t", param.extrinsic_t_);
-    return true;
+    ret = LoadMatrixFromJson(obj, "intrinsic", param.intrinsic_);
+    ret &= LoadMatrixFromJson(obj, "extrinsic_r", param.extrinsic_r_);
+    ret &= LoadMatrixFromJson(obj, "extrinsic_t", param.extrinsic_t_);
+    return ret;
 }
 
 static std::string JsonToString(const Json::Value &obj) {
@@ -109,3 +118,13 @@ static bool JsonFromFile(Json::Value &obj, const std::string &filename) {
     std::cerr << "Parse Failed!, filename: " << filename << std::endl;
     return false;
 }
+
+static bool check_and_load_float(float *val, const Json::Value &obj,
+                                 const std::string &key) {
+    if (obj[key].empty()) {
+        std::cerr << "Not found key:[" << key << "] in json file" << std::endl;
+        return false;
+    }
+    *val = obj[key].asFloat();
+    return true;
+};
