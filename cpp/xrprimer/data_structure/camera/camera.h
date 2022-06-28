@@ -13,7 +13,8 @@ class XRPRIMER_EXPORT BaseCameraParameter {
     virtual ~BaseCameraParameter() = default;
 
     BaseCameraParameter()
-        : BaseCameraParameter(Eigen::Matrix4f::Zero(), Eigen::Matrix3f::Zero(),
+        : BaseCameraParameter(Eigen::Matrix4f::Zero(),
+                              Eigen::Matrix3f::Identity(),
                               Eigen::Vector3f::Zero()) {}
 
     BaseCameraParameter(const std::string &name, int width, int height,

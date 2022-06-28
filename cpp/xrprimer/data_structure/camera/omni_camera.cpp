@@ -33,19 +33,21 @@ bool OmniCameraParameter::SaveFile(const std::string &filename) const {
 
 bool OmniCameraParameter::LoadFile(const std::string &filename) {
     Json::Value obj;
+    bool ret = false;
 
     if (JsonFromFile(obj, filename)) {
-        LoadBaseCameraParameter(obj, *this);
-        k1_ = obj["k1"].asFloat();
-        k2_ = obj["k2"].asFloat();
-        k3_ = obj["k3"].asFloat();
-        k4_ = obj["k4"].asFloat();
-        k5_ = obj["k5"].asFloat();
-        k6_ = obj["k6"].asFloat();
-        p1_ = obj["p1"].asFloat();
-        p2_ = obj["p2"].asFloat();
-        xi_ = obj["xi"].asFloat();
-        LoadMatrixFromJson(obj, "D", D_);
+        ret = LoadBaseCameraParameter(obj, *this);
+        ret &= check_and_load_float(&k1_, obj, "k1");
+        ret &= check_and_load_float(&k2_, obj, "k2");
+        ret &= check_and_load_float(&k3_, obj, "k3");
+        ret &= check_and_load_float(&k4_, obj, "k4");
+        ret &= check_and_load_float(&k5_, obj, "k5");
+        ret &= check_and_load_float(&k6_, obj, "k6");
+        ret &= check_and_load_float(&p1_, obj, "p1");
+        ret &= check_and_load_float(&p2_, obj, "p2");
+        ret &= check_and_load_float(&xi_, obj, "xi");
+        ret &= LoadMatrixFromJson(obj, "D", D_);
+        return ret;
     }
     return false;
 }
