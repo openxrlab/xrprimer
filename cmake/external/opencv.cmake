@@ -14,7 +14,7 @@ if(NOT opencv_POPULATED)
     FetchContent_Populate(opencv)
     # cmake 3.13
     set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-    
+
     set(WITH_1394 OFF)
     set(WITH_ADE OFF)
     set(WITH_EIGEN ON)
@@ -90,10 +90,10 @@ if(NOT opencv_POPULATED)
     set(BUILD_EXAMPLES OFF)
     set(BUILD_TESTS OFF)
     set(BUILD_opencv_apps OFF)
-    
+
     add_subdirectory(${opencv_SOURCE_DIR} ${opencv_BINARY_DIR})
-    
-    
+
+
     set(OpenCV_INCLUDE_DIRS )
     list(APPEND OpenCV_INCLUDE_DIRS ${OPENCV_CONFIG_FILE_INCLUDE_DIR}/)
     list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/calib3d/include)
@@ -113,12 +113,3 @@ if(NOT opencv_POPULATED)
     list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/videoio/include)
     include_directories(${OpenCV_INCLUDE_DIRS})
 endif()
-
-
-
-
-
-
-
-
-

@@ -27,5 +27,3 @@ if(NOT ceres_POPULATED)
     execute_process(COMMAND git reset --hard WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/_ext/ceres-solver)
     add_subdirectory(${ceres_SOURCE_DIR} ${ceres_BINARY_DIR})
 endif()
-
-

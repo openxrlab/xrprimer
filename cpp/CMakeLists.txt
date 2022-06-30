@@ -4,7 +4,7 @@
 add_subdirectory(xrprimer)
 
 #
-# python bindding 
+# python bindding
 #
 if(PYTHON_BINDING)
     add_subdirectory(pybind)
@@ -16,5 +16,3 @@ endif()
 if(ENABLE_TEST)
     add_subdirectory(tests)
 endif()
-
-

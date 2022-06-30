@@ -19,7 +19,7 @@ if(BUILD_EXTERNAL)
 
         set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
         set(INSTALL_GTEST     OFF)
-        
+
         add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
         target_compile_options(gtest PRIVATE -Wno-maybe-uninitialized)
     endif()
@@ -37,4 +37,3 @@ function(xr_add_test target)
     endif()
     set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 endfunction()
-

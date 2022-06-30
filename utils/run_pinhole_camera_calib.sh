@@ -8,8 +8,4 @@ cmake --build build -j$(nproc)
 cd build
 wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
 ln -sfn xrprimer/test test
-./bin/ut_test
-
-
-
-
+./bin/test_calibrator

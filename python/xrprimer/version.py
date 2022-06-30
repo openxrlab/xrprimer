@@ -1,6 +1,10 @@
 # Copyright (c) OpenXRLab. All rights reserved.
-
-__version__ = '0.1.0'
+from xrprimer_cpp.common import (
+    get_version_major,
+    get_version_minor,
+    get_version_patch,
+    get_version_string,
+)
 
 
 def parse_version_info(version_str):
@@ -23,6 +27,7 @@ def parse_version_info(version_str):
     return tuple(version_info)
 
 
-version_info = parse_version_info(__version__)
+__version__ = get_version_string()
+version_info = (get_version_major(), get_version_minor(), get_version_patch())
 
 __all__ = ['__version__', 'version_info', 'parse_version_info']

@@ -4,13 +4,16 @@
 ## Quick Start
 
 ### Requirements
-+ C++11 or later compiler
++ C++14 or later compiler
++ GCC 7.5+
 + CMake 3.15+
-+ Conan [option]
+
+Optional:
++ [Conan](https://docs.conan.io/en/1.46/installation.html) (for using pre-built 3rd-party libraries)
     ``` bash
     # config
-    # 1. first run 
-    conan profile new --detect --force default 
+    # 1. first run
+    conan profile new --detect --force default
     conan profile update settings.compiler.libcxx=libstdc++11 default
 
     # 2. add conan registry
@@ -30,6 +33,9 @@ Theoretically it can compile on Linux or Macos or Windows, Currently tested on L
 # export HTTP_PROXY=http://proxy.sensetime.com:3128/
 # export HTTPS_PROXY=http://proxy.sensetime.com:3128/
 
+git clone git@gitlab.bj.sensetime.com:openxrlab/xrprimer.git
+cd xrprimer/
+
 cmake -S. -Bbuild [Compilation options]
 cmake --build build --target install -j4
 ```
@@ -42,12 +48,12 @@ cmake --build build --target install -j4
 
 
 ```bash
-# build external from source 
-cmake -S. -Bbuild -DBUILD_EXTERNAL=ON -DCMAKE_BUILD_TYPE=Release 
-cmake --build build --target install 
+# build external from source
+cmake -S. -Bbuild -DBUILD_EXTERNAL=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target install
 
 # use conan for external
-cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release 
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target install
 ```
 
@@ -64,7 +70,7 @@ cmake --build build -j4
 cd build
 wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
 ln -sfn xrprimer/test test
-./bin/ut_test
+./bin/test_calibrator
 ```
 
 Python library
@@ -74,7 +80,7 @@ cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j4
 cd build
 wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
-PYTHONPATH=./lib/ python ../cpp/tests/test_multi_camera_calibrator.py
+PYTHONPATH=./cpp/pybind/ python ../cpp/tests/test_multi_camera_calibrator.py
 ```
 
 ## How use in C++ projects
@@ -95,4 +101,3 @@ add_executable(sample sample.cpp)
 target_link_libraries(sample XRPrimer::xrprimer)
 
 ```
-

@@ -12,35 +12,41 @@
 #include <xrprimer_export.h>
 
 XRPRIMER_EXPORT
-void CalibrateMultiPinholeCamera(const std::string &calib_config_json,
-                                 const std::vector<std::vector<std::string>> &img_groups, // frames/cameras/path
-                                 std::vector<PinholeCameraParameter> &pinhole_params) {
+void CalibrateMultiPinholeCamera(
+    const std::string &calib_config_json,
+    const std::vector<std::vector<std::string>>
+        &img_groups, // frames/cameras/path
+    std::vector<PinholeCameraParameter> &pinhole_params) {
 
     MultiCalibrator calibrator(pinhole_params);
     {
-        // TODO: maybe use construtor
+        // TODO: maybe use constructor
         Json::Value calib_config; // will contains the root value after parsing.
         Json::Reader reader;
         reader.parse(calib_config_json, calib_config, false);
         int chessboard_width = calib_config["chessboard_width"].asInt();
         int chessboard_height = calib_config["chessboard_height"].asInt();
         // unit: mm
-        int chessboard_square_size = calib_config["chessboard_square_size"].asInt();
+        int chessboard_square_size =
+            calib_config["chessboard_square_size"].asInt();
 
         calibrator.pattern_size = cv::Size(chessboard_width, chessboard_height);
-        calibrator.square_size = cv::Size2f(1e-3f * chessboard_square_size, 1e-3f * chessboard_square_size);
+        calibrator.square_size = cv::Size2f(1e-3f * chessboard_square_size,
+                                            1e-3f * chessboard_square_size);
     }
 
     for (int gi = 0; gi < (int)img_groups.size(); ++gi) {
         std::cout << "Push frame idx: " << gi << std::endl;
         if (!calibrator.Push(img_groups[gi])) {
-            std::cerr << "Invalid frame idx:" << gi << ", less than 2 camera!" << std::endl;
+            std::cerr << "Invalid frame idx:" << gi << ", less than 2 camera!"
+                      << std::endl;
         }
     }
     if (!calibrator.Init()) {
-        std::cout << "ExternalCalibrator: Can't Initialize External Param for All "
-                     "Cameras!"
-                  << std::endl;
+        std::cout
+            << "ExternalCalibrator: Can't Initialize External Param for All "
+               "Cameras!"
+            << std::endl;
         return;
     }
     calibrator.OptimizeExtrinsics();

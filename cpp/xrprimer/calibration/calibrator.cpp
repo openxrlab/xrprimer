@@ -15,8 +15,10 @@
 #include <thread>
 #include <vector>
 
-static void triangulate_points(const std::vector<Eigen::Vector2f> &points2ds,
-                               const std::vector<MathUtil::Matrix34f> &projectionMatrices, Eigen::Vector3d &points3d) {
+static void
+triangulate_points(const std::vector<Eigen::Vector2f> &points2ds,
+                   const std::vector<MathUtil::Matrix34f> &projectionMatrices,
+                   Eigen::Vector3d &points3d) {
 
     if (projectionMatrices.size() < 2) {
         points3d.setZero();
@@ -26,19 +28,25 @@ static void triangulate_points(const std::vector<Eigen::Vector2f> &points2ds,
     Eigen::MatrixXd Jacobian = Eigen::MatrixXd::Zero(2 * points2ds.size(), 4);
     for (int vi = 0; vi < points2ds.size(); ++vi) {
         Jacobian.row(2 * vi) =
-            (points2ds[vi].x() * projectionMatrices[vi].row(2) - projectionMatrices[vi].row(0)).cast<double>();
+            (points2ds[vi].x() * projectionMatrices[vi].row(2) -
+             projectionMatrices[vi].row(0))
+                .cast<double>();
         Jacobian.row(2 * vi + 1) =
-            (points2ds[vi].y() * projectionMatrices[vi].row(2) - projectionMatrices[vi].row(1)).cast<double>();
+            (points2ds[vi].y() * projectionMatrices[vi].row(2) -
+             projectionMatrices[vi].row(1))
+                .cast<double>();
     }
 
-    Eigen::Vector4d triangulated_point = Jacobian.jacobiSvd(Eigen::ComputeFullV).matrixV().rightCols<1>();
+    Eigen::Vector4d triangulated_point =
+        Jacobian.jacobiSvd(Eigen::ComputeFullV).matrixV().rightCols<1>();
 
     points3d.x() = (triangulated_point.x() / triangulated_point.w());
     points3d.y() = (triangulated_point.y() / triangulated_point.w());
     points3d.z() = (triangulated_point.z() / triangulated_point.w());
 }
 
-static void findChessboardCorners(int &result, const std::string &image, cv::Size &pattern_size,
+static void findChessboardCorners(int &result, const std::string &image,
+                                  cv::Size &pattern_size,
                                   std::vector<cv::Point2f> &corners) {
 
     if (image.empty()) {
@@ -48,12 +56,15 @@ static void findChessboardCorners(int &result, const std::string &image, cv::Siz
 
     cv::Mat img_data = cv::imread(image, cv::IMREAD_GRAYSCALE);
     bool res = cv::findChessboardCorners(img_data, pattern_size, corners,
-                                         cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE |
+                                         cv::CALIB_CB_ADAPTIVE_THRESH |
+                                             cv::CALIB_CB_NORMALIZE_IMAGE |
                                              cv::CALIB_CB_FAST_CHECK);
 
     if (res) {
-        cv::cornerSubPix(img_data, corners, cv::Size(11, 11), cv::Size(-1, -1),
-                         cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 30, 0.1));
+        cv::cornerSubPix(
+            img_data, corners, cv::Size(11, 11), cv::Size(-1, -1),
+            cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER,
+                             30, 0.1));
     }
 
     result = res ? 1 : 0;
@@ -69,8 +80,10 @@ bool MultiCalibrator::Push(const std::vector<std::string> &imgs) {
     // findChessboardCorners
     int camCount = imgs.size();
     for (size_t idx = 0; idx < camCount; idx++) {
-        findThreads[idx] = std::thread(
-            [&, idx]() { findChessboardCorners(foundCorners[idx], imgs[idx], pattern_size, imageCornersList[idx]); });
+        findThreads[idx] = std::thread([&, idx]() {
+            findChessboardCorners(foundCorners[idx], imgs[idx], pattern_size,
+                                  imageCornersList[idx]);
+        });
     }
     for (size_t idx = 0; idx < camCount; idx++) {
         findThreads[idx].join();
@@ -83,7 +96,8 @@ bool MultiCalibrator::Push(const std::vector<std::string> &imgs) {
         if (foundCorners[idx]) {
             valid++;
         } else {
-            std::cout << "Not found pattern on camera idx: " << idx << std::endl;
+            std::cout << "Not found pattern on camera idx: " << idx
+                      << std::endl;
         }
     }
 
@@ -128,7 +142,8 @@ bool MultiCalibrator::Init() {
         for (int idx = 0; idx < found_corners_list.size(); idx++) {
             std::cout << "frameID: " << std::setw(2) << idx << " | "
                       << "valid:" << validCarmersCountList[idx] << " | ";
-            std::copy(found_corners_list[idx].begin(), found_corners_list[idx].end(),
+            std::copy(found_corners_list[idx].begin(),
+                      found_corners_list[idx].end(),
                       std::ostream_iterator<int>(std::cout, " "));
             std::cout << std::endl;
         }
@@ -136,7 +151,8 @@ bool MultiCalibrator::Init() {
         std::vector<cv::Point3f> p3ds;
         for (int row = 0; row < pattern_size.height; row++)
             for (int col = 0; col < pattern_size.width; col++)
-                p3ds.emplace_back(cv::Point3f(col * square_size.width, row * square_size.height, 0.f));
+                p3ds.emplace_back(cv::Point3f(col * square_size.width,
+                                              row * square_size.height, 0.f));
 
         int camId = 0;
         // camera/points
@@ -177,8 +193,9 @@ bool MultiCalibrator::Init() {
                     continue;
                 }
 
-                if (std::find(unInitCamIndexList.begin(), unInitCamIndexList.end(), camId) ==
-                    unInitCamIndexList.end()) {
+                if (std::find(unInitCamIndexList.begin(),
+                              unInitCamIndexList.end(),
+                              camId) == unInitCamIndexList.end()) {
                     initCnt++;
                 }
             }
@@ -189,26 +206,33 @@ bool MultiCalibrator::Init() {
         }
 
         if (candidateFrames.empty()) {
-            std::cout << "Cannot find enough frames to init all the cameras!!!" << std::endl;
+            std::cout << "Cannot find enough frames to init all the cameras!!!"
+                      << std::endl;
             return false; // cannot init camera
         }
 
         std::cout << "unInitCamera: ";
-        std::copy(unInitCamIndexList.begin(), unInitCamIndexList.end(), std::ostream_iterator<int>(std::cout, " "));
+        std::copy(unInitCamIndexList.begin(), unInitCamIndexList.end(),
+                  std::ostream_iterator<int>(std::cout, " "));
         std::cout << std::endl;
 
         std::cout << "candidate frame indices: \n";
 
         for (auto c : candidateFrames)
-            std::cout << "FrameIdx: " << std::setw(2) << c.second << " InitCnt: " << c.first
-                      << " valid: " << validCarmersCountList[c.second] << std::endl;
+            std::cout << "FrameIdx: " << std::setw(2) << c.second
+                      << " InitCnt: " << c.first
+                      << " valid: " << validCarmersCountList[c.second]
+                      << std::endl;
 
-        const int maxIdx = std::max_element(candidateFrames.begin(), candidateFrames.end())->second;
+        const int maxIdx =
+            std::max_element(candidateFrames.begin(), candidateFrames.end())
+                ->second;
 
         std::vector<cv::Point3f> p3ds;
         for (int row = 0; row < pattern_size.height; row++)
             for (int col = 0; col < pattern_size.width; col++)
-                p3ds.emplace_back(cv::Point3f(col * square_size.width, row * square_size.height, 0.f));
+                p3ds.emplace_back(cv::Point3f(col * square_size.width,
+                                              row * square_size.height, 0.f));
 
         // get deltaT from current coordinate to world coordinate
         Eigen::Matrix4f deltaT = Eigen::Matrix4f::Identity();
@@ -219,7 +243,8 @@ bool MultiCalibrator::Init() {
             if (iter.empty()) {
                 continue;
             }
-            if (std::find(unInitCamIndexList.begin(), unInitCamIndexList.end(), camId) == unInitCamIndexList.end()) {
+            if (std::find(unInitCamIndexList.begin(), unInitCamIndexList.end(),
+                          camId) == unInitCamIndexList.end()) {
                 Eigen::Matrix3f R = cam.extrinsic_r_;
                 Eigen::Vector3f t = cam.extrinsic_t_;
                 Eigen::Matrix4f Tworld;
@@ -256,7 +281,8 @@ bool MultiCalibrator::Init() {
             if (iter.empty()) {
                 continue;
             }
-            if (std::find(unInitCamIndexList.begin(), unInitCamIndexList.end(), camId) == unInitCamIndexList.end())
+            if (std::find(unInitCamIndexList.begin(), unInitCamIndexList.end(),
+                          camId) == unInitCamIndexList.end())
                 continue;
 
             cv::Mat rvec, rmat, tvec;
@@ -279,7 +305,8 @@ bool MultiCalibrator::Init() {
             cam.extrinsic_r_ = Tworld.topLeftCorner(3, 3);
             cam.extrinsic_t_ = Tworld.topRightCorner(3, 1);
 
-            unInitCamIndexList.erase(std::find(unInitCamIndexList.begin(), unInitCamIndexList.end(), camId));
+            unInitCamIndexList.erase(std::find(
+                unInitCamIndexList.begin(), unInitCamIndexList.end(), camId));
         }
     }
 
@@ -292,7 +319,9 @@ struct ReprojCostFunctor {
         m_p2d = _p2d;
     }
 
-    template <typename T> bool operator()(const T *const _r, const T *const _t, const T *_p3d, T *residuals) const {
+    template <typename T>
+    bool operator()(const T *const _r, const T *const _t, const T *_p3d,
+                    T *residuals) const {
         const Eigen::Map<const Eigen::Matrix<T, 3, 1>> r(_r);
         const Eigen::Map<const Eigen::Matrix<T, 3, 1>> t(_t);
         const Eigen::Map<const Eigen::Matrix<T, 3, 1>> p3d(_p3d);
@@ -321,13 +350,15 @@ void MultiCalibrator::OptimizeExtrinsics() {
     std::vector<Eigen::Vector3d> ts;
     for (const auto &cam : pinhole_params) {
         Eigen::AngleAxisf angleAxis(cam.extrinsic_r_);
-        rs.push_back(Eigen::Vector3f(angleAxis.axis() * angleAxis.angle()).cast<double>());
+        rs.push_back(Eigen::Vector3f(angleAxis.axis() * angleAxis.angle())
+                         .cast<double>());
         ts.push_back(cam.extrinsic_t_.cast<double>());
     }
 
     size_t point_count = pattern_size.height * pattern_size.width;
     // frame/[3 * points]
-    std::vector<Eigen::Matrix3Xd> p3ds(point2d_lists.size(), Eigen::Matrix3Xd(3, point_count));
+    std::vector<Eigen::Matrix3Xd> p3ds(point2d_lists.size(),
+                                       Eigen::Matrix3Xd(3, point_count));
 
     Eigen::Vector3d point3d;
 
@@ -346,7 +377,8 @@ void MultiCalibrator::OptimizeExtrinsics() {
             }
 
             for (size_t idx = 0; idx < point_count; idx++) {
-                point2ds[idx].push_back(Eigen::Vector2f(iter[idx].x, iter[idx].y));
+                point2ds[idx].push_back(
+                    Eigen::Vector2f(iter[idx].x, iter[idx].y));
 
                 MathUtil::Matrix34f proj;
                 proj.leftCols<3>() = cam.extrinsic_r_;
@@ -370,8 +402,11 @@ void MultiCalibrator::OptimizeExtrinsics() {
             for (int p_idx = 0; p_idx < iter.size(); p_idx++) {
                 const Eigen::Vector2d p2d(iter[p_idx].x, iter[p_idx].y);
                 ceres::CostFunction *func =
-                    new ceres::AutoDiffCostFunction<ReprojCostFunctor, 1, 3, 3, 3>(new ReprojCostFunctor(K, p2d));
-                problem.AddResidualBlock(func, NULL, _r, _t, p3ds[img_idx].col(p_idx).data());
+                    new ceres::AutoDiffCostFunction<ReprojCostFunctor, 1, 3, 3,
+                                                    3>(
+                        new ReprojCostFunctor(K, p2d));
+                problem.AddResidualBlock(func, NULL, _r, _t,
+                                         p3ds[img_idx].col(p_idx).data());
             }
         }
     }
@@ -386,8 +421,10 @@ void MultiCalibrator::OptimizeExtrinsics() {
 
     // update
     for (size_t idx = 0; idx < pinhole_params.size(); idx++) {
-        pinhole_params[idx].extrinsic_r_ = MathUtil::Rodrigues(Eigen::Vector3f(rs[idx].cast<float>()));
-        pinhole_params[idx].extrinsic_t_ = Eigen::Vector3f(ts[idx].cast<float>());
+        pinhole_params[idx].extrinsic_r_ =
+            MathUtil::Rodrigues(Eigen::Vector3f(rs[idx].cast<float>()));
+        pinhole_params[idx].extrinsic_t_ =
+            Eigen::Vector3f(ts[idx].cast<float>());
     }
 
     if (/*verbose*/ 0) {
