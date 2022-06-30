@@ -5,7 +5,7 @@
 #include <iostream>
 #include <iterator>
 
-TEST(CalibratorTest, MultiPinholeCamera) {
+TEST(test_calibrator, MultiPinholeCamera) {
 
     const std::string images_folder =
         "test/data/calib_pinhole_camera/input/images/";

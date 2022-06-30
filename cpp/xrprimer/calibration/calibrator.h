@@ -7,7 +7,8 @@
 #include "data_structure/camera/pinhole_camera.h"
 
 struct MultiCalibrator {
-    MultiCalibrator(std::vector<PinholeCameraParameter> &params) : pinhole_params(params){};
+    MultiCalibrator(std::vector<PinholeCameraParameter> &params)
+        : pinhole_params(params){};
     cv::Size pattern_size;  ///< chess pattern size
     cv::Size2f square_size; ///< chess size
     std::vector<PinholeCameraParameter> &pinhole_params;

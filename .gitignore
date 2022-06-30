@@ -11,9 +11,14 @@
 # pre-commit
 *.isort.cfg
 
-
 # pre-commit
 python/test/data
+
+# compiled file
+*.so
+
+# python bdist
+dist/
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,visualstudio,visualstudiocode,qtcreator
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,visualstudio,visualstudiocode,qtcreator

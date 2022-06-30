@@ -2,6 +2,7 @@
 #include "pybind/xrprimer_pybind.h"
 
 #include <pybind/calibration/calibrator_api.h>
+#include <pybind/common/version.h>
 #include <pybind/data_structure/camera.h>
 
 PYBIND11_MODULE(xrprimer_cpp, m) {
@@ -23,4 +24,5 @@ PYBIND11_MODULE(xrprimer_cpp, m) {
 
     xrprimer_pybind_camera(m);
     xrprimer_pybind_calibrator(m);
+    xrprimer_pybind_version(m);
 }

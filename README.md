@@ -8,7 +8,7 @@ The XRPrimer provides reusable data structures, efficient operaters and extensib
 
 ## Getting Started
 
-### C++ 
+### C++
 
 Please see [C++ README](cpp/README.md) for the C++ usage
 

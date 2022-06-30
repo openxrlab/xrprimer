@@ -13,9 +13,8 @@ if(NOT eigen_POPULATED)
     # Fetch the content using previously declared details
     FetchContent_Populate(eigen)
     execute_process(COMMAND git reset --hard WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/_ext/eigen)
-    execute_process(COMMAND git apply ${CMAKE_CURRENT_LIST_DIR}/eigen_cmake.patch 
+    execute_process(COMMAND git apply ${CMAKE_CURRENT_LIST_DIR}/eigen_cmake.patch
                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/_ext/eigen)
     add_subdirectory(${eigen_SOURCE_DIR} ${eigen_BINARY_DIR})
     set(Eigen3_DIR ${eigen_BINARY_DIR})
 endif()
-

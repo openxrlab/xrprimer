@@ -34,7 +34,7 @@ class XRPRIMER_EXPORT BaseCameraParameter {
 
     void set_intrinsic(int width, int height, double fx, double fy, double cx,
                        double cy, bool perspective = true);
-    void set_intrinsic(const Eigen::Matrix3f &mat, bool prespective = true);
+    void set_intrinsic(const Eigen::Matrix3f &mat, bool perspective = true);
     Eigen::Matrix3f intrinsic33() const;
 
     //

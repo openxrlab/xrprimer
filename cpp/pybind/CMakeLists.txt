@@ -11,17 +11,14 @@ endif()
 
 set(PYTHON_VERSION "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
 
-pybind11_add_module(xrprimer_cpp 
-    xrprimer_pybind.cpp 
-    data_structure/camera.cpp 
+pybind11_add_module(xrprimer_cpp
+    xrprimer_pybind.cpp
+    data_structure/camera.cpp
     calibration/calibrator_api.cpp
+    common/version.cpp
 )
 target_link_libraries(xrprimer_cpp PUBLIC XRPrimer::xrprimer opencv_imgcodecs opencv_calib3d opencv_core)
-target_include_directories(xrprimer_cpp PUBLIC  
+target_include_directories(xrprimer_cpp PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/cpp/>
     $<INSTALL_INTERFACE:include/>)
-set_target_properties(xrprimer_cpp PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
-
-
-
+# set_target_properties(xrprimer_cpp PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

@@ -19,31 +19,58 @@
 
 a. Create a conda virtual environment and activate it.
 
+
+## Install XRPrimer (python)
+
+
+### Install XRPrimer with pip:
+
+```shell
+pip install xrprimer -i https://repo.sensetime.com/repository/pypi/simple
+```
+
+### Install XRPrimer by compiling from source:
+
+a. Create a conda virtual environment and activate it.
+
 ```shell
 conda create -n openxrlab python=3.8 -y
 conda activate openxrlab
 ```
 
-## Install XRPrimer(python)
-
-
-a. As a user, install XRPrimer by WHL.
+b. Clone the repo.
 
 ```shell
-# for python3.7
-pip install http://10.10.30.159:8999/xrprimer-0.3.0-cp37-cp37m-linux_x86_64.whl
-# for python3.8
-pip install http://10.10.30.159:8999/xrprimer-0.3.0-cp38-cp38-linux_x86_64.whl
+git clone git@gitlab.bj.sensetime.com:openxrlab/xrprimer.git
+cd xrprimer/
 ```
+c. (Optional) Install conan
 
-b. As a developer, compile XRPrimer(cpp), and install XRPrimer(python) in editable mode.
 
 ```shell
-# As a developer, compile from source code:
+# (Optional) compile from source code with conan, otherwise it will build external libs from source
 pip install conan
 conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
-cmake -S. -Bbuild && cmake --build build -j4
-cd python && pip install -e . && cd ..
-python -c "import xrprimer; print(xrprimer.__version__)"
+```
+d. Install PyTorch and MMCV
+
+Install PyTorch and torchvision following [official instructions](https://pytorch.org/).
+
+E.g., install PyTorch 1.8.2 & CPU
+
+```shell
+pip install torch==1.8.2+cpu torchvision==0.9.2+cpu -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
 ```
 
+Install mmcv without cuda operations
+
+```shell
+pip install mmcv
+```
+
+e. Install xrprimer in editable mode
+
+```shell
+pip install -e .  # or "python setup.py develop"
+python -c "import xrprimer; print(xrprimer.__version__)"
+```

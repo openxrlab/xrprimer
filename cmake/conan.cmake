@@ -171,7 +171,7 @@ macro(_conan_detect_compiler)
             set(_CONAN_SETTING_COMPILER_LIBCXX ${_LIBCXX})
         endif ()
     elseif (${CMAKE_${LANGUAGE}_COMPILER_ID} STREQUAL Clang
-                AND NOT "${CMAKE_${LANGUAGE}_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC" 
+                AND NOT "${CMAKE_${LANGUAGE}_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"
                 AND NOT "${CMAKE_${LANGUAGE}_SIMULATE_ID}" STREQUAL "MSVC")
 
         string(REPLACE "." ";" VERSION_LIST ${CMAKE_${LANGUAGE}_COMPILER_VERSION})
@@ -194,8 +194,8 @@ macro(_conan_detect_compiler)
             set(_CONAN_SETTING_COMPILER_LIBCXX ${_LIBCXX})
         endif ()
     elseif(${CMAKE_${LANGUAGE}_COMPILER_ID} STREQUAL MSVC
-                OR (${CMAKE_${LANGUAGE}_COMPILER_ID} STREQUAL Clang 
-                    AND "${CMAKE_${LANGUAGE}_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC" 
+                OR (${CMAKE_${LANGUAGE}_COMPILER_ID} STREQUAL Clang
+                    AND "${CMAKE_${LANGUAGE}_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"
                     AND "${CMAKE_${LANGUAGE}_SIMULATE_ID}" STREQUAL "MSVC"))
 
         set(_VISUAL "Visual Studio")
@@ -460,7 +460,7 @@ endmacro()
 
 function(old_conan_cmake_install)
     # Calls "conan install"
-    # Argument BUILD is equivalant to --build={missing, PkgName,...} or
+    # Argument BUILD is equivalent to --build={missing, PkgName,...} or
     # --build when argument is 'BUILD all' (which builds all packages from source)
     # Argument CONAN_COMMAND, to specify the conan path, e.g. in case of running from source
     # cmake does not identify conan as command, even if it is +x and it is in the path
@@ -729,12 +729,12 @@ function(conan_cmake_lock_create)
         set(BASE --base)
     endif()
     set(lock_create_Args lock create ${PATH} ${REFERENCE} ${UPDATE} ${BASE} ${REMOTE} ${LOCKFILE} ${LOCKFILE_OUT} ${LOCKFILE_NODE_ID} ${INSTALL_FOLDER}
-                                ${GENERATOR} ${BUILD} ${ENV} ${ENV_HOST} ${ENV_BUILD} ${OPTIONS} ${OPTIONS_HOST} ${OPTIONS_BUILD} 
+                                ${GENERATOR} ${BUILD} ${ENV} ${ENV_HOST} ${ENV_BUILD} ${OPTIONS} ${OPTIONS_HOST} ${OPTIONS_BUILD}
                                 ${PROFILE} ${PROFILE_HOST} ${PROFILE_BUILD} ${SETTINGS} ${SETTINGS_HOST} ${SETTINGS_BUILD})
 
     string(REPLACE ";" " " _lock_create_Args "${lock_create_Args}")
     message(STATUS "Conan executing: ${CONAN_CMD} ${_lock_create_Args}")
-    
+
     if(ARGS_OUTPUT_QUIET)
       set(OUTPUT_OPT OUTPUT_QUIET)
     endif()
@@ -1037,7 +1037,7 @@ FUNCTION(XRLAB_INSTALL_DEPS)
 		IF(EXISTS ${DEP_ROOT})
 				INSTALL(DIRECTORY ${DEP_ROOT}/ DESTINATION ${CMAKE_INSTALL_PREFIX} PATTERN "conan*" EXCLUDE)
 		ELSE()
-                MESSAGE(STATUS "Not exsist ${DEP_ROOT}, skip ${CONAN_DEP}!")
+                MESSAGE(STATUS "Not exist ${DEP_ROOT}, skip ${CONAN_DEP}!")
         ENDIF()
 	ENDFOREACH()
 ENDFUNCTION()

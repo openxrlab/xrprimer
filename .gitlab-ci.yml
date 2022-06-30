@@ -2,20 +2,22 @@ image: registry.sensetime.com/kestrel/kestrel_ci:1.4-ubuntu18.04-amd64-gcc75
 
 stages:
   - lint_python
-  - test_cpp_python
+  - test_cpp
+  - test_python
   - deploy
 
 before_script:
   - echo $PATH
   - gcc --version
+  - cmake --version
   - python --version
   - pip --version
   - export http_proxy=http://172.16.1.135:3128/
   - export https_proxy=http://172.16.1.135:3128/
   - export HTTP_PROXY=http://172.16.1.135:3128/
   - export HTTPS_PROXY=http://172.16.1.135:3128/
-  - pip install -r python/requirements/prerequisite.txt
-  - pip install -r python/requirements/test.txt
+  - pip install -r requirements/prerequisite.txt
+  - pip install -r requirements/test.txt
   - unset http_proxy
   - unset https_proxy
   - unset HTTP_PROXY
@@ -26,48 +28,56 @@ lint_python:
   stage: lint_python
   dependencies: []
   script:
-    - cd python && pre-commit install
+    - pre-commit install
     - export http_proxy=http://172.16.1.135:3128/
     - export https_proxy=http://172.16.1.135:3128/
     - export HTTP_PROXY=http://172.16.1.135:3128/
     - export HTTPS_PROXY=http://172.16.1.135:3128/
     - pre-commit run --all-files --verbose
     - echo "Docstring coverage results:"
-    - interrogate -vinmMI -f 40 xrprimer/
-    - cd ..
+    - interrogate -vinmMI -f 40 python/xrprimer/
     - unset http_proxy
     - unset https_proxy
     - unset HTTP_PROXY
     - unset HTTPS_PROXY
 
-test_cpp_python:
-  stage: test_cpp_python
+test_cpp:
+  stage: test_cpp
   dependencies: []
   script:
     - echo "--- config conan remote and login --- "
     - conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
     - conan user -p ${CONAN_PROFILE} -r xrlab openxrlab-conan
-    - pip install torch==1.8.2+cpu torchvision==0.9.2+cpu -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html -i https://pypi.douban.com/simple/
-    - pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cpu/torch1.7.0/index.html -i https://pypi.douban.com/simple/
     - cmake -S. -Bbuild -DENABLE_TEST=ON
     - cmake --build build -j4 --target install
-    - cd python && pip install -e . && cd ..
-    - pip uninstall opencv-python opencv-python-headless -y
-    - pip install opencv-python-headless -i https://pypi.douban.com/simple/
-    - wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz
     - cd build
-    - cp ../xrprimer.tar.gz ./ && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
-    - ln -sfn xrprimer/test test
-    - ./bin/calibrator_test
-    - ./bin/image_test
-    - PYTHONPATH=./lib/ python ../cpp/tests/test_multi_camera_calibrator.py
-    - cd ..
-    - cd python/test
-    - cp ../../xrprimer.tar.gz ./
+    - wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz
     - tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
-    - cp -r xrprimer/test/data ./
+    - ln -sfn xrprimer/test test
+    - echo "Start testing cpp..."
+    - ./bin/test_calibrator
+    - ./bin/test_image
+    - ./bin/test_version
+    - PYTHONPATH=./cpp/pybind python ../cpp/tests/test_multi_camera_calibrator.py
+
+test_python:
+  stage: test_python
+  dependencies: []
+  script:
+    - echo "--- config conan remote and login --- "
+    - conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
+    - conan user -p ${CONAN_PROFILE} -r xrlab openxrlab-conan
+    - pip install torch torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple
+    - pip install mmcv
+    - pip install -e .
+    - pip uninstall opencv-python opencv-python-headless -y
+    - pip install opencv-python-headless
+    - cd python/test
+    - wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz
+    - tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
+    - mv xrprimer/test/data ./
     - rm -rf xrprimer && cd ..
-    - echo "Start testing..."
+    - echo "Start testing python..."
     - coverage run --source xrprimer -m pytest -s test/
     - coverage report -m
 

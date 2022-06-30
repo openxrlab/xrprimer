@@ -4,7 +4,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
-TEST(image_test, create) {
+TEST(test_image, create) {
     {
         Image img;
         EXPECT_TRUE(img.empty());
@@ -21,7 +21,7 @@ TEST(image_test, create) {
     }
 }
 
-TEST(image_test, opencv_to_image) {
+TEST(test_image, opencv_to_image) {
 
     // w:20, h:10
     int width = 20;
@@ -70,7 +70,7 @@ TEST(image_test, opencv_to_image) {
     EXPECT_EQ(new_val2.step(), black.step);
 }
 
-TEST(image_test, image_to_opencv) {
+TEST(test_image, image_to_opencv) {
     int width = 20;
     int height = 10;
     Image img(width, height, BGR24);

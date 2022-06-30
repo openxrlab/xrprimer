@@ -9,7 +9,7 @@
 
 ## Prepare camera parameters
 
-A triangulator requires a list of camera paramters to triangulate points. Each camera parameter should be an instance of `PinholeCameraParameter` or it's sub-class. There are several ways to create the camera parameter list.
+A triangulator requires a list of camera parameters to triangulate points. Each camera parameter should be an instance of `PinholeCameraParameter` or it's sub-class. There are several ways to create the camera parameter list.
 
 a. Assign camera  parameters manually.
 

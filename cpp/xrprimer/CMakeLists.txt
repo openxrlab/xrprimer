@@ -1,4 +1,5 @@
 set(Headers
+    common/version.h
     calibration/calibrator.h
     calibration/calibrator_api.h
     data_structure/math_util.h
@@ -12,6 +13,7 @@ set(Headers
 source_group("Headers" FILES ${Headers})
 
 set(Sources
+    common/version.cpp
     calibration/calibrator.cpp
     calibration/calibrator_api.cpp
     data_structure/camera/camera.cpp
@@ -41,7 +43,8 @@ target_include_directories(${target}
     $<INSTALL_INTERFACE:include/>
 )
 
-target_link_libraries(${target} PUBLIC Eigen3::Eigen Ceres::ceres opencv_core jsoncpp_static spdlog::spdlog_header_only PnpSolver::pnpsolver)
+# target_link_libraries(${target} PUBLIC Eigen3::Eigen Ceres::ceres opencv_core jsoncpp_static spdlog::spdlog_header_only PnpSolver::pnpsolver)
+target_link_libraries(${target} PUBLIC Eigen3::Eigen Ceres::ceres opencv_core jsoncpp_static spdlog::spdlog_header_only)
 
 install(TARGETS ${target} DESTINATION lib EXPORT ${target}-targets)
 install(EXPORT ${target}-targets DESTINATION lib/cmake NAMESPACE XRPrimer::)
@@ -60,7 +63,7 @@ configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/XRPrimerConfig.cmake.in
 
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfigVersion.cmake"
-    VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
+    VERSION "${XRPRIMER_VERSION_MAJOR}.${XRPRIMER_VERSION_MINOR}.${XRPRIMER_VERSION_PATCH}"
     COMPATIBILITY AnyNewerVersion
 )
 
@@ -69,3 +72,5 @@ install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfigVersion.cmake"
     DESTINATION lib/cmake
 )
+
+configure_file(common/config.h.in common/config.h)
