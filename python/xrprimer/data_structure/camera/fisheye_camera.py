@@ -1,4 +1,5 @@
 import copy
+import logging
 from typing import Union
 
 from xrprimer_cpp.camera import \
@@ -21,7 +22,46 @@ class FisheyeCameraParameter(FisheyeCameraParameter_cpp,
                  world2cam: bool = True,
                  convention: str = 'opencv',
                  dist_coeff_k: list = [],
-                 dist_coeff_p: list = []) -> None:
+                 dist_coeff_p: list = [],
+                 logger: Union[None, str, logging.Logger] = None) -> None:
+        """A camera parameter class for fisheye camera model. Distortion
+        coefficients are k1, k2, ..., k6, p1, p2.
+
+        Args:
+            K (Union[list, np.ndarray, None], optional):
+                Nested list of float32, 4x4 or 3x3 K mat.
+                Defaults to None, 4x4 zeros.
+            R (Union[list, np.ndarray, None], optional):
+                Nested list of float32, 3x3 rotation mat.
+                Defaults to None, 3x3 identity.
+            T (Union[list, np.ndarray, None], optional):
+                List of float32, T vector.
+                Defaults to None, zero vector.
+            name (str, optional):
+                Name of this camera. Defaults to 'default'.
+            height (int, optional):
+                Height of the image shot by this camera.
+                Defaults to 1080.
+            width (int, optional):
+                Width of the image shot by this camera.
+                Defaults to 1920.
+            world2cam (bool, optional):
+                Whether the R, T transform points from world space
+                to camera space. Defaults to True.
+            convention (str, optional):
+                Convention name of this camera.
+                Defaults to 'opencv'.
+            dist_coeff_k (list, optional):
+                List of float. [k1, k2, k3, k4, k5, k6].
+                When length of list is n and n<6,
+                only the first n coefficients will be set. Defaults to [].
+            dist_coeff_p (list, optional):
+                List of float. [p1, p2].
+                To set only p1, pass [p1]. Defaults to [].
+            logger (Union[None, str, logging.Logger], optional):
+                Logger for logging. If None, root logger will be selected.
+                Defaults to None.
+        """
         FisheyeCameraParameter_cpp.__init__(self)
         PinholeCameraParameter.__init__(
             self,
@@ -32,7 +72,8 @@ class FisheyeCameraParameter(FisheyeCameraParameter_cpp,
             height=height,
             width=width,
             world2cam=world2cam,
-            convention=convention)
+            convention=convention,
+            logger=logger)
         self.set_distortion_coefficients(
             dist_coeff_k=dist_coeff_k, dist_coeff_p=dist_coeff_p)
 
@@ -72,9 +113,9 @@ class FisheyeCameraParameter(FisheyeCameraParameter_cpp,
             for coeff_name in dist_coeff_names:
                 dist_coeff_list.append(getattr(self, coeff_name, 0.0))
         else:
-            raise NotImplementedError(
-                f'Distortion for camera in {self.convention}' +
-                ' has not been supported .')
+            self.logger.error(f'Distortion for camera in {self.convention}' +
+                              ' has not been supported .')
+            raise NotImplementedError
         return dist_coeff_list
 
     def clone(self) -> 'FisheyeCameraParameter':
@@ -91,18 +132,16 @@ class FisheyeCameraParameter(FisheyeCameraParameter_cpp,
             height=self.height,
             width=self.width,
             world2cam=self.world2cam,
-            convention=self.convention)
-        for k_index in range(1, 7, 1):
-            attr_name = f'k{k_index}'
-            attr_value = getattr(self, attr_name)
-            setattr(new_cam_param, attr_name, attr_value)
-        for p_index in range(1, 3, 1):
-            attr_name = f'p{p_index}'
+            convention=self.convention,
+            logger=self.logger)
+        attr_name_list = [f'k{k_index}' for k_index in range(1, 7, 1)]
+        attr_name_list += [f'p{p_index}' for p_index in range(1, 3, 1)]
+        for attr_name in attr_name_list:
             attr_value = getattr(self, attr_name)
             setattr(new_cam_param, attr_name, attr_value)
         return new_cam_param
 
-    def SaveFile(self, filename: str) -> int:
+    def SaveFile(self, filename: str) -> bool:
         """Dump camera name and parameters to a json file.
 
         Args:
@@ -110,11 +149,11 @@ class FisheyeCameraParameter(FisheyeCameraParameter_cpp,
                 Path to the dumped json file.
 
         Returns:
-            int: returns 0.
+            bool: True if save succeed.
         """
-        return super(FisheyeCameraParameter_cpp, self).SaveFile(filename)
+        return FisheyeCameraParameter_cpp.SaveFile(self, filename)
 
-    def LoadFile(self, filename: str) -> int:
+    def LoadFile(self, filename: str) -> bool:
         """Load camera name and parameters from a dumped json file.
 
         Args:
@@ -122,6 +161,6 @@ class FisheyeCameraParameter(FisheyeCameraParameter_cpp,
                 Path to the dumped json file.
 
         Returns:
-            int: returns 0.
+            bool: True if load succeed.
         """
-        return super(FisheyeCameraParameter_cpp, self).LoadFile(filename)
+        return FisheyeCameraParameter_cpp.LoadFile(self, filename)

@@ -1,4 +1,5 @@
 import copy
+import logging
 from typing import Union
 
 from xrprimer_cpp.camera import \
@@ -17,7 +18,39 @@ class PinholeCameraParameter(PinholeCameraParameter_cpp, BaseCameraParameter):
                  height: int = 1080,
                  width: int = 1920,
                  world2cam: bool = True,
-                 convention: str = 'opencv') -> None:
+                 convention: str = 'opencv',
+                 logger: Union[None, str, logging.Logger] = None) -> None:
+        """A camera parameter class for pinhole camera model. This class has no
+        distortion attributes and functions.
+
+        Args:
+            K (Union[list, np.ndarray, None], optional):
+                Nested list of float32, 4x4 or 3x3 K mat.
+                Defaults to None, 4x4 zeros.
+            R (Union[list, np.ndarray, None], optional):
+                Nested list of float32, 3x3 rotation mat.
+                Defaults to None, 3x3 identity.
+            T (Union[list, np.ndarray, None], optional):
+                List of float32, T vector.
+                Defaults to None, zero vector.
+            name (str, optional):
+                Name of this camera. Defaults to 'default'.
+            height (int, optional):
+                Height of the image shot by this camera.
+                Defaults to 1080.
+            width (int, optional):
+                Width of the image shot by this camera.
+                Defaults to 1920.
+            world2cam (bool, optional):
+                Whether the R, T transform points from world space
+                to camera space. Defaults to True.
+            convention (str, optional):
+                Convention name of this camera.
+                Defaults to 'opencv'.
+            logger (Union[None, str, logging.Logger], optional):
+                Logger for logging. If None, root logger will be selected.
+                Defaults to None.
+        """
         PinholeCameraParameter_cpp.__init__(self)
         BaseCameraParameter.__init__(
             self,
@@ -28,7 +61,8 @@ class PinholeCameraParameter(PinholeCameraParameter_cpp, BaseCameraParameter):
             height=height,
             width=width,
             world2cam=world2cam,
-            convention=convention)
+            convention=convention,
+            logger=logger)
 
     def clone(self) -> 'PinholeCameraParameter':
         """Clone a new CameraPrameter instance like self.
@@ -44,10 +78,11 @@ class PinholeCameraParameter(PinholeCameraParameter_cpp, BaseCameraParameter):
             height=self.height,
             width=self.width,
             world2cam=self.world2cam,
-            convention=self.convention)
+            convention=self.convention,
+            logger=self.logger)
         return new_cam_param
 
-    def SaveFile(self, filename: str) -> int:
+    def SaveFile(self, filename: str) -> bool:
         """Dump camera name and parameters to a json file.
 
         Args:
@@ -55,11 +90,11 @@ class PinholeCameraParameter(PinholeCameraParameter_cpp, BaseCameraParameter):
                 Path to the dumped json file.
 
         Returns:
-            int: returns 0.
+            bool: True if save succeed.
         """
-        return super(PinholeCameraParameter_cpp, self).SaveFile(filename)
+        return PinholeCameraParameter_cpp.SaveFile(self, filename)
 
-    def LoadFile(self, filename: str) -> int:
+    def LoadFile(self, filename: str) -> bool:
         """Load camera name and parameters from a dumped json file.
 
         Args:
@@ -67,6 +102,6 @@ class PinholeCameraParameter(PinholeCameraParameter_cpp, BaseCameraParameter):
                 Path to the dumped json file.
 
         Returns:
-            int: returns 0.
+            bool: True if load succeed.
         """
-        return super(PinholeCameraParameter_cpp, self).LoadFile(filename)
+        return PinholeCameraParameter_cpp.LoadFile(self, filename)

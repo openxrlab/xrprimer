@@ -51,4 +51,7 @@ def convert_camera_to_opencv(
         cam_param.convention = 'unreal'
         return cam_param
     else:
+        cam_param.logger.error(
+            f'Converting a camera from {cam_param.convention} to opencv' +
+            ' has not been supported yet.')
         raise NotImplementedError

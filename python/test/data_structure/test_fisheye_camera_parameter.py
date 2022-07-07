@@ -7,8 +7,8 @@ import pytest
 from xrprimer.data_structure.camera.fisheye_camera import \
     FisheyeCameraParameter  # noqa:E501
 
-input_dir = 'test/data/test_data_structure/camera_parameter'
-output_dir = 'test/data/output/test_fisheye_camera_parameter'
+input_dir = 'test/data/data_structure/camera_parameter'
+output_dir = 'test/data/output/data_structure/test_fisheye_camera_parameter'
 eps = 1e-4
 focal_length_x = 954.5469360351562
 
@@ -22,15 +22,23 @@ def fixture():
 
 def test_load():
     input_json_path = os.path.join(input_dir, 'fisheye_param_at_origin.json')
+    camera_parameter = FisheyeCameraParameter(name='test_LoadFile')
+    ret_val = camera_parameter.LoadFile(input_json_path)
+    assert ret_val is True
+    assert camera_parameter.get_intrinsic(k_dim=4)[0][0] - focal_length_x < eps
     camera_parameter = FisheyeCameraParameter(name='test_load')
     camera_parameter.load(input_json_path)
-    assert camera_parameter.get_intrinsic(k_dim=4)[0][0] - focal_length_x < eps
-    camera_parameter = FisheyeCameraParameter(name='test_LoadFile')
-    camera_parameter.LoadFile(input_json_path)
     assert camera_parameter.get_intrinsic(k_dim=4)[0][0] - focal_length_x < eps
     k33_0 = camera_parameter.intrinsic33()
     k33_1 = np.asarray(camera_parameter.get_intrinsic(3))
     assert np.sum(k33_1 - k33_0) < eps
+    with pytest.raises(FileNotFoundError):
+        camera_parameter.load('/no_file.json')
+    with pytest.raises(ValueError):
+        camera_parameter.load(
+            os.path.join(input_dir, 'omni_param_at_origin.json'))
+    camera_parameter = FisheyeCameraParameter.fromfile(input_json_path)
+    assert camera_parameter.get_intrinsic(k_dim=4)[0][0] - focal_length_x < eps
 
 
 def test_dump():

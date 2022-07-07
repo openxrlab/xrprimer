@@ -1,10 +1,13 @@
 # yapf: disable
+import logging
 from operator import itemgetter
 from typing import List, Union
 
 import numpy as np
 
 from xrprimer.data_structure.camera import PinholeCameraParameter
+from xrprimer.transform.convention.camera import convert_camera_parameter
+from xrprimer.utils.log_utils import get_logger
 from ..projection.base_projector import BaseProjector
 
 # yapf: enable
@@ -13,20 +16,20 @@ from ..projection.base_projector import BaseProjector
 # Super class of all triangulators, cannot be built
 class BaseTriangulator:
     CAMERA_CONVENTION = 'opencv'
+    CAMERA_WORLD2CAM = False
 
-    def __init__(
-            self, camera_parameters: List[Union[PinholeCameraParameter,
-                                                str]]) -> None:
+    def __init__(self,
+                 camera_parameters: List[Union[PinholeCameraParameter, str]],
+                 logger: Union[None, str, logging.Logger] = None) -> None:
         """BaseTriangulator for points triangulation.
 
         Args:
             camera_parameters (List[Union[PinholeCameraParameter, str]]):
                 A list of PinholeCameraParameter, or a list
                 of paths to dumped PinholeCameraParameters.
-            multiview_reduction (Literal['mean', 'median']):
-                When more than 2 views are provided, how to
-                reduce among view pairs.
-                Defaults to mean.
+            logger (Union[None, str, logging.Logger], optional):
+                Logger for logging. If None, root logger will be selected.
+                Defaults to None.
 
         Raises:
             TypeError:
@@ -35,6 +38,7 @@ class BaseTriangulator:
         """
         self.camera_parameters = []
         self.set_cameras(camera_parameters)
+        self.logger = get_logger(logger)
 
     def set_cameras(
             self, camera_parameters: List[Union[PinholeCameraParameter,
@@ -58,11 +62,11 @@ class BaseTriangulator:
                 cam_param.load(input_cam_param)
             else:
                 cam_param = input_cam_param.clone()
-            if cam_param.world2cam:
+            if cam_param.world2cam != self.__class__.CAMERA_WORLD2CAM:
                 cam_param.inverse_extrinsic()
             if cam_param.convention != self.__class__.CAMERA_CONVENTION:
-                # TODO: convert camera convention
-                raise NotImplementedError
+                cam_param = convert_camera_parameter(
+                    cam_param=cam_param, dst=self.__class__.CAMERA_CONVENTION)
             self.camera_parameters.append(cam_param)
 
     def triangulate(

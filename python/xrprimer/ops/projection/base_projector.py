@@ -1,10 +1,13 @@
 # yapf: disable
+import logging
 from operator import itemgetter
 from typing import List, Union
 
 import numpy as np
 
 from xrprimer.data_structure.camera import PinholeCameraParameter
+from xrprimer.transform.convention.camera import convert_camera_parameter
+from xrprimer.utils.log_utils import get_logger
 
 # yapf: enable
 
@@ -12,10 +15,11 @@ from xrprimer.data_structure.camera import PinholeCameraParameter
 # Super class of all projectors, cannot be built
 class BaseProjector:
     CAMERA_CONVENTION = 'opencv'
+    CAMERA_WORLD2CAM = False
 
-    def __init__(
-            self, camera_parameters: List[Union[PinholeCameraParameter,
-                                                str]]) -> None:
+    def __init__(self,
+                 camera_parameters: List[Union[PinholeCameraParameter, str]],
+                 logger: Union[None, str, logging.Logger] = None) -> None:
         """BaseProjector for points projection.
 
         Args:
@@ -26,14 +30,10 @@ class BaseProjector:
                 When more than 2 views are provided, how to
                 reduce among view pairs.
                 Defaults to mean.
-
-        Raises:
-            TypeError:
-                Some element of camera_parameters is neither
-                PinholeCameraParameter nor str.
         """
         self.camera_parameters = []
         self.set_cameras(camera_parameters)
+        self.logger = get_logger(logger)
 
     def set_cameras(
             self, camera_parameters: List[Union[PinholeCameraParameter,
@@ -44,11 +44,6 @@ class BaseProjector:
             camera_parameters (List[Union[PinholeCameraParameter, str]]):
                 A list of PinholeCameraParameter, or a list
                 of paths to dumped PinholeCameraParameters.
-
-        Raises:
-            NotImplementedError:
-                Some camera_parameter from camera_parameters
-                has a different camera convention from class requirement.
         """
         self.camera_parameters = []
         for input_cam_param in camera_parameters:
@@ -57,11 +52,11 @@ class BaseProjector:
                 cam_param.load(input_cam_param)
             else:
                 cam_param = input_cam_param.clone()
-            if cam_param.world2cam:
+            if cam_param.world2cam != self.__class__.CAMERA_WORLD2CAM:
                 cam_param.inverse_extrinsic()
             if cam_param.convention != self.__class__.CAMERA_CONVENTION:
-                # TODO: convert camera convention
-                raise NotImplementedError
+                cam_param = convert_camera_parameter(
+                    cam_param=cam_param, dst=self.__class__.CAMERA_CONVENTION)
             self.camera_parameters.append(cam_param)
 
     def project(
