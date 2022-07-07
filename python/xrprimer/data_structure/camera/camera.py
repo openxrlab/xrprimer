@@ -1,8 +1,11 @@
 import copy
+import logging
+import os
 from typing import Union
 
 import numpy as np
 
+from xrprimer.utils.log_utils import get_logger
 from xrprimer_cpp.camera import BaseCameraParameter as BaseCameraParameter_cpp
 
 
@@ -20,7 +23,39 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
                  height: int = 1080,
                  width: int = 1920,
                  world2cam: bool = True,
-                 convention: str = 'opencv') -> None:
+                 convention: str = 'opencv',
+                 logger: Union[None, str, logging.Logger] = None) -> None:
+        """Base class for all python camera parameter classes. Common methods
+        are defined in this class.
+
+        Args:
+            K (Union[list, np.ndarray, None], optional):
+                Nested list of float32, 4x4 or 3x3 K mat.
+                Defaults to None, 4x4 zeros.
+            R (Union[list, np.ndarray, None], optional):
+                Nested list of float32, 3x3 rotation mat.
+                Defaults to None, 3x3 identity.
+            T (Union[list, np.ndarray, None], optional):
+                List of float32, T vector.
+                Defaults to None, zero vector.
+            name (str, optional):
+                Name of this camera. Defaults to 'default'.
+            height (int, optional):
+                Height of the image shot by this camera.
+                Defaults to 1080.
+            width (int, optional):
+                Width of the image shot by this camera.
+                Defaults to 1920.
+            world2cam (bool, optional):
+                Whether the R, T transform points from world space
+                to camera space. Defaults to True.
+            convention (str, optional):
+                Convention name of this camera.
+                Defaults to 'opencv'.
+            logger (Union[None, str, logging.Logger], optional):
+                Logger for logging. If None, root logger will be selected.
+                Defaults to None.
+        """
         super().__init__(
             intrinsic=np.zeros((4, 4)),
             extrinsic_r=np.zeros((3, 3)),
@@ -30,6 +65,7 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
         self.set_resolution(height=height, width=width)
         self.world2cam = world2cam
         self.convention = convention
+        self.logger = get_logger(logger)
 
     def set_intrinsic(self,
                       mat3x3: Union[list, np.ndarray, None] = None,
@@ -77,8 +113,9 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
             super().set_intrinsic(
                 width=width, height=height, fx=fx, fy=fy, cx=cx, cy=cy)
         else:
-            raise ValueError(
+            self.logger.error(
                 'Either mat3x3 or (h, w, fx/y, cx/y) should be offered.')
+            raise ValueError
 
     def set_resolution(self, height: int, width: int) -> None:
         """Set resolution of the camera.
@@ -166,7 +203,8 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
         elif k_dim == 3:
             return super().intrinsic33().tolist()
         else:
-            raise ValueError('k_dim is neither 3 nor 4.')
+            self.logger.error('k_dim is neither 3 nor 4.')
+            raise ValueError
 
     def get_extrinsic_r(self) -> list:
         """Get extrinsic rotation matrix.
@@ -194,7 +232,7 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
         Returns:
             int: returns 0.
         """
-        super().SaveFile(filename)
+        return BaseCameraParameter_cpp.SaveFile(self, filename)
 
     def dump(self, filename: str) -> None:
         """Dump camera name and parameters to a json file.
@@ -202,10 +240,15 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
         Args:
             filename (str):
                 Path to the dumped json file.
-        """
-        self.SaveFile(filename)
 
-    def LoadFile(self, filename: str) -> int:
+        Raises:
+            RuntimeError: Fail to dump a json file.
+        """
+        if not self.SaveFile(filename):
+            self.logger.error('Fail to dump a json file.')
+            raise RuntimeError
+
+    def LoadFile(self, filename: str) -> bool:
         """Load camera name and parameters from a dumped json file.
 
         Args:
@@ -213,9 +256,9 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
                 Path to the dumped json file.
 
         Returns:
-            int: returns 0.
+            bool: True if load succeed.
         """
-        super().LoadFile(filename)
+        return BaseCameraParameter_cpp.LoadFile(self, filename)
 
     def load(self, filename: str) -> None:
         """Load camera name and parameters from a dumped json file.
@@ -223,8 +266,21 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
         Args:
             filename (str):
                 Path to the dumped json file.
+
+        Raises:
+            FileNotFoundError: File not found at filename.
+            ValueError: Content in filename is not correct.
         """
-        self.LoadFile(filename)
+        if not os.path.exists(filename):
+            self.logger.error(f'File not found at {filename}.')
+            raise FileNotFoundError
+        test_cam = self.__class__()
+        load_test = test_cam.LoadFile(filename)
+        if load_test:
+            self.LoadFile(filename)
+        else:
+            self.logger.error('File content is not correct.')
+            raise ValueError
 
     def clone(self) -> 'BaseCameraParameter':
         """Clone a new CameraPrameter instance like self.
@@ -240,5 +296,22 @@ class BaseCameraParameter(BaseCameraParameter_cpp):
             height=self.height,
             width=self.width,
             world2cam=self.world2cam,
-            convention=self.convention)
+            convention=self.convention,
+            logger=self.logger)
         return new_cam_param
+
+    @classmethod
+    def fromfile(cls, filename: str) -> 'BaseCameraParameter':
+        """Construct a camera parameter data structure from a json file.
+
+        Args:
+            filename (str):
+                Path to the dumped json file.
+
+        Returns:
+            CameraParameter:
+                An instance of CameraParameter class.
+        """
+        ret_cam = cls()
+        ret_cam.load(filename)
+        return ret_cam

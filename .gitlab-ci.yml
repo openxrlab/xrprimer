@@ -16,8 +16,8 @@ before_script:
   - export https_proxy=http://172.16.1.135:3128/
   - export HTTP_PROXY=http://172.16.1.135:3128/
   - export HTTPS_PROXY=http://172.16.1.135:3128/
-  - pip install -r requirements/prerequisite.txt
-  - pip install -r requirements/test.txt
+  - pip install -r requirements/prerequisite.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+  - pip install -r requirements/test.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
   - unset http_proxy
   - unset https_proxy
   - unset HTTP_PROXY
@@ -64,14 +64,16 @@ test_python:
   stage: test_python
   dependencies: []
   script:
+    - rm ~/.condarc && conda clean -i
+    - conda install ffmpeg -y
     - echo "--- config conan remote and login --- "
     - conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
     - conan user -p ${CONAN_PROFILE} -r xrlab openxrlab-conan
     - pip install torch torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple
-    - pip install mmcv
+    - pip install mmcv -i https://pypi.tuna.tsinghua.edu.cn/simple
     - pip install -e .
     - pip uninstall opencv-python opencv-python-headless -y
-    - pip install opencv-python-headless
+    - pip install opencv-python-headless -i https://pypi.tuna.tsinghua.edu.cn/simple
     - cd python/test
     - wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz
     - tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz

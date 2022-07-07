@@ -16,11 +16,10 @@ from xrprimer.transform.camera.distortion import (
     undistort_points,
 )
 
-input_dir = 'test/data/test_transform/test_camera'
-output_dir = 'test/data/output/test_transform/test_camera/test_distortion'
+input_dir = 'test/data/transform/camera'
+output_dir = 'test/data/output/transform/camera/test_distortion'
 
 
-# TODO: upload a pair of distorted image and its camera
 @pytest.fixture(scope='module', autouse=True)
 def fixture():
     if os.path.exists(output_dir):
@@ -30,9 +29,10 @@ def fixture():
 
 def test_undistort_camera():
     # test only distort camera parameter
-    input_json_path = os.path.join(input_dir, 'fisheye_param_at_origin.json')
+    input_json_path = os.path.join(input_dir, 'dist_fisheye_param.json')
     fisheye_param = FisheyeCameraParameter(name='distort')
     fisheye_param.load(input_json_path)
+    fisheye_param.set_KRT(R=np.eye(3))
     intrinsic_backup = np.asarray(fisheye_param.get_intrinsic())
     new_cam_param = undistort_camera(distorted_cam=fisheye_param)
     assert isinstance(new_cam_param, PinholeCameraParameter)
@@ -52,6 +52,7 @@ def test_undistort_camera():
 def test_undistort_images():
     fisheye_param = FisheyeCameraParameter(name='distort')
     fisheye_param.load(os.path.join(input_dir, 'dist_fisheye_param.json'))
+    fisheye_param.set_KRT(R=np.eye(3))
     intrinsic_backup = np.asarray(fisheye_param.get_intrinsic())
     test_img = cv2.imread(filename=os.path.join(input_dir, 'dist_img.png'))
     test_imgs = np.expand_dims(test_img, axis=0)
@@ -80,6 +81,7 @@ def test_undistort_images():
 def test_undistort_points():
     fisheye_param = FisheyeCameraParameter(name='distort')
     fisheye_param.load(os.path.join(input_dir, 'dist_fisheye_param.json'))
+    fisheye_param.set_KRT(R=np.eye(3))
     intrinsic_backup = np.asarray(fisheye_param.get_intrinsic())
     corners_points = np.array([[791, 78], [1196, 19], [1215, 494], [1167, 534],
                                [851, 529], [808, 491]],

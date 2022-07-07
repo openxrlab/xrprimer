@@ -1,3 +1,4 @@
+import logging
 from typing import List, Union
 
 import cv2
@@ -18,21 +19,26 @@ except ImportError:
 
 
 class OpencvTriangulator(BaseTriangulator):
+    CAMERA_CONVENTION = 'opencv'
+    CAMERA_WORLD2CAM = True
 
-    def __init__(
-            self,
-            camera_parameters: list,
-            multiview_reduction: Literal['mean', 'median'] = 'mean') -> None:
-        """BaseTriangulator for points triangulation.
+    def __init__(self,
+                 camera_parameters: List[FisheyeCameraParameter],
+                 multiview_reduction: Literal['mean', 'median'] = 'mean',
+                 logger: Union[None, str, logging.Logger] = None) -> None:
+        """Triangulator for points triangulation, powered by OpenCV.
 
         Args:
-            camera_parameters (list):
+            camera_parameters (List[FisheyeCameraParameter]):
                 A list of FisheyeCameraParameter, or a list
                 of PinholeCameraParameter.
             multiview_reduction (Literal['mean', 'median']):
                 When more than 2 views are provided, how to
                 reduce among view pairs.
                 Defaults to mean.
+            logger (Union[None, str, logging.Logger], optional):
+                Logger for logging. If None, root logger will be selected.
+                Defaults to None.
 
         Raises:
             TypeError:
@@ -42,8 +48,19 @@ class OpencvTriangulator(BaseTriangulator):
                 Some camera_parameter from camera_parameters
                 has a different camera convention from expectation.
         """
-        super().__init__(camera_parameters=camera_parameters)
+        super().__init__(camera_parameters=camera_parameters, logger=logger)
         self.multiview_reduction = multiview_reduction
+
+    def set_cameras(self,
+                    camera_parameters: List[FisheyeCameraParameter]) -> None:
+        """Set cameras for this triangulator.
+
+        Args:
+            camera_parameters (List[FisheyeCameraParameter]):
+                A list of FisheyeCameraParameter, or a list
+                of paths to dumped FisheyeCameraParameter.
+        """
+        super().set_cameras(camera_parameters=camera_parameters)
 
     def triangulate(
             self,
@@ -125,8 +142,9 @@ class OpencvTriangulator(BaseTriangulator):
             points3d = np.nanmedian(
                 triangulation_results, axis=0, keepdims=False)
         else:
-            raise ValueError(
+            self.logger.error(
                 f'Wrong reduction_method: {self.multiview_reduction}')
+            raise ValueError
         points3d[np.isnan(points3d)] = 0.0
         return points3d
 
@@ -198,8 +216,9 @@ class OpencvTriangulator(BaseTriangulator):
                 point3d = np.median(
                     np.array(triangulation_results), axis=0, keepdims=False)
             else:
-                raise ValueError(
+                self.logger.error(
                     f'Wrong reduction_method: {self.multiview_reduction}')
+                raise ValueError
         return point3d
 
     def get_reprojection_error(

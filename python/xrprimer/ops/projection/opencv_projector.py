@@ -1,3 +1,4 @@
+import logging
 from typing import List, Union
 
 import cv2
@@ -9,16 +10,29 @@ from .base_projector import BaseProjector
 
 class OpencvProjector(BaseProjector):
     CAMERA_CONVENTION = 'opencv'
+    CAMERA_WORLD2CAM = True
 
     def __init__(self,
-                 camera_parameters: List[FisheyeCameraParameter]) -> None:
-        """BaseProjector for points projection.
+                 camera_parameters: List[FisheyeCameraParameter],
+                 logger: Union[None, str, logging.Logger] = None) -> None:
+        """Projector for points projection, powered by OpenCV.
 
         Args:
             camera_parameters (List[FisheyeCameraParameter]):
                 A list of FisheyeCameraParameter.
         """
-        BaseProjector.__init__(self, camera_parameters)
+        BaseProjector.__init__(self, camera_parameters, logger=logger)
+
+    def set_cameras(self,
+                    camera_parameters: List[FisheyeCameraParameter]) -> None:
+        """Set cameras for this projector.
+
+        Args:
+            camera_parameters (List[FisheyeCameraParameter]):
+                A list of FisheyeCameraParameter, or a list
+                of paths to dumped FisheyeCameraParameter.
+        """
+        super().set_cameras(camera_parameters=camera_parameters)
 
     def project(
             self,
@@ -99,6 +113,8 @@ class OpencvProjector(BaseProjector):
                     cam_param.k3, cam_param.k4, cam_param.k5, cam_param.k6
                 ])
             else:
-                dist_coeffs = 0.0
+                dist_coeffs = np.zeros(shape=[
+                    8,
+                ])
             distortion_list.append(dist_coeffs)
         return distortion_list
