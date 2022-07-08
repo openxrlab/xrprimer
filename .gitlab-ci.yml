@@ -23,7 +23,6 @@ before_script:
   - unset HTTP_PROXY
   - unset HTTPS_PROXY
 
-
 lint_python:
   stage: lint_python
   dependencies: []
@@ -106,3 +105,15 @@ D:cpp_library:
     expire_in: 2 hrs
     paths:
       - install/
+
+D:build_from_github:
+  stage: deploy
+  dependencies: []
+  script:
+    - export http_proxy=http://172.16.1.135:3128/
+    - export https_proxy=http://172.16.1.135:3128/
+    - export HTTP_PROXY=http://172.16.1.135:3128/
+    - export HTTPS_PROXY=http://172.16.1.135:3128/
+    - cmake -S. -Bbuild -DBUILD_EXTERNAL=ON
+    - cmake --build build --target install -j4
+  when: manual

@@ -58,6 +58,7 @@ if(BUILD_EXTERNAL)
     include(${CMAKE_SOURCE_DIR}/cmake/external/jsoncpp.cmake)
     include(${CMAKE_SOURCE_DIR}/cmake/external/pybind11.cmake)
     include(${CMAKE_SOURCE_DIR}/cmake/external/spdlog.cmake)
+    include(${CMAKE_SOURCE_DIR}/cmake/external/pnpsolver.cmake)
 else()
     # use conan
     include(${CMAKE_SOURCE_DIR}/cmake/conan.cmake)
