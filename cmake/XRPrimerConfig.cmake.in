@@ -21,7 +21,7 @@ set(Eigen3_DIR "${PACKAGE_PREFIX_DIR}/share/eigen3/cmake")
 set(Ceres_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/Ceres/")
 set(OpenCV_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/opencv4")
 set(jsoncpp_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/jsoncpp")
-set(jsoncpp_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/spdlog")
+set(spdlog_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/spdlog")
 set(PnpSolver_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake")
 
 find_dependency(Eigen3 REQUIRED CONFIG)
