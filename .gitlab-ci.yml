@@ -63,6 +63,10 @@ test_python:
   stage: test_python
   dependencies: []
   script:
+    - unset http_proxy
+    - unset https_proxy
+    - unset HTTP_PROXY
+    - unset HTTPS_PROXY
     - rm ~/.condarc && conda clean -i
     - conda install ffmpeg -y
     - echo "--- config conan remote and login --- "

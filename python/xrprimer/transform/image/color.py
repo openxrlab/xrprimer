@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def bgr2rgb(input_array: np.ndarray, color_dim=-1) -> np.ndarray:
+def bgr2rgb(input_array: np.ndarray, color_dim: int = -1) -> np.ndarray:
     """Convert image array of any shape between BGR and RGB.
 
     Args:
