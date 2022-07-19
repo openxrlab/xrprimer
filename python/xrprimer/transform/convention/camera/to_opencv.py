@@ -36,7 +36,7 @@ def convert_camera_to_opencv(
         extrinsic_r = np.asarray(cam_param.get_extrinsic_r())
         extrinsic_r = np.matmul(rot_mat, extrinsic_r)
         cam_param.set_KRT(R=extrinsic_r)
-        cam_param.convention = 'blender'
+        cam_param.convention = 'opencv'
         return cam_param
     elif cam_param.convention == 'unreal':
         cam_location = np.asarray(cam_param.get_extrinsic_t())
@@ -48,7 +48,7 @@ def convert_camera_to_opencv(
         extrinsic_r = np.asarray(cam_param.get_extrinsic_r())
         extrinsic_r = np.matmul(rot_mat, extrinsic_r)
         cam_param.set_KRT(R=extrinsic_r, T=cam_location)
-        cam_param.convention = 'unreal'
+        cam_param.convention = 'opencv'
         return cam_param
     else:
         cam_param.logger.error(
