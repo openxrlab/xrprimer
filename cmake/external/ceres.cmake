@@ -15,10 +15,22 @@ if(NOT ceres_POPULATED)
 
     set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+    find_package(LAPACK)
+
+    if(NOT LAPACK_FOUND)
+        message(FATAL_ERROR "[LAPACK AND BLAS] is required to build Ceres,
+--------------------------------------
+Ubuntu: apt install libatlas-base-dev
+Centos7: yum -y install atlas-devel
+--------------------------------------
+")
+    endif()
+
     set(MINIGLOG ON)
+    set(MINIGLOG_MAX_LOG_LEVEL -2 CACHE STRING "The maximum message severity level to be logged")
     set(GFLAGS OFF)
-    set(LAPACK OFF)
-    set(CUSTOM_BLAS OFF)
+    set(LAPACK ON)
+    set(CUSTOM_BLAS ON)
     set(BUILD_TESTING OFF)
     set(BUILD_EXAMPLES OFF)
     set(BUILD_BENCHMARKS OFF)

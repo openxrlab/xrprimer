@@ -8,6 +8,7 @@ set(Headers
     data_structure/camera/omni_camera.h
     data_structure/camera/fisheye_camera.h
     data_structure/image.h
+    data_structure/pose.h
     utils/logging.h
 )
 source_group("Headers" FILES ${Headers})
@@ -21,6 +22,7 @@ set(Sources
     data_structure/camera/omni_camera.cpp
     data_structure/camera/fisheye_camera.cpp
     data_structure/image.cpp
+    data_structure/pose.cpp
     utils/logging.cpp
 )
 
