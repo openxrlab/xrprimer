@@ -14,6 +14,7 @@ set(PYTHON_VERSION "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
 pybind11_add_module(xrprimer_cpp
     xrprimer_pybind.cpp
     data_structure/camera.cpp
+    data_structure/pose.cpp
     calibration/calibrator_api.cpp
     common/version.cpp
 )

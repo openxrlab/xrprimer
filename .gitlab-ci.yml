@@ -118,6 +118,7 @@ D:build_from_github:
     - export https_proxy=http://172.16.1.135:3128/
     - export HTTP_PROXY=http://172.16.1.135:3128/
     - export HTTPS_PROXY=http://172.16.1.135:3128/
+    - apt update && apt install libatlas-base-dev
     - cmake -S. -Bbuild -DBUILD_EXTERNAL=ON
     - cmake --build build --target install -j4
   when: manual
