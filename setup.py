@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -66,6 +67,13 @@ class CMakeExtension(Extension):
         self.sourcedir = os.path.abspath(sourcedir)
 
 
+def clean_cmake(folders):
+    for folder in folders:
+        if not os.path.exists(folder):
+            continue
+        shutil.rmtree(folder)
+
+
 class CMakeBuild(build_ext):
 
     def build_extension(self, ext):
@@ -103,7 +111,11 @@ class CMakeBuild(build_ext):
         # Enable test
         cmake_args += ['-DENABLE_TEST=ON']
         # Build external from pre-built libs by default
-        cmake_args += ['-DBUILD_EXTERNAL=OFF']
+        ret = os.system('conan remote list | grep xrlab')
+        if ret == 0:  # remote exists
+            cmake_args += ['-DBUILD_EXTERNAL=OFF']
+        else:
+            cmake_args += ['-DBUILD_EXTERNAL=ON']
 
         # Pass version
         for key, version in VERSION_INFO.items():
@@ -176,10 +188,12 @@ class CMakeBuild(build_ext):
                 # CMake 3.12+ only.
                 build_args += [f'-j{self.parallel}']
 
+        install_dir = 'install'
         build_temp = self.build_temp
+        clean_cmake(folders=['_deps', '_exts', build_temp, install_dir])
         subprocess.check_call(['cmake', '-S.', '-B', build_temp] + cmake_args)
         subprocess.check_call(
-            ['cmake', '--build', build_temp, '--target', 'install'] +
+            ['cmake', '--build', build_temp, '--target', install_dir] +
             build_args)
 
 
