@@ -1,4 +1,4 @@
-image: registry.sensetime.com/kestrel/kestrel_ci:1.4-ubuntu18.04-amd64-gcc75
+image: registry.sensetime.com/zoetrope/pytorch@sha256:d20d2743b3182c9063acd07eed58c43b6fceb4c40f71e8fa0b9f43c88816d307
 
 stages:
   - lint_python
@@ -7,33 +7,25 @@ stages:
   - deploy
 
 before_script:
+  - source /workspace/init_env.sh
   - echo $PATH
   - gcc --version
   - cmake --version
-  - python --version
-  - pip --version
-  - export http_proxy=http://172.16.1.135:3128/
-  - export https_proxy=http://172.16.1.135:3128/
-  - export HTTP_PROXY=http://172.16.1.135:3128/
-  - export HTTPS_PROXY=http://172.16.1.135:3128/
-  - pip install -r requirements/prerequisite.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-  - pip install -r requirements/test.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-  - unset http_proxy
-  - unset https_proxy
-  - unset HTTP_PROXY
-  - unset HTTPS_PROXY
+  - conda info -e
 
 lint_python:
   stage: lint_python
   dependencies: []
   script:
+    - conda activate base
+    - pip install pre-commit -i https://pypi.tuna.tsinghua.edu.cn/simple
+    - pip install interrogate -i https://pypi.tuna.tsinghua.edu.cn/simple
     - pre-commit install
     - export http_proxy=http://172.16.1.135:3128/
     - export https_proxy=http://172.16.1.135:3128/
     - export HTTP_PROXY=http://172.16.1.135:3128/
     - export HTTPS_PROXY=http://172.16.1.135:3128/
     - pre-commit run --all-files --verbose
-    - echo "Docstring coverage results:"
     - interrogate -vinmMI -f 40 python/xrprimer/
     - unset http_proxy
     - unset https_proxy
@@ -45,6 +37,9 @@ test_cpp:
   dependencies: []
   script:
     - echo "--- config conan remote and login --- "
+    - conda activate py-3.7
+    - pip install -r requirements/prerequisite.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+    - pip install -r requirements/test.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
     - conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
     - conan user -p ${CONAN_PROFILE} -r xrlab openxrlab-conan
     - cmake -S. -Bbuild -DENABLE_TEST=ON
@@ -67,16 +62,14 @@ test_python:
     - unset https_proxy
     - unset HTTP_PROXY
     - unset HTTPS_PROXY
-    - rm ~/.condarc && conda clean -i
+    - conda activate py-3.7
     - conda install ffmpeg -y
     - echo "--- config conan remote and login --- "
     - conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
     - conan user -p ${CONAN_PROFILE} -r xrlab openxrlab-conan
-    - pip install torch torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple
-    - pip install mmcv -i https://pypi.tuna.tsinghua.edu.cn/simple
+    - pip install -r requirements/prerequisite.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+    - pip install -r requirements/test.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
     - pip install -e .
-    - pip uninstall opencv-python opencv-python-headless -y
-    - pip install opencv-python-headless -i https://pypi.tuna.tsinghua.edu.cn/simple
     - cd python/test
     - wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz
     - tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
@@ -96,7 +89,7 @@ D:cpp_library:
     - cmake -S. -Bbuild -DENABLE_TEST=ON
     - cmake --build build -j4 --target install
     - echo "--- upload to minio ---"
-    - PKG_NAME=${CI_PROJECT_NAME}-${CI_COMMIT_REF_NAME}-Linux-x86_64--${CI_COMMIT_SHORT_SHA}-ubuntu18.04.tar.gz
+    - PKG_NAME=${CI_PROJECT_NAME}-${CI_COMMIT_REF_NAME}-Linux-x86_64-${CI_COMMIT_SHORT_SHA}-ubuntu18.04.tar.gz
     - cd install && tar -zcvf ../${PKG_NAME} * && cd ../
     - wget http://file.kestrel.sensetime.com/software/mc &&  chmod +x mc
     - ./mc alias set minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
@@ -110,6 +103,26 @@ D:cpp_library:
     paths:
       - install/
 
+
+D:python_library:
+  stage: deploy
+  dependencies: []
+  script:
+    - echo $PY_VERSION
+    - conda activate py-$PY_VERSION
+    - echo "--- config conan remote and login --- "
+    - conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
+    - conan user -p ${CONAN_PROFILE} -r xrlab openxrlab-conan
+    - echo "--- compile python wheel and upload --- "
+    - python setup.py bdist_wheel
+    - ls dist/
+    - twine upload --repository-url https://repo.sensetime.com/repository/xrprimer/ dist/* -u ${PYPI_USERNAME} -p ${PYPI_PASSWORD}
+  parallel:
+    matrix:
+      - PY_VERSION: ["3.7", "3.8", "3.9", "3.10"]
+  only:
+    - tags
+
 D:build_from_github:
   stage: deploy
   dependencies: []
@@ -118,7 +131,7 @@ D:build_from_github:
     - export https_proxy=http://172.16.1.135:3128/
     - export HTTP_PROXY=http://172.16.1.135:3128/
     - export HTTPS_PROXY=http://172.16.1.135:3128/
-    - apt update && apt install libatlas-base-dev
+    - apt update && apt install libatlas-base-dev -y
     - cmake -S. -Bbuild -DBUILD_EXTERNAL=ON
     - cmake --build build --target install -j4
   when: manual
