@@ -74,11 +74,10 @@ class FisheyeCameraParameter(FisheyeCameraParameter_cpp,
             world2cam=world2cam,
             convention=convention,
             logger=logger)
-        self.set_distortion_coefficients(
+        self.set_dist_coeff(
             dist_coeff_k=dist_coeff_k, dist_coeff_p=dist_coeff_p)
 
-    def set_distortion_coefficients(self, dist_coeff_k: list,
-                                    dist_coeff_p: list) -> None:
+    def set_dist_coeff(self, dist_coeff_k: list, dist_coeff_p: list) -> None:
         """Set distortion coefficients from list.
 
         Args:
@@ -97,7 +96,7 @@ class FisheyeCameraParameter(FisheyeCameraParameter_cpp,
         for p_index, p_value in enumerate(dist_coeff_p):
             setattr(self, f'p{p_index+1}', p_value)
 
-    def get_distortion_coefficients(self) -> list:
+    def get_dist_coeff(self) -> list:
         """Get distortion coefficients in self.convention.
 
         Raises:

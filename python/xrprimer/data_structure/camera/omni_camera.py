@@ -84,7 +84,7 @@ class OmniCameraParameter(OmniCameraParameter_cpp, PinholeCameraParameter):
             world2cam=world2cam,
             convention=convention,
             logger=logger)
-        self.set_distortion_coefficients(
+        self.set_dist_coeff(
             dist_coeff_k=dist_coeff_k, dist_coeff_p=dist_coeff_p)
         self.set_omni_param(xi=xi, D=D)
 
@@ -136,8 +136,7 @@ class OmniCameraParameter(OmniCameraParameter_cpp, PinholeCameraParameter):
             D_attr[:len(D)] = D_input
             setattr(self, 'D', D_attr)
 
-    def set_distortion_coefficients(self, dist_coeff_k: list,
-                                    dist_coeff_p: list) -> None:
+    def set_dist_coeff(self, dist_coeff_k: list, dist_coeff_p: list) -> None:
         """Set distortion coefficients from list.
 
         Args:
