@@ -33,7 +33,7 @@ def undistort_camera(
     if distorted_cam.convention != 'opencv':
         distorted_cam = convert_camera_parameter(
             cam_param=distorted_cam, dst='opencv')
-    dist_coeff_list = distorted_cam.get_distortion_coefficients()
+    dist_coeff_list = distorted_cam.get_dist_coeff()
     distorted_intrinsic33 = np.array(distorted_cam.get_intrinsic(k_dim=3))
     resolution_wh = np.array([distorted_cam.width, distorted_cam.height])
     # prepare output of cv2.undistort
@@ -82,7 +82,7 @@ def undistort_images(
         distorted_cam = convert_camera_parameter(
             cam_param=distorted_cam, dst='opencv')
     distorted_intrinsic33 = np.array(distorted_cam.get_intrinsic(k_dim=3))
-    dist_coeff_list = distorted_cam.get_distortion_coefficients()
+    dist_coeff_list = distorted_cam.get_dist_coeff()
     dist_coeff_np = np.array(dist_coeff_list)
     corrected_cam_param = undistort_camera(distorted_cam=distorted_cam)
     corrected_intrinsic33 = np.array(
@@ -130,7 +130,7 @@ def undistort_points(
         distorted_cam = convert_camera_parameter(
             cam_param=distorted_cam, dst='opencv')
     distorted_intrinsic33 = np.array(distorted_cam.get_intrinsic(k_dim=3))
-    dist_coeff_list = distorted_cam.get_distortion_coefficients()
+    dist_coeff_list = distorted_cam.get_dist_coeff()
     dist_coeff_np = np.array(dist_coeff_list)
     corrected_cam_param = undistort_camera(distorted_cam=distorted_cam)
     corrected_intrinsic33 = np.array(

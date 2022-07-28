@@ -59,10 +59,10 @@ def test_dump():
 def test_set_distortion():
     camera_parameter = OmniCameraParameter(name='test_set_distortion')
     # set correctly
-    camera_parameter.set_distortion_coefficients(
+    camera_parameter.set_dist_coeff(
         dist_coeff_k=[1, 2, 3, 4, 5, 6], dist_coeff_p=[1, 2])
     # set half
-    camera_parameter.set_distortion_coefficients(
+    camera_parameter.set_dist_coeff(
         dist_coeff_k=[11, 12, 13], dist_coeff_p=[11])
     assert camera_parameter.k2 == 12
     assert camera_parameter.k5 == 5
@@ -70,10 +70,10 @@ def test_set_distortion():
     assert camera_parameter.p2 == 2
     # set more
     with pytest.raises(AssertionError):
-        camera_parameter.set_distortion_coefficients(
+        camera_parameter.set_dist_coeff(
             dist_coeff_k=[1, 2, 3, 4, 5, 6, 7], dist_coeff_p=[1, 2])
     with pytest.raises(AssertionError):
-        camera_parameter.set_distortion_coefficients(
+        camera_parameter.set_dist_coeff(
             dist_coeff_k=[1, 2, 3, 4, 5, 6], dist_coeff_p=[1, 2, 3])
 
 
