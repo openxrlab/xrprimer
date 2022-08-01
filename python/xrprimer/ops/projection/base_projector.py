@@ -5,7 +5,10 @@ from typing import List, Union
 
 import numpy as np
 
-from xrprimer.data_structure.camera import PinholeCameraParameter
+from xrprimer.data_structure.camera import (
+    FisheyeCameraParameter,
+    PinholeCameraParameter,
+)
 from xrprimer.transform.convention.camera import convert_camera_parameter
 from xrprimer.utils.log_utils import get_logger
 
@@ -36,22 +39,18 @@ class BaseProjector:
         self.logger = get_logger(logger)
 
     def set_cameras(
-            self, camera_parameters: List[Union[PinholeCameraParameter,
-                                                str]]) -> None:
+        self, camera_parameters: List[Union[PinholeCameraParameter,
+                                            FisheyeCameraParameter]]
+    ) -> None:
         """Set cameras for this projector.
 
         Args:
             camera_parameters (List[Union[PinholeCameraParameter, str]]):
-                A list of PinholeCameraParameter, or a list
-                of paths to dumped PinholeCameraParameters.
+                A list of PinholeCameraParameter or FisheyeCameraParameter.
         """
         self.camera_parameters = []
         for input_cam_param in camera_parameters:
-            if isinstance(input_cam_param, str):
-                cam_param = PinholeCameraParameter()
-                cam_param.load(input_cam_param)
-            else:
-                cam_param = input_cam_param.clone()
+            cam_param = input_cam_param.clone()
             if cam_param.world2cam != self.__class__.CAMERA_WORLD2CAM:
                 cam_param.inverse_extrinsic()
             if cam_param.convention != self.__class__.CAMERA_CONVENTION:

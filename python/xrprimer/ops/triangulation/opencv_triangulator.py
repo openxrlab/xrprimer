@@ -51,17 +51,6 @@ class OpencvTriangulator(BaseTriangulator):
         super().__init__(camera_parameters=camera_parameters, logger=logger)
         self.multiview_reduction = multiview_reduction
 
-    def set_cameras(self,
-                    camera_parameters: List[FisheyeCameraParameter]) -> None:
-        """Set cameras for this triangulator.
-
-        Args:
-            camera_parameters (List[FisheyeCameraParameter]):
-                A list of FisheyeCameraParameter, or a list
-                of paths to dumped FisheyeCameraParameter.
-        """
-        super().set_cameras(camera_parameters=camera_parameters)
-
     def triangulate(
             self,
             points: Union[np.ndarray, list, tuple],
