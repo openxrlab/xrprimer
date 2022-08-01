@@ -23,17 +23,6 @@ class OpencvProjector(BaseProjector):
         """
         BaseProjector.__init__(self, camera_parameters, logger=logger)
 
-    def set_cameras(self,
-                    camera_parameters: List[FisheyeCameraParameter]) -> None:
-        """Set cameras for this projector.
-
-        Args:
-            camera_parameters (List[FisheyeCameraParameter]):
-                A list of FisheyeCameraParameter, or a list
-                of paths to dumped FisheyeCameraParameter.
-        """
-        super().set_cameras(camera_parameters=camera_parameters)
-
     def project(
             self,
             points: Union[np.ndarray, list, tuple],
