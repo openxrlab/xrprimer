@@ -16,6 +16,7 @@ pybind11_add_module(xrprimer_cpp
     data_structure/camera.cpp
     data_structure/pose.cpp
     calibration/calibrator_api.cpp
+    ops/pnpsolver.cpp
     common/version.cpp
 )
 target_link_libraries(xrprimer_cpp PUBLIC XRPrimer::xrprimer opencv_imgcodecs opencv_calib3d opencv_core)

@@ -109,7 +109,7 @@ class CMakeBuild(build_ext):
             ]
 
         # Enable test
-        cmake_args += ['-DENABLE_TEST=ON']
+        cmake_args += ['-DENABLE_TEST=OFF']
         # Build external from pre-built libs by default
         ret = os.system('conan remote list | grep xrlab')
         if ret == 0:  # remote exists

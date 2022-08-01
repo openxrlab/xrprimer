@@ -6,6 +6,7 @@
 #include <pybind/common/version.h>
 #include <pybind/data_structure/camera.h>
 #include <pybind/data_structure/pose.h>
+#include <pybind/ops/pnpsolver.h>
 
 void pybind_eigen_classes(py::module &m) {
     py::class_<Eigen::Quaterniond>(
@@ -192,4 +193,5 @@ PYBIND11_MODULE(xrprimer_cpp, m) {
     xrprimer_pybind_calibrator(m);
     xrprimer_pybind_version(m);
     xrprimer_pybind_pose(m);
+    xrprimer_pybind_pnpsolver(m);
 }
