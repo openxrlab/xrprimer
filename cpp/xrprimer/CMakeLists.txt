@@ -38,11 +38,12 @@ target_compile_options(${target} PRIVATE -fPIC)
 include(GenerateExportHeader)
 generate_export_header(${target} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/xrprimer_export.h)
 
+
 target_include_directories(${target}
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/cpp/xrprimer>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/>
-    $<INSTALL_INTERFACE:include/>
+    $<INSTALL_INTERFACE:include/xrprimer>
 )
 
 target_link_libraries(${target} PUBLIC Eigen3::Eigen Ceres::ceres opencv_core jsoncpp_static spdlog::spdlog_header_only PnpSolver::pnpsolver)
@@ -75,3 +76,6 @@ install(FILES
 )
 
 configure_file(common/config.h.in common/config.h)
+
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/xrprimer_export.h DESTINATION include/xrprimer)
