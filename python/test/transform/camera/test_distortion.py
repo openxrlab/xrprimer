@@ -16,7 +16,7 @@ from xrprimer.transform.camera.distortion import (
     undistort_points,
 )
 
-input_dir = 'test/data/transform/camera'
+input_dir = 'test/data/transform/camera/test_distortion'
 output_dir = 'test/data/output/transform/camera/test_distortion'
 
 
