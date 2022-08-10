@@ -46,7 +46,21 @@ target_include_directories(${target}
     $<INSTALL_INTERFACE:include/xrprimer>
 )
 
-target_link_libraries(${target} PUBLIC Eigen3::Eigen Ceres::ceres opencv_core jsoncpp_static spdlog::spdlog_header_only PnpSolver::pnpsolver)
+set(opencv_target opencv_core)
+set(pnpsolver_target PnpSolver::pnpsolver)
+if(IOS)
+    set(opencv_target OpenCV::OpenCV)
+    set(pnpsolver_target "")
+endif()
+
+target_link_libraries(${target} PUBLIC
+    ${pnpsolver_target}
+    Eigen3::Eigen
+    Ceres::ceres
+    ${opencv_target}
+    jsoncpp_static
+    spdlog::spdlog_header_only
+)
 
 install(TARGETS ${target} DESTINATION lib EXPORT ${target}-targets)
 install(EXPORT ${target}-targets DESTINATION lib/cmake NAMESPACE XRPrimer::)

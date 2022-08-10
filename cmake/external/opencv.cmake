@@ -1,3 +1,6 @@
+# IOS USE framework
+if(NOT IOS)
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -93,7 +96,6 @@ if(NOT opencv_POPULATED)
 
     add_subdirectory(${opencv_SOURCE_DIR} ${opencv_BINARY_DIR})
 
-
     set(OpenCV_INCLUDE_DIRS )
     list(APPEND OpenCV_INCLUDE_DIRS ${OPENCV_CONFIG_FILE_INCLUDE_DIR}/)
     list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/calib3d/include)
@@ -112,4 +114,34 @@ if(NOT opencv_POPULATED)
     list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/video/include)
     list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/videoio/include)
     include_directories(${OpenCV_INCLUDE_DIRS})
+
+
+
+endif()
+
+else()
+    message(STATUS "using opencv framework")
+    if(NOT TARGET Opencv::OpenCV)
+    FetchContent_Declare(
+        opencv
+        URL     https://github.com/opencv/opencv/releases/download/4.0.1/opencv-4.0.1-ios-framework.zip
+        URL_MD5 35ebe10de1089f6b1e1cce04d822f740
+        SOURCE_DIR     ${CMAKE_SOURCE_DIR}/_ext/opencv
+        BINARY_DIR     ${CMAKE_SOURCE_DIR}/_deps/opencv
+    )
+    FetchContent_GetProperties(opencv)
+    if(NOT opencv_POPULATED)
+        message(STATUS "Fetching precompiled OpenCV framework")
+        FetchContent_Populate(opencv)
+        message(STATUS "Fetching precompiled OpenCV framework - done")
+        message(STATUS "Configuring OpenCV framework")
+        file(COPY ${opencv_SOURCE_DIR}/ DESTINATION ${opencv_BINARY_DIR}/opencv2.framework)
+        message(STATUS "Configuring OpenCV framework - done")
+    endif()
+    add_library(OpenCV::OpenCV INTERFACE IMPORTED GLOBAL)
+    target_compile_options(OpenCV::OpenCV INTERFACE -framework opencv2 -F${opencv_BINARY_DIR} $<$<COMPILE_LANGUAGE:CXX>:-Wno-unused-command-line-argument>)
+    target_link_libraries(OpenCV::OpenCV INTERFACE "-framework opencv2")
+    target_link_options(OpenCV::OpenCV INTERFACE "-F${opencv_BINARY_DIR}")
+    endif()
+
 endif()

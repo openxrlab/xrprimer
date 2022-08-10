@@ -6,7 +6,7 @@ add_subdirectory(xrprimer)
 #
 # python bindding
 #
-if(PYTHON_BINDING)
+if(PYTHON_BINDING AND NOT IOS)
     add_subdirectory(pybind)
 endif()
 

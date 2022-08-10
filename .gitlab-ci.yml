@@ -103,7 +103,6 @@ D:cpp_library:
     paths:
       - install/
 
-
 D:python_library:
   stage: deploy
   dependencies: []
@@ -134,4 +133,19 @@ D:build_from_github:
     - apt update && apt install libatlas-base-dev -y
     - cmake -S. -Bbuild -DBUILD_EXTERNAL=ON
     - cmake --build build --target install -j4
+  when: manual
+
+D:build_from_github_mac:
+  stage: deploy
+  dependencies: []
+  tags:
+    - "kestrel_mac_1"
+  before_script:
+    - echo "skip global before script"
+  script:
+    - export http_proxy=http://172.16.1.135:3128/
+    - export https_proxy=http://172.16.1.135:3128/
+    - export HTTP_PROXY=http://172.16.1.135:3128/
+    - export HTTPS_PROXY=http://172.16.1.135:3128/
+    - bash build-ios.sh
   when: manual
