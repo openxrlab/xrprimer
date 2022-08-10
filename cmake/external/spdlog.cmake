@@ -14,7 +14,7 @@ if(NOT spdlog_POPULATED)
     # Fetch the content using previously declared details
     FetchContent_Populate(spdlog)
     set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-    set(SPDLOG_INSTALL ON)
+    set(SPDLOG_INSTALL ON CACHE BOOL "" FORCE)
     execute_process(COMMAND git reset --hard WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/_ext/spdlog)
     add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR})
 endif()

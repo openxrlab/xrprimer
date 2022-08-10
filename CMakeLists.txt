@@ -38,7 +38,11 @@ project(${META_PROJECT_NAME} VERSION ${META_VERSION} LANGUAGES CXX)
 # default install path
 #
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install CACHE PATH "default install prefix" FORCE)
+    set(_DEFAULT_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install)
+    set(CMAKE_INSTALL_PREFIX ${_DEFAULT_INSTALL_PREFIX} CACHE PATH "default install prefix" FORCE)
+    if(IOS)
+        set(CMAKE_INSTALL_PREFIX ${_DEFAULT_INSTALL_PREFIX}/ios CACHE PATH "ios default install prefix" FORCE)
+    endif()
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -56,8 +60,8 @@ if(BUILD_EXTERNAL)
     include(${CMAKE_SOURCE_DIR}/cmake/external/ceres.cmake)
     include(${CMAKE_SOURCE_DIR}/cmake/external/opencv.cmake)
     include(${CMAKE_SOURCE_DIR}/cmake/external/jsoncpp.cmake)
-    include(${CMAKE_SOURCE_DIR}/cmake/external/pybind11.cmake)
     include(${CMAKE_SOURCE_DIR}/cmake/external/spdlog.cmake)
+    include(${CMAKE_SOURCE_DIR}/cmake/external/pybind11.cmake)
     include(${CMAKE_SOURCE_DIR}/cmake/external/pnpsolver.cmake)
 else()
     # use conan
@@ -65,7 +69,6 @@ else()
 
     conan_cmake_autodetect(settings)
     conan_cmake_install(PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
-        BUILD missing
         REMOTE xrlab
         SETTINGS ${settings})
     conan_load_buildinfo()

@@ -18,18 +18,54 @@
 include(CMakeFindDependencyMacro)
 
 set(Eigen3_DIR "${PACKAGE_PREFIX_DIR}/share/eigen3/cmake")
-set(Ceres_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/Ceres/")
-set(OpenCV_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/opencv4")
-set(jsoncpp_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/jsoncpp")
-set(spdlog_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/spdlog")
-set(PnpSolver_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake")
-
 find_dependency(Eigen3 REQUIRED CONFIG)
+
+set(Ceres_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/Ceres/")
 find_dependency(Ceres REQUIRED CONFIG)
-find_dependency(OpenCV REQUIRED CONFIG)
+
+set(jsoncpp_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/jsoncpp")
 find_dependency(jsoncpp REQUIRED CONFIG)
+
+set(spdlog_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/spdlog")
 find_dependency(spdlog REQUIRED CONFIG)
-find_dependency(PnpSolver REQUIRED CONFIG)
+
+
+if(NOT IOS)
+  set(OpenCV_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/opencv4")
+  find_dependency(OpenCV REQUIRED CONFIG)
+  if(NOT TARGET Opencv::OpenCV)
+    add_library(OpenCV::OpenCV INTERFACE IMPORTED GLOBAL)
+    target_link_libraries(OpenCV::OpenCV INTERFACE ${OpenCV_LIBS})
+    target_include_directories(OpenCV::OpenCV INTERFACE ${OpenCV_INCLUDE_DIRS})
+  endif()
+else()
+    message(STATUS "finding opencv framework")
+    include(FetchContent)
+    if(NOT TARGET Opencv::OpenCV)
+    FetchContent_Declare(
+        opencv
+        URL     https://github.com/opencv/opencv/releases/download/4.0.1/opencv-4.0.1-ios-framework.zip
+        URL_MD5 35ebe10de1089f6b1e1cce04d822f740
+        SOURCE_DIR     ${PACKAGE_PREFIX_DIR}/framework/opencv
+    )
+    FetchContent_GetProperties(opencv)
+    if(NOT opencv_POPULATED)
+        message(STATUS "Fetching precompiled OpenCV framework")
+        FetchContent_Populate(opencv)
+        file(COPY ${opencv_SOURCE_DIR}/ DESTINATION ${opencv_SOURCE_DIR}/opencv2.framework PATTERN "opencv2.framework" EXCLUDE)
+        message(STATUS "Fetching precompiled OpenCV framework - done")
+    endif()
+    add_library(OpenCV::OpenCV INTERFACE IMPORTED GLOBAL)
+    target_compile_options(OpenCV::OpenCV INTERFACE -framework opencv2 -F${opencv_SOURCE_DIR} $<$<COMPILE_LANGUAGE:CXX>:-Wno-unused-command-line-argument>)
+    target_link_libraries(OpenCV::OpenCV INTERFACE "-framework opencv2")
+    target_link_options(OpenCV::OpenCV INTERFACE "-F${opencv_SOURCE_DIR}")
+    endif()
+endif()
+
+if(NOT IOS)
+  set(PnpSolver_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake")
+  find_dependency(PnpSolver REQUIRED CONFIG)
+endif()
 
 IF(NOT TARGET XRPrimer::xrprimer)
   INCLUDE("${CMAKE_CURRENT_LIST_DIR}/xrprimer-targets.cmake")

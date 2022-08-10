@@ -1,3 +1,9 @@
+#
+#
+#
+
+if(NOT IOS)
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -9,3 +15,7 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(pybind11)
+
+else()
+    message(STATUS "pybind11 NOT support ios")
+endif()
