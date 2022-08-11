@@ -1,4 +1,4 @@
-image: registry.sensetime.com/zoetrope/manylinux2014_x86_64@sha256:4a74b0ee9a840bc5f7ba6da88aeac46a795c4bb0c7304fb75077e8ea97dbcf11
+image: registry.sensetime.com/zoetrope/manylinux2014_x86_64:xrprimer_ci_torch180_mmcv150
 
 stages:
   - lint_python
@@ -54,6 +54,7 @@ test_cpp:
     - ./bin/test_image
     - ./bin/test_version
     - PYTHONPATH=./cpp/pybind python ../cpp/tests/test_multi_camera_calibrator.py
+    - PYTHONPATH=./cpp/pybind python ../cpp/tests/test_pnpsolver.py
 
 test_python:
   stage: test_python

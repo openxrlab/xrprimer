@@ -1,4 +1,3 @@
-
 #include <pnp_solver.h>
 #include <pybind/ops/pnpsolver.h>
 
@@ -7,25 +6,26 @@ py::dict prior_guided_pnp(
         points2D,
     const Eigen::Ref<Eigen::Matrix<float, 3, Eigen::Dynamic, Eigen::RowMajor>>
         points3D,
-    const std::vector<double> priors, const py::dict camera,
-    const py::dict ransac_option) {
+    const Eigen::Ref<Eigen::Matrix<float, 1, Eigen::Dynamic, Eigen::RowMajor>>
+        priors,
+    const py::dict camera, const py::dict ransac_option) {
 
     assert(points2D.cols() == points3D.cols());
-    assert(points3D.cols() == priors.size());
+    assert(points3D.cols() == priors.cols());
 
     std::string camera_model_name = camera["model_name"].cast<std::string>();
     std::vector<double> params = camera["params"].cast<std::vector<double>>();
 
     std::vector<Eigen::Vector2d> point2D_vec(points2D.cols());
     std::vector<Eigen::Vector3d> point3D_vec(points3D.cols());
-    std::vector<double> priors_vec(priors.size());
+    std::vector<double> priors_vec(priors.cols());
     for (size_t i = 0; i != point2D_vec.size(); ++i) {
         point2D_vec[i][0] = static_cast<double>(points2D(0, i));
         point2D_vec[i][1] = static_cast<double>(points2D(1, i));
         point3D_vec[i][0] = static_cast<double>(points3D(0, i));
         point3D_vec[i][1] = static_cast<double>(points3D(1, i));
         point3D_vec[i][2] = static_cast<double>(points3D(2, i));
-        priors_vec[i] = priors[i];
+        priors_vec[i] = static_cast<double>(priors(0, i));
     }
 
     Eigen::Vector4d qvec;

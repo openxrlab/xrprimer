@@ -20,7 +20,7 @@ if(NOT ceres_POPULATED)
     if(NOT LAPACK_FOUND)
         message(FATAL_ERROR "[LAPACK AND BLAS] is required to build Ceres,
 --------------------------------------
-Ubuntu: apt install libatlas-base-dev
+Ubuntu: apt -y install libatlas-base-dev
 Centos7: yum -y install atlas-devel
 --------------------------------------
 ")
