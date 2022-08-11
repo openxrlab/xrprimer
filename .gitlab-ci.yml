@@ -1,4 +1,4 @@
-image: registry.sensetime.com/zoetrope/pytorch@sha256:d20d2743b3182c9063acd07eed58c43b6fceb4c40f71e8fa0b9f43c88816d307
+image: registry.sensetime.com/zoetrope/manylinux2014_x86_64@sha256:4a74b0ee9a840bc5f7ba6da88aeac46a795c4bb0c7304fb75077e8ea97dbcf11
 
 stages:
   - lint_python
@@ -10,6 +10,7 @@ before_script:
   - source /workspace/init_env.sh
   - echo $PATH
   - gcc --version
+  - c++ --version
   - cmake --version
   - conda info -e
 
