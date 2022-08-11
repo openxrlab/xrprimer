@@ -32,7 +32,11 @@ def setup_logger(logger_name: str = 'root',
     """
     logger = logging.getLogger(logger_name)
     logger.setLevel(level=logger_level)
-    handlers = [logging.StreamHandler()]
+    # prevent logging twice in stdout
+    logger.propagate = False
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.INFO)
+    handlers = [stream_handler]
     if logger_path is not None:
         handler = logging.FileHandler(logger_path)
         handlers.append(handler)
@@ -41,6 +45,9 @@ def setup_logger(logger_name: str = 'root',
     else:
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # assure handlers are not double
+    while logger.hasHandlers():
+        logger.removeHandler(logger.handlers[0])
     for handler in handlers:
         handler.setFormatter(formatter)
         logger.addHandler(handler)
