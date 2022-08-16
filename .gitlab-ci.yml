@@ -88,7 +88,7 @@ D:cpp_library:
     - echo "--- config conan remote and login --- "
     - conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
     - conan user -p ${CONAN_PROFILE} -r xrlab openxrlab-conan
-    - cmake -S. -Bbuild -DBUILD_EXTERNAL=ON -DENABLE_TEST=ON
+    - cmake -S. -Bbuild -DBUILD_EXTERNAL=ON -DENABLE_TEST=ON -DENABLE_PRECOMPILED_HEADERS=OFF
     - cmake --build build -j4 --target install
     - echo "--- upload to minio ---"
     - PKG_NAME=${CI_PROJECT_NAME}-${CI_COMMIT_REF_NAME}-Linux-x86_64-${CI_COMMIT_SHORT_SHA}-ubuntu18.04.tar.gz
