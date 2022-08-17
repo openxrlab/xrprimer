@@ -114,9 +114,6 @@ if(NOT opencv_POPULATED)
     list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/video/include)
     list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/videoio/include)
     include_directories(${OpenCV_INCLUDE_DIRS})
-
-
-
 endif()
 
 else()
@@ -126,8 +123,7 @@ else()
         opencv
         URL     https://github.com/opencv/opencv/releases/download/4.0.1/opencv-4.0.1-ios-framework.zip
         URL_MD5 35ebe10de1089f6b1e1cce04d822f740
-        SOURCE_DIR     ${CMAKE_SOURCE_DIR}/_ext/opencv
-        BINARY_DIR     ${CMAKE_SOURCE_DIR}/_deps/opencv
+        SOURCE_DIR  ${CMAKE_INSTALL_PREFIX}/framework/opencv2.framework
     )
     FetchContent_GetProperties(opencv)
     if(NOT opencv_POPULATED)
@@ -135,13 +131,12 @@ else()
         FetchContent_Populate(opencv)
         message(STATUS "Fetching precompiled OpenCV framework - done")
         message(STATUS "Configuring OpenCV framework")
-        file(COPY ${opencv_SOURCE_DIR}/ DESTINATION ${opencv_BINARY_DIR}/opencv2.framework)
         message(STATUS "Configuring OpenCV framework - done")
     endif()
     add_library(OpenCV::OpenCV INTERFACE IMPORTED GLOBAL)
-    target_compile_options(OpenCV::OpenCV INTERFACE -framework opencv2 -F${opencv_BINARY_DIR} $<$<COMPILE_LANGUAGE:CXX>:-Wno-unused-command-line-argument>)
+    target_compile_options(OpenCV::OpenCV INTERFACE -framework opencv2 -F${CMAKE_INSTALL_PREFIX}/framework $<$<COMPILE_LANGUAGE:CXX>:-Wno-unused-command-line-argument>)
     target_link_libraries(OpenCV::OpenCV INTERFACE "-framework opencv2")
-    target_link_options(OpenCV::OpenCV INTERFACE "-F${opencv_BINARY_DIR}")
+    target_link_options(OpenCV::OpenCV INTERFACE "-F${CMAKE_INSTALL_PREFIX}/framework")
     endif()
 
 endif()
