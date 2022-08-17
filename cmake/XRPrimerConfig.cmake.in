@@ -31,7 +31,7 @@ find_dependency(spdlog REQUIRED CONFIG)
 
 
 if(NOT IOS)
-  set(OpenCV_DIR "${PACKAGE_PREFIX_DIR}/lib/cmake/opencv4")
+  set(OpenCV_DIR "${PACKAGE_PREFIX_DIR}/share/OpenCV")
   find_dependency(OpenCV REQUIRED CONFIG)
   if(NOT TARGET Opencv::OpenCV)
     add_library(OpenCV::OpenCV INTERFACE IMPORTED GLOBAL)
