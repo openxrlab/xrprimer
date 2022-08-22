@@ -49,7 +49,7 @@ cmake --build build --target install -j4
 
 ```bash
 # build external from source
-cmake -S. -Bbuild -DBUILD_EXTERNAL=ON -DCMAKE_BUILD_TYPE=Release
+cmake -S. -Bbuild -DBUILD_EXTERNAL=ON -DCMAKE_BUILD_TYPE=Release -DENABLE_PRECOMPILED_HEADERS=OFF
 cmake --build build --target install
 
 # use conan for external
