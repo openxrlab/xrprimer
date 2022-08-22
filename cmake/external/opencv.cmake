@@ -114,6 +114,13 @@ if(NOT opencv_POPULATED)
     list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/video/include)
     list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/videoio/include)
     include_directories(${OpenCV_INCLUDE_DIRS})
+
+    SET(OPENCV_VERSION_FILE "${CMAKE_SOURCE_DIR}/_ext/opencv/modules/core/include/opencv2/core/version.hpp")
+    file(STRINGS "${OPENCV_VERSION_FILE}" OPENCV_VERSION_PARTS REGEX "#define CV_VERSION_[A-Z]+[ ]+" )
+    string(REGEX REPLACE ".+CV_VERSION_MAJOR[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_MAJOR "${OPENCV_VERSION_PARTS}")
+    string(REGEX REPLACE ".+CV_VERSION_MINOR[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_MINOR "${OPENCV_VERSION_PARTS}")
+    string(REGEX REPLACE ".+CV_VERSION_REVISION[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_PATCH "${OPENCV_VERSION_PARTS}")
+    string(REGEX REPLACE ".+CV_VERSION_STATUS[ ]+\"([^\"]*)\".*" "\\1" OPENCV_VERSION_STATUS "${OPENCV_VERSION_PARTS}")
 endif()
 
 else()
