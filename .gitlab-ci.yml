@@ -91,7 +91,7 @@ D:cpp_library:
     - cmake -S. -Bbuild -DENABLE_TEST=ON
     - cmake --build build -j4 --target install
     - echo "--- upload to minio ---"
-    - PKG_NAME=${CI_PROJECT_NAME}-${CI_COMMIT_REF_NAME}-Linux-x86_64-${CI_COMMIT_SHORT_SHA}-ubuntu18.04.tar.gz
+    - PKG_NAME=${CI_PROJECT_NAME}-${CI_COMMIT_REF_NAME}-Linux-x86_64-${CI_COMMIT_SHORT_SHA}-centos7.9.tar.gz
     - cd install && tar -zcvf ../${PKG_NAME} * && cd ../
     - wget http://file.kestrel.sensetime.com/software/mc &&  chmod +x mc
     - ./mc alias set minio ${MINIO_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
