@@ -500,3 +500,4 @@ ext/*
 _ext/*
 inbox/*
 **/build/
+.DS_Store
