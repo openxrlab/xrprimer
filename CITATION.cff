@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - name: "XRPrimer Contributors"
+title: "XRPrimer: OpenXRLab foundational library for XR-related algorithms"
+date-released: 2022-09-01
+url: "https://github.com/openxrlab/xrprimer"
+license: Apache-2.0
