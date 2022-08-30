@@ -9,3 +9,9 @@ target_link_libraries(test_image XRPrimer::xrprimer ceres Ceres::ceres Eigen3::E
 
 xr_add_test(test_version SRCS test_main.cpp test_version.cpp)
 target_link_libraries(test_version XRPrimer::xrprimer)
+
+xr_add_test(test_camera SRCS test_main.cpp test_camera.cpp)
+target_link_libraries(test_camera XRPrimer::xrprimer)
+
+xr_add_test(test_pose SRCS test_main.cpp test_pose.cpp)
+target_link_libraries(test_pose XRPrimer::xrprimer)

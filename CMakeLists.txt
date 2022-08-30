@@ -81,7 +81,6 @@ else()
     set(spdlog_DIR "${CONAN_SPDLOG_ROOT}/lib/cmake/spdlog")
     set(GTest_DIR "${CONAN_GTEST_ROOT}/lib/cmake/GTest")
     set(PnpSolver_DIR "${CONAN_PNPSOLVER_ROOT}/lib/cmake")
-
     find_package(Eigen3 REQUIRED CONFIG)
     find_package(Ceres REQUIRED CONFIG)
     find_package(OpenCV REQUIRED CONFIG)
@@ -100,6 +99,9 @@ endif()
 option(BUILD_SHARED_LIBS "Build shared instead of static libraries." OFF)
 option(ENABLE_TEST "Build unit test case." OFF)
 option(PYTHON_BINDING "Enable Python binding." ON)
+option(CODE_COVERAGE "code coverage" OFF)
+
+include(${CMAKE_SOURCE_DIR}/cmake/code-coverage.cmake)
 
 #
 # Set policies
