@@ -1,9 +1,13 @@
 #include <data_structure/pose.h>
-#include <gtest/gtest.h>
 
 #include <Eigen/Eigen>
 
-TEST(Pose, API) {
+#define CATCH_CONFIG_MAIN // This tells Catch to provide a main() - only do this
+                          // in one cpp file
+#include "catch.hpp"
+
+TEST_CASE("Pose api test", "xrprimer Pose") {
+
     Pose pose;
 
     Eigen::Vector3d vec3d;

@@ -13,5 +13,5 @@ target_link_libraries(test_version XRPrimer::xrprimer)
 xr_add_test(test_camera SRCS test_main.cpp test_camera.cpp)
 target_link_libraries(test_camera XRPrimer::xrprimer)
 
-xr_add_test(test_pose SRCS test_main.cpp test_pose.cpp)
+xr_add_test_catch2(test_pose SRCS test_pose.cpp)
 target_link_libraries(test_pose XRPrimer::xrprimer)
