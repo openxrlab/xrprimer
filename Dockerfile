@@ -48,3 +48,11 @@ RUN . /root/miniconda3/etc/profile.d/conda.sh && \
     conan remote add xrlab \
         http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab && \
     pip cache purge
+
+# Clone xrprimer and install
+RUN . /root/miniconda3/etc/profile.d/conda.sh && \
+    conda activate openxrlab && \
+    mkdir /workspace && cd /workspace && \
+    git clone https://github.com/openxrlab/xrprimer.git && \
+    cd xrprimer && pip install -e . && \
+    pip cache purge
