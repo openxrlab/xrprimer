@@ -23,6 +23,52 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build_cpp:
+    runs-on: ubuntu-18.04
+    defaults:
+      run:
+        shell: bash -l {0}
+    container:
+      image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
+      credentials:
+        username: ${{secrets.DOCKERHUB_USERNAME}}
+        password: ${{secrets.DOCKERHUB_PWD}}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Show conda env
+        run: |
+          source /root/miniconda3/etc/profile.d/conda.sh && conda deactivate
+          conda info -e
+          conda activate openxrlab
+          conda list | grep torch
+          conda list | grep mmcv
+      - name: Build and install
+        run: |
+          rm -rf xrprimer.egg-info
+          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          cmake -S. -Bbuild -DBUILD_EXTERNAL=ON -DENABLE_TEST=ON
+          cmake --build build -j4 --target install
+      - name: Prepare test data
+        run: |
+          cd build
+          wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz
+          tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
+          ln -sfn xrprimer/test test
+      - name: Run unittests and generate coverage report
+        run: |
+          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          ./bin/test_calibrator
+          ./bin/test_image
+          ./bin/test_version
+          # ./bin/test_pose
+          # ./bin/test_camera
+          PYTHONPATH=./cpp/pybind python ../cpp/tests/test_multi_camera_calibrator.py
+          PYTHONPATH=./cpp/pybind python ../cpp/tests/test_pnpsolver.py
+          mkdir coverage_html
+          coverage_filter="--filter ${CI_PROJECT_DIR}/cpp"
+          gcovr ${coverage_filter} -r . --object-directory=${CI_PROJECT_DIR}/build
+
+
   build_py38:
     runs-on: ubuntu-18.04
     defaults:
