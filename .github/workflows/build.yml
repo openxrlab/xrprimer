@@ -45,7 +45,7 @@ jobs:
         run: |
           rm -rf xrprimer.egg-info
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
-          cmake -S. -Bbuild -DBUILD_EXTERNAL=ON -DENABLE_TEST=ON
+          cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DBUILD_EXTERNAL=ON -DENABLE_TEST=ON -DCODE_COVERAGE=ON
           cmake --build build -j4 --target install
       - name: Prepare test data
         run: |
@@ -56,15 +56,14 @@ jobs:
       - name: Run unittests and generate coverage report
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
-          echo ${PWD}
           cd build
           ./bin/test_calibrator
           ./bin/test_image
           ./bin/test_version
           # ./bin/test_pose
           # ./bin/test_camera
-          PYTHONPATH=./cpp/pybind python ../cpp/tests/test_multi_camera_calibrator.py
-          PYTHONPATH=./cpp/pybind python ../cpp/tests/test_pnpsolver.py
+          PYTHONPATH=./lib python ../cpp/tests/test_multi_camera_calibrator.py
+          PYTHONPATH=./lib python ../cpp/tests/test_pnpsolver.py
           # pip install gcovr
           # mkdir coverage_html
           # coverage_filter="--filter ${CI_PROJECT_DIR}/cpp"
