@@ -40,8 +40,7 @@ jobs:
           source /root/miniconda3/etc/profile.d/conda.sh && conda deactivate
           conda info -e
           conda activate openxrlab
-          conda list | grep torch
-          conda list | grep mmcv
+          conda list | grep -e torch -e mmcv
       - name: Build and install
         run: |
           rm -rf xrprimer.egg-info
@@ -57,6 +56,8 @@ jobs:
       - name: Run unittests and generate coverage report
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          echo ${PWD}
+          cd build
           ./bin/test_calibrator
           ./bin/test_image
           ./bin/test_version
@@ -64,9 +65,10 @@ jobs:
           # ./bin/test_camera
           PYTHONPATH=./cpp/pybind python ../cpp/tests/test_multi_camera_calibrator.py
           PYTHONPATH=./cpp/pybind python ../cpp/tests/test_pnpsolver.py
-          mkdir coverage_html
-          coverage_filter="--filter ${CI_PROJECT_DIR}/cpp"
-          gcovr ${coverage_filter} -r . --object-directory=${CI_PROJECT_DIR}/build
+          # pip install gcovr
+          # mkdir coverage_html
+          # coverage_filter="--filter ${CI_PROJECT_DIR}/cpp"
+          # gcovr ${coverage_filter} -r . --object-directory=${CI_PROJECT_DIR}/build
 
 
   build_py38:
