@@ -1,7 +1,4 @@
-# XRPrimer library (CPP)
-
-
-## Quick Start
+# Installation (CPP)
 
 ### Requirements
 + C++14 or later compiler
@@ -50,16 +47,15 @@ cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target install
 ```
 
-
 ### Test
 
 CPP library
 
 ```bash
-# compiler
+# compile
 cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DENABLE_TEST=ON
 cmake --build build -j4
-#run test
+# run test
 cd build
 wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
 ln -sfn xrprimer/test test
@@ -76,9 +72,9 @@ wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.t
 PYTHONPATH=./cpp/pybind/ python ../cpp/tests/test_multi_camera_calibrator.py
 ```
 
-## How use in C++ projects
+## How to link in C++ projects
 
-see [sample](samples)
+see [cpp sample](../../../cpp/samples)
 
 ```js
 cmake_minimum_required(VERSION 3.16)
