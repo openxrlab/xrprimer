@@ -1,5 +1,15 @@
 # Installation (CPP)
 
+<!-- TOC -->
+
+- [Installation](#installation)
+  - [Requirements](#requirements)
+  - [Compilation](#compilation)
+  - [Test](#test)
+  - [How to link in C++ projects](#how-to-link-in-c-projects)
+
+<!-- TOC -->
+
 ### Requirements
 + C++14 or later compiler
 + GCC 7.5+
@@ -18,9 +28,7 @@ Optional:
 
     ```
 
-### Build
-
-Theoretically it can compile on Linux or Macos or Windows, Currently tested on Linux
+### Compilation
 
 ```bash
 git clone https://github.com/openxrlab/xrprimer.git
@@ -29,6 +37,8 @@ cd xrprimer/
 cmake -S. -Bbuild [Compilation options]
 cmake --build build --target install -j4
 ```
+
+It is currently tested on Linux, but ideally it can be also compiled on Macos or Windows.
 
 #### Compilation options
 
@@ -72,7 +82,7 @@ wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.t
 PYTHONPATH=./cpp/pybind/ python ../cpp/tests/test_multi_camera_calibrator.py
 ```
 
-## How to link in C++ projects
+### How to link in C++ projects
 
 see [cpp sample](../../../cpp/samples)
 

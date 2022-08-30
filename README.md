@@ -20,7 +20,7 @@ If you want to use the latest updates of xrprimer, please refer to [Python Insta
 
 ### C++
 
-If using xrprimer in a C++ project, please refer to [C++ Installation](docs/en/installation/cpp.md) for build, compilation and test.
+If using xrprimer in a C++ project, please refer to [C++ Installation](docs/en/installation/cpp.md) for compilation and test.
 
 
 ## Getting started
