@@ -9,8 +9,8 @@ jobs:
     container:
       image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
       credentials:
-        username: ${{secrets.dockerhub_username}}
-        password: ${{secrets.dockerhub_pwd}}
+        username: ${{secrets.DOCKERHUB_USERNAME}}
+        password: ${{secrets.DOCKERHUB_PWD}}
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, 3.10]
@@ -27,4 +27,4 @@ jobs:
       - name: Publish distribution to PyPI
         run: |
           pip install twine
-          twine upload dist/* -u __token__ -p ${{ secrets.pypi_password }}
+          twine upload dist/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}
