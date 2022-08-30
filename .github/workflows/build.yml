@@ -31,8 +31,8 @@ jobs:
     container:
       image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
       credentials:
-        username: ${{secrets.DOCKERHUB_USERNAME}}
-        password: ${{secrets.DOCKERHUB_PWD}}
+        username: ${{secrets.dockerhub_username}}
+        password: ${{secrets.dockerhub_pwd}}
     steps:
       - uses: actions/checkout@v2
       - name: Show conda env
@@ -78,8 +78,8 @@ jobs:
     container:
       image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
       credentials:
-        username: ${{secrets.DOCKERHUB_USERNAME}}
-        password: ${{secrets.DOCKERHUB_PWD}}
+        username: ${{secrets.dockerhub_username}}
+        password: ${{secrets.dockerhub_pwd}}
     steps:
       - uses: actions/checkout@v2
       - name: Show conda env
@@ -104,7 +104,7 @@ jobs:
       - name: Run unittests and generate coverage report
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
-          coverage run --source xrprimer -m pytest test/
+          coverage run --source xrprimer -m pytest python/test/
           coverage xml
           coverage report -m
       - name: Upload coverage to Codecov

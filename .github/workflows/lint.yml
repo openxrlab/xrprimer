@@ -27,5 +27,4 @@ jobs:
       - name: Check docstring coverage
         run: |
           pip install interrogate
-          echo ${GITHUB_ACTION_PATH}
           interrogate -vinmMI --ignore-init-method --ignore-module --ignore-nested-functions --ignore-regex "__repr__" -f 60 python/xrprimer/

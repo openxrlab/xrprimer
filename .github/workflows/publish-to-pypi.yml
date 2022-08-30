@@ -4,14 +4,22 @@ on: push
 
 jobs:
   build-n-publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     if: startsWith(github.event.ref, 'refs/tags')
+    container:
+      image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
+      credentials:
+        username: ${{secrets.dockerhub_username}}
+        password: ${{secrets.dockerhub_pwd}}
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9, 3.10]
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: ${{ matrix.python-version }}
       - name: Build XRPrimer
         run: |
           pip install wheel
