@@ -1,6 +1,6 @@
 # XRPrimer
 
-<div align="center">
+<div align="left">
 
 [![actions](https://github.com/openxrlab/xrprimer/workflows/build/badge.svg)](https://github.com/openxrlab/xrprimer/actions)
 [![codecov](https://codecov.io/gh/openxrlab/xrprimer/branch/main/graph/badge.svg)](https://codecov.io/gh/openxrlab/xrprimer)
