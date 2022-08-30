@@ -1,6 +1,17 @@
 # XRPrimer
 
+<div align="center">
+
+[![actions](https://github.com/openxrlab/xrprimer/workflows/build/badge.svg)](https://github.com/openxrlab/xrprimer/actions)
+[![codecov](https://codecov.io/gh/openxrlab/xrprimer/branch/main/graph/badge.svg)](https://codecov.io/gh/openxrlab/xrprimer)
+[![PyPI](https://img.shields.io/pypi/v/xrprimer)](https://pypi.org/project/xrprimer/)
+[![LICENSE](https://img.shields.io/github/license/openxrlab/xrprimer.svg)](https://github.com/openxrlab/xrprimer/blob/main/LICENSE)
+
+</div>
+
 ## Introduction
+
+English | [简体中文](README_CN.md)
 
 XRPrimer is a fundational library for XR-related algorithms.
 The XRPrimer provides reusable data structures, efficient operaters and extensible interfaces both in C++ and Python.
