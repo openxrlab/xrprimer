@@ -1,4 +1,4 @@
-# Installation
+# Installation (Python)
 
 <!-- TOC -->
 
@@ -13,7 +13,7 @@
 
 - Linux
 - Conda
-- Python 3.7+
+- Python 3.6+
 
 ## Prepare environment
 
@@ -23,13 +23,13 @@ a. Create a conda virtual environment and activate it.
 ## Install XRPrimer (python)
 
 
-### Install XRPrimer with pip:
+### Install XRPrimer with pip
 
 ```shell
-pip install xrprimer -i https://repo.sensetime.com/repository/pypi/simple
+pip install xrprimer
 ```
 
-### Install XRPrimer by compiling from source:
+### Install XRPrimer by compiling from source
 
 a. Create a conda virtual environment and activate it.
 
@@ -41,7 +41,7 @@ conda activate openxrlab
 b. Clone the repo.
 
 ```shell
-git clone git@gitlab.bj.sensetime.com:openxrlab/xrprimer.git
+git clone https://github.com/openxrlab/xrprimer.git
 cd xrprimer/
 ```
 c. (Optional) Install conan

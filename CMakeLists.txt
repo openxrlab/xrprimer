@@ -7,10 +7,10 @@ get_revison_from_vcs(${CMAKE_SOURCE_DIR} GIT_REV)
 # meta info
 #
 set(META_PROJECT_NAME        "xrprimer")
-set(META_PROJECT_DESCRIPTION "OpenXRLab base library")
+set(META_PROJECT_DESCRIPTION "OpenXRLab foundational library")
 set(META_AUTHOR_ORGANIZATION "OpenXRLab")
 set(META_AUTHOR_DOMAIN       "OpenXRLab")
-set(META_AUTHOR_MAINTAINER   "openxrlab@sensetime.com")
+set(META_AUTHOR_MAINTAINER   "openxrlab@pjlab.org.cn")
 
 #
 # parse version number

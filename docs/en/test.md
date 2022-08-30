@@ -11,7 +11,7 @@ Download data from the file server, and extract files to `python/test/data`.
 
 ```
 cd python/test
-wget -q http://10.4.11.59:18080/resources/XRlab/xrprimer.tar.gz
+wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz
 tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
 cp -r xrprimer/test/data ./
 rm -rf xrprimer && cd ../../
