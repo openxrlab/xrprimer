@@ -1,4 +1,4 @@
-exclude: .*/test/data/|.clang-format
+exclude: .*/test/data/|.clang-format|(tests/catch.hpp)
 repos:
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v14.0.1
