@@ -16,6 +16,19 @@ English | [简体中文](README_CN.md)
 XRPrimer is a fundational library for XR-related algorithms.
 The XRPrimer provides reusable data structures, efficient operaters and extensible interfaces both in C++ and Python.
 
+### Major Features
+
+- [x] Various camera models and conversion tools (Pinhole, Fisheye, Omni etc.)
+- [x] Basic 3D operations (Triangulation, Projection etc.)
+- [x] Multi-camera extrinsic calibration tools
+- [ ] Rendering and visualization tools
+
+### Operation Systems
+
+It currently supports the following systems.
+
+- Linux
+- iOS
 
 ## Installation
 
