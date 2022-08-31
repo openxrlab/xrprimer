@@ -26,6 +26,9 @@ Optional:
 
     # 2. add conan artifactory
     conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
+
+    # 3. check
+    conan remote list
     ```
 
 ### Compilation

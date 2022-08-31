@@ -87,12 +87,13 @@ jobs:
           source /root/miniconda3/etc/profile.d/conda.sh && conda deactivate
           conda info -e
           conda activate openxrlab
-          conda list | grep torch
-          conda list | grep mmcv
+          conda list | grep -e torch -e mmcv
       - name: Build and install
         run: |
           rm -rf xrprimer.egg-info
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          pip install conan
+          conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
           pip install -e .
       - name: Prepare test data
         run: |
