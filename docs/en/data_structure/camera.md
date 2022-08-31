@@ -26,22 +26,22 @@ For detailed convention, please refer to [camera convention doc](../transform/ca
 
 #### Create a Camera
 
-In C++
+Create a pinhole camera in C++
 
 ```C++
 #include <data_structure/camera/pinhole_camera.h>
 
-auto pinholecamera = PinholeCameraParameter();
-std::cout << pinholecamera.ClassName() << std::endl;
+auto pinhole_param = PinholeCameraParameter();
+std::cout << pinhole_param.ClassName() << std::endl;
 ```
 
-In Python
+Create a pinhole camera in Python
 
 ```python
 from xrprimer.data_structure.camera import PinholeCameraParameter
 
 pinhole_param = PinholeCameraParameter()
-
+print(type(pinhole_param).__name__)
 ```
 
 #### File IO

@@ -1,29 +1,31 @@
 # Image
 
 This file introduces the supported image data structure in C++.
-
-
-why we need to define a new image class?
-
-
 It is an extension of OpenCV Mat, and also provides a way to convert between OpenCV Mat and Image.
-
-Besides the normal attributes for an Image, it defines attributes like `timestamp` which is convenient for algorithms like SLAM.
 
 #### Attributes
 
-Here are attributes of class `PinholeCameraParameter`:
+Here are attributes of class `Image`.
 
-| Attribute name | Type     | Description                                                  |
-| -------------- | -------- | ------------------------------------------------------------ |
-| name           | string   | Name of the camera.                                          |
+| Attribute name  | Type                       | Description                                     |
+| --------------- | -------------------------- | ----------------------------------------------- |
+| width           | int                        |  Image width in pixels                          |
+| height          | int                        |  Image height in pixels                         |
+| step\_          | int                        |  Size of aligned image row in bytes             |
+| ts              | int64\_t                   |  Image timestamp                                |
+| stream\_id      | int64\_t                   |  Image stream index                             |
+| format\_        | PixelFormat                |  Image format (e.g., RGB24, BGR24, RGBA, GRAY8) |
+| storage\_data\_ | std::shared\_ptr<uint8\_t> |  Pointer to image data                          |
+
+Besides the normal attributes for an image, it defines attributes like `timestamp` which is convenient for algorithms like SLAM.
 
 #### Create an Image
 
-Note that `Image` follows a more CV tradition like using (w, h)
+Note that `Image` follows the order (width, height).
 
 ```C++
-Image img(10, 20, 30, RGB24);
+// create a color image with w=20 and h=10
+Image img(20, 10, RGB24);
 ```
 
 #### From Image to OpenCV
