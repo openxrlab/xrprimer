@@ -49,7 +49,7 @@ c. (Optional) Install conan
 ```shell
 # (Optional) compile from source code with conan, otherwise it will build external libs from source
 pip install conan
-conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
+conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
 ```
 d. Install PyTorch and MMCV
 

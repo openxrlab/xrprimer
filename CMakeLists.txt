@@ -69,7 +69,7 @@ else()
 
     conan_cmake_autodetect(settings)
     conan_cmake_install(PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
-        REMOTE xrlab
+        REMOTE openxrlab
         SETTINGS ${settings})
     conan_load_buildinfo()
 
