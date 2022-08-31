@@ -139,7 +139,7 @@ class Image {
     int step() const;
 
     /**
-     * @brief Size of aligned image row in bytes.
+     * @brief Pointer to aligned image data
      *
      * @return void*
      */
