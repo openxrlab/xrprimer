@@ -1,9 +1,8 @@
 # Running Tests
 
-- [Running Tests](#running-tests)
-  - [Data Preparation](#data-preparation)
-  - [Environment Preparation](#environment-preparation)
-  - [Running tests through pytest](#running-tests-through-pytest)
+- [Data Preparation](#data-preparation)
+- [Environment Preparation](#environment-preparation)
+- [Running tests through pytest](#running-tests-through-pytest)
 
 ## Data Preparation
 

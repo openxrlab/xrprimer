@@ -2,11 +2,10 @@
 
 <!-- TOC -->
 
-- [Installation](#installation)
-  - [Requirements](#requirements)
-  - [Compilation](#compilation)
-  - [Test](#test)
-  - [How to link in C++ projects](#how-to-link-in-c-projects)
+- [Requirements](#requirements)
+- [Compilation](#compilation)
+- [Test](#test)
+- [How to link in C++ projects](#how-to-link-in-c-projects)
 
 <!-- TOC -->
 

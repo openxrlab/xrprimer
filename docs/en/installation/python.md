@@ -2,10 +2,9 @@
 
 <!-- TOC -->
 
-- [Installation](#installation)
-  - [Requirements](#requirements)
-  - [Prepare environment](#prepare-environment)
-  - [Install XRPrimer(python)](#install-xrprimerpython)
+- [Requirements](#requirements)
+- [Prepare environment](#prepare-environment)
+- [Install XRPrimer(python)](#install-xrprimerpython)
 
 <!-- TOC -->
 

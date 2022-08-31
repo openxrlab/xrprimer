@@ -1,11 +1,10 @@
 # Triangulator
 
-- Triangulator
-  - [Prepare camera parameters](#prepare-camera-parameters)
-  - [Build a triangulator](#build-a-triangulator)
-  - [Triangulate points from 2D to 3D](#triangulate-points-from-2d-to-3d)
-  - [Get reprojection error](#get-reprojection-error)
-  - [Camera selection](#camera-selection)
+- [Prepare camera parameters](#prepare-camera-parameters)
+- [Build a triangulator](#build-a-triangulator)
+- [Triangulate points from 2D to 3D](#triangulate-points-from-2d-to-3d)
+- [Get reprojection error](#get-reprojection-error)
+- [Camera selection](#camera-selection)
 
 ## Prepare camera parameters
 
