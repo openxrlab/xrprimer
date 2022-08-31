@@ -96,7 +96,7 @@ jobs:
           pip install -e .
       - name: Prepare test data
         run: |
-          cd python/test
+          cd python/tests
           wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
           mv xrprimer/test/data ./
@@ -104,7 +104,7 @@ jobs:
       - name: Run unittests and generate coverage report
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
-          coverage run --source xrprimer -m pytest python/test/
+          coverage run --source xrprimer -m pytest python/tests/
           coverage xml
           coverage report -m
       - name: Upload coverage to Codecov

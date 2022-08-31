@@ -6,7 +6,7 @@
 
 ## Data Preparation
 
-Download data from the file server, and extract files to `python/test/data`.
+Download data from the file server, and extract files to `python/tests/data`.
 
 ```
 cd python/test
@@ -26,11 +26,11 @@ pip install -r python/requirements/test.txt
 
 ## Running tests through pytest
 
-Running all the tests below `python/test`. It is a good way to validate whether `XRprimer` has been correctly installed:
+Running all the tests below `python/tests`. It is a good way to validate whether `XRPrimer` has been correctly installed:
 
 ```
 cd python
-pytest test/
+pytest tests/
 cd ..
 ```
 
@@ -38,7 +38,7 @@ Generate a coverage for the test:
 
 ```
 cd python
-coverage run --source xrprimer -m pytest test/
+coverage run --source xrprimer -m pytest tests/
 coverage xml
 coverage report -m
 cd ..
