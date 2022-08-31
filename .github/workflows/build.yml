@@ -60,8 +60,8 @@ jobs:
           ./bin/test_calibrator
           ./bin/test_image
           ./bin/test_version
-          # ./bin/test_pose
-          # ./bin/test_camera
+          ./bin/test_pose
+          ./bin/test_camera
           PYTHONPATH=./lib python ../cpp/tests/test_multi_camera_calibrator.py
           PYTHONPATH=./lib python ../cpp/tests/test_pnpsolver.py
           # pip install gcovr
