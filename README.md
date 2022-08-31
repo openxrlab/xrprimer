@@ -1,10 +1,34 @@
 # XRPrimer
 
+<div align="left">
+
+[![actions](https://github.com/openxrlab/xrprimer/workflows/build/badge.svg)](https://github.com/openxrlab/xrprimer/actions)
+[![codecov](https://codecov.io/gh/openxrlab/xrprimer/branch/main/graph/badge.svg)](https://codecov.io/gh/openxrlab/xrprimer)
+[![PyPI](https://img.shields.io/pypi/v/xrprimer)](https://pypi.org/project/xrprimer/)
+[![LICENSE](https://img.shields.io/github/license/openxrlab/xrprimer.svg)](https://github.com/openxrlab/xrprimer/blob/main/LICENSE)
+
+</div>
+
 ## Introduction
+
+English | [简体中文](README_CN.md)
 
 XRPrimer is a fundational library for XR-related algorithms.
 The XRPrimer provides reusable data structures, efficient operaters and extensible interfaces both in C++ and Python.
 
+### Major Features
+
+- [x] Various camera models and conversion tools (Pinhole, Fisheye, Omni etc.)
+- [x] Basic 3D operations (Triangulation, Projection etc.)
+- [x] Multi-camera extrinsic calibration tools
+- [ ] Rendering and visualization tools
+
+### Operation Systems
+
+It currently supports the following systems.
+
+- Linux
+- iOS
 
 ## Installation
 

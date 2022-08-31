@@ -4,14 +4,22 @@ on: push
 
 jobs:
   build-n-publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     if: startsWith(github.event.ref, 'refs/tags')
+    container:
+      image: openxrlab/xrprimer_ci:manylinux2014_x86_64_torch180_mmcv150
+      credentials:
+        username: ${{secrets.DOCKERHUB_USERNAME}}
+        password: ${{secrets.DOCKERHUB_PWD}}
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9, 3.10]
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: ${{ matrix.python-version }}
       - name: Build XRPrimer
         run: |
           pip install wheel
@@ -19,4 +27,4 @@ jobs:
       - name: Publish distribution to PyPI
         run: |
           pip install twine
-          twine upload dist/* -u __token__ -p ${{ secrets.pypi_password }}
+          twine upload dist/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}

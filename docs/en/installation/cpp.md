@@ -2,11 +2,10 @@
 
 <!-- TOC -->
 
-- [Installation](#installation)
-  - [Requirements](#requirements)
-  - [Compilation](#compilation)
-  - [Test](#test)
-  - [How to link in C++ projects](#how-to-link-in-c-projects)
+- [Requirements](#requirements)
+- [Compilation](#compilation)
+- [Test](#test)
+- [How to link in C++ projects](#how-to-link-in-c-projects)
 
 <!-- TOC -->
 
@@ -18,14 +17,15 @@
 Optional:
 + [Conan](https://docs.conan.io/en/1.46/installation.html) (for using pre-built 3rd-party libraries)
     ``` bash
-    # config
+    # 0. install conan
+    pip install conan
+
     # 1. first run
     conan profile new --detect --force default
     conan profile update settings.compiler.libcxx=libstdc++11 default
 
-    # 2. add conan registry
-    conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
-
+    # 2. add conan artifactory
+    conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
     ```
 
 ### Compilation
@@ -38,7 +38,7 @@ cmake -S. -Bbuild [Compilation options]
 cmake --build build --target install -j4
 ```
 
-It is currently tested on Linux, but ideally it can be also compiled on Macos or Windows.
+It is currently tested on Linux and iOS. Ideally it can be also compiled on macOS or Windows.
 
 #### Compilation options
 
@@ -56,6 +56,11 @@ cmake --build build --target install
 cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target install
 ```
+
+#### Compilation on iOS
+
+Refer to [build_ios.sh](../../../scripts/build_ios.sh) for more details.
+
 
 ### Test
 
