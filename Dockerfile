@@ -45,6 +45,14 @@ RUN . /root/miniconda3/etc/profile.d/conda.sh && \
     pip install torch==1.8.1 torchvision==0.9.1 -i https://pypi.tuna.tsinghua.edu.cn/simple && \
     pip install mmcv==1.5.0 && \
     pip install conan && \
-    conan remote add xrlab \
-        http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab && \
+    conan remote add openxrlab \
+        http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab && \
+    pip cache purge
+
+# Clone xrprimer and install
+RUN . /root/miniconda3/etc/profile.d/conda.sh && \
+    conda activate openxrlab && \
+    mkdir /workspace && cd /workspace && \
+    git clone https://github.com/openxrlab/xrprimer.git && \
+    cd xrprimer && pip install -e . && \
     pip cache purge

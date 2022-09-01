@@ -1,11 +1,10 @@
-# Installation
+# Installation (Python)
 
 <!-- TOC -->
 
-- [Installation](#installation)
-  - [Requirements](#requirements)
-  - [Prepare environment](#prepare-environment)
-  - [Install XRPrimer(python)](#install-xrprimerpython)
+- [Requirements](#requirements)
+- [Prepare environment](#prepare-environment)
+- [Install XRPrimer(python)](#install-xrprimerpython)
 
 <!-- TOC -->
 
@@ -13,7 +12,7 @@
 
 - Linux
 - Conda
-- Python 3.7+
+- Python 3.6+
 
 ## Prepare environment
 
@@ -23,13 +22,13 @@ a. Create a conda virtual environment and activate it.
 ## Install XRPrimer (python)
 
 
-### Install XRPrimer with pip:
+### Install with pip
 
 ```shell
-pip install xrprimer -i https://repo.sensetime.com/repository/pypi/simple
+pip install xrprimer
 ```
 
-### Install XRPrimer by compiling from source:
+### Install by compiling from source
 
 a. Create a conda virtual environment and activate it.
 
@@ -41,17 +40,18 @@ conda activate openxrlab
 b. Clone the repo.
 
 ```shell
-git clone git@gitlab.bj.sensetime.com:openxrlab/xrprimer.git
+git clone https://github.com/openxrlab/xrprimer.git
 cd xrprimer/
 ```
+
 c. (Optional) Install conan
 
-
 ```shell
-# (Optional) compile from source code with conan, otherwise it will build external libs from source
+# compiling with conan accelerates the compilation with pre-built libs, otherwise it builds external libs from source
 pip install conan
-conan remote add xrlab http://conan.kestrel.sensetime.com/artifactory/api/conan/xrlab
+conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
 ```
+
 d. Install PyTorch and MMCV
 
 Install PyTorch and torchvision following [official instructions](https://pytorch.org/).

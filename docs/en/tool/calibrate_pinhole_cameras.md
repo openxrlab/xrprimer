@@ -1,1 +1,0 @@
-# Calibrate Pinhole Cameras

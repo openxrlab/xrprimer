@@ -23,56 +23,97 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build_cuda101:
+  build_cpp:
     runs-on: ubuntu-18.04
-    strategy:
-      matrix:
-        python-version: [3.7]
-        torch: [1.7.0, 1.8.0]
-        include:
-          - torch: 1.7.0
-            torchvision: 0.8.1
-          - torch: 1.8.0
-            torchvision: 0.9.0
     defaults:
       run:
         shell: bash -l {0}
-
+    container:
+      image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
+      credentials:
+        username: ${{secrets.DOCKERHUB_USERNAME}}
+        password: ${{secrets.DOCKERHUB_PWD}}
     steps:
       - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          activate-environment: xrprimer_env
-          python-version: ${{matrix.python-version}}
-          auto-activate-base: false
+      - name: Show conda env
+        run: |
+          source /root/miniconda3/etc/profile.d/conda.sh && conda deactivate
+          conda info -e
+          conda activate openxrlab
+          conda list | grep -e torch -e mmcv
+      - name: Build and install
+        run: |
+          rm -rf xrprimer.egg-info
+          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          pip install conan
+          conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
+          cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DBUILD_EXTERNAL=ON -DENABLE_TEST=ON -DCODE_COVERAGE=ON
+          cmake --build build -j4 --target install
       - name: Prepare test data
         run: |
-          # TODO: prepare test data or remove this step
-      - name: Upgrade pip
-        run: pip install pip --upgrade
-      - name: Install ffmpeg
-        run: |
-          conda install ffmpeg
-          ffmpeg -version
-      - name: Install PyTorch
-        run: |
-          conda install pytorch==${{matrix.torch}} torchvision==${{matrix.torchvision}} cudatoolkit=10.1 -c pytorch
-      - name: Install MMCV
-        run: |
-          pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cpu/torch${{matrix.torch}}/index.html
-          python -c 'import mmcv; print(mmcv.__version__)'
-      - name: Install other dependencies
-        run: pip install -r requirements.txt
-      - name: Build and install
-        run: rm -rf .eggs && pip install -e .
+          cd build
+          wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz
+          tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
+          ln -sfn xrprimer/test test
       - name: Run unittests and generate coverage report
         run: |
-          coverage run --source xrprimer -m pytest tests/
+          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          cd build
+          ./bin/test_calibrator
+          ./bin/test_image
+          ./bin/test_version
+          ./bin/test_pose
+          ./bin/test_camera
+          PYTHONPATH=./lib python ../cpp/tests/test_multi_camera_calibrator.py
+          PYTHONPATH=./lib python ../cpp/tests/test_pnpsolver.py
+          # pip install gcovr
+          # mkdir coverage_html
+          # coverage_filter="--filter ${CI_PROJECT_DIR}/cpp"
+          # gcovr ${coverage_filter} -r . --object-directory=${CI_PROJECT_DIR}/build
+
+
+  build_py38:
+    runs-on: ubuntu-18.04
+    defaults:
+      run:
+        shell: bash -l {0}
+    container:
+      image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
+      credentials:
+        username: ${{secrets.DOCKERHUB_USERNAME}}
+        password: ${{secrets.DOCKERHUB_PWD}}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Show conda env
+        run: |
+          source /root/miniconda3/etc/profile.d/conda.sh && conda deactivate
+          conda info -e
+          conda activate openxrlab
+          conda list | grep -e torch -e mmcv
+      - name: Build and install
+        run: |
+          rm -rf xrprimer.egg-info
+          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          pip install conan
+          conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
+          pip install -e .
+      - name: Prepare test data
+        run: |
+          cd python/tests
+          wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz
+          tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
+          mv xrprimer/test/data ./
+          rm -rf xrprimer && cd ..
+      - name: Run unittests and generate coverage report
+        run: |
+          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          coverage run --source xrprimer -m pytest python/tests/
           coverage xml
           coverage report -m
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           flags: unittests
           env_vars: OS,PYTHON

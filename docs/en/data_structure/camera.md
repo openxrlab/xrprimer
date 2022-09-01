@@ -1,14 +1,15 @@
 # Camera
 
 This file introduces the supported camera and distortion models.
+It is defined in C++ and bound to Python for extended use.
 
 ## Pinhole
 
-A pinhole camera is a simple camera without a lens but with a tiny aperture(from [Wikipedia](https://en.wikipedia.org/wiki/Pinhole_camera)).
+A pinhole camera is a simple camera without a lens but with a tiny aperture (from [Wikipedia](https://en.wikipedia.org/wiki/Pinhole_camera)).
 
-##### Attributes
+#### Attributes
 
-Here are attributes of a PinholeCameraParameter below:
+Here are attributes of class `PinholeCameraParameter`:
 
 | Attribute name | Type     | Description                                                  |
 | -------------- | -------- | ------------------------------------------------------------ |
@@ -21,9 +22,29 @@ Here are attributes of a PinholeCameraParameter below:
 | world2cam      | bool     | Whether the R, T transform points from world space to camera space. |
 | convention     | string   | Convention name of this camera.                              |
 
-For details of convention, please refer to [camera convention doc](../transform/camera_convention.md).
+For detailed convention, please refer to [camera convention doc](../transform/camera_convention.md).
 
-##### File IO
+#### Create a Camera
+
+Create a pinhole camera in C++
+
+```C++
+#include <data_structure/camera/pinhole_camera.h>
+
+auto pinhole_param = PinholeCameraParameter();
+std::cout << pinhole_param.ClassName() << std::endl;
+```
+
+Create a pinhole camera in Python
+
+```python
+from xrprimer.data_structure.camera import PinholeCameraParameter
+
+pinhole_param = PinholeCameraParameter()
+print(type(pinhole_param).__name__)
+```
+
+#### File IO
 
 A camera parameter defined in XRPrimer can dump its parameters to a json file or load a dumped json file easily.
 
@@ -37,9 +58,9 @@ pinhole_param.load('./pinhole_param.npz')
 pinhole_param.dump('./pinhole_param.npz')
 ```
 
-##### Set intrinsic
+#### Set intrinsic
 
-There are three ways of setting intrinsic.
+There are 3 ways of setting intrinsic.
 
 a. Set with a 4x4 K matrix.
 
@@ -71,7 +92,7 @@ pinhole_param.set_intrinsic(
 	perspective=True)
 ```
 
-##### Set extrinsics
+#### Set extrinsics
 
 To set extrinsic_r or extrinsic_t, call `set_KRT()`. Remember that `world2cam` argument is important, always check the direction before setting.
 
@@ -82,7 +103,7 @@ pinhole_param.set_KRT(R=mat_3x3, T=vec_3, world2cam=False)
 pinhole_param.set_KRT(R=mat_3x3, T=vec_3)
 ```
 
-##### Inverse extrinsics
+#### Inverse extrinsics
 
 Sometimes the extrinsic parameters are not what you desire. Call `inverse_extrinsic()` to inverse the direction, `world2cam` will be inversed synchronously.
 
@@ -93,7 +114,7 @@ pinhole_param.inverse_extrinsic()
 cam2world_r = pinhole_param.get_extrinsic_r()
 ```
 
-##### Clone
+#### Clone
 
 In order to get a new camera parameter instance which can be modified arbitrarily, call `clone()`.
 
@@ -101,7 +122,7 @@ In order to get a new camera parameter instance which can be modified arbitraril
 another_pinhole_param = pinhole_param.clone()
 ```
 
-##### Get attributes
+#### Get attributes
 
 ```python
 # intrinsic
@@ -115,24 +136,24 @@ translation_vec = pinhole_param.get_extrinsic_t() # a list whose length is 3
 
 ## Fisheye
 
-A fisheye lens is an ultra wide-angle lens that produces strong visual distortion intended to create a wide panoramic or hemispherical image(from [Wikipedia](https://en.wikipedia.org/wiki/Fisheye_lens)). In XRPrimer, it's a sub-class of `class PinholeCameraParameter`.
+A fisheye lens is an ultra wide-angle lens that produces strong visual distortion intended to create a wide panoramic or hemispherical image (from [Wikipedia](https://en.wikipedia.org/wiki/Fisheye_lens)). In XRPrimer, it's a sub-class of class `PinholeCameraParameter`.
 
-##### Attributes
+#### Attributes
 
-Here are additional attributes of a FisheyeCameraParameter below:
+Here are additional attributes of a FisheyeCameraParameter. There are 6 parameters for radial distortion (k1-k6) and 2 parameters for tangential distortion (p1-p2).
 
-| Attribute name | Type  | Description |
-| -------------- | ----- | ----------- |
-| k1             | float |             |
-| k2             | float |             |
-| k3             | float |             |
-| k4             | float |             |
-| k5             | float |             |
-| k6             | float |             |
-| p1             | float |             |
-| p2             | float |             |
+| Attribute name | Type  |
+| -------------- | ----- |
+| k1             | float |
+| k2             | float |
+| k3             | float |
+| k4             | float |
+| k5             | float |
+| k6             | float |
+| p1             | float |
+| p2             | float |
 
-##### Set distortion coefficients
+#### Set distortion coefficients
 
 a. Set all the coefficients.
 
@@ -146,7 +167,7 @@ b. Set all the first four ks, k5 and k6 will keep their value.
 fisheye_param.set_dist_coeff(dist_coeff_k=[k1, k2, k3, k4], dist_coeff_p=[p1, p2])
 ```
 
-##### Get attributes
+#### Get attributes
 
 ```python
 # distortion coefficients in opencv sequence
