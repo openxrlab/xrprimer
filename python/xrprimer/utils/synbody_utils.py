@@ -109,7 +109,8 @@ class SynbodyReader:
         file_path = folder / f'{frame:04d}.exr'
         if not file_path.exists():
             raise ValueError(f"Depth of {frame}-frame not found: {file_path}")
-        return SynbodyExrReader(file_path).get_depth(depth_rescale=depth_rescale)
+        return SynbodyExrReader(file_path).get_depth(
+            depth_rescale=depth_rescale)
 
     def get_flow(self, frame: int):
         """Get optical flow of the given frame ("optical_flow/{frame:04d}.exr")
@@ -191,6 +192,14 @@ class SynbodyReader:
 
             smplx.append(humandata_smplx)
         return smplx
+
+    def get_camera(self) -> PinholeCameraParameter:
+        """Get camera parameter used in the sequence.
+
+        Returns:
+            PinholeCameraParameter: the camera parameter instance
+        """
+        return self.seq_data_reader.get_camera()
 
 
 class SynbodyExrReader(ExrReader):
@@ -350,7 +359,7 @@ class SeqDataReader:
     def get_camera(
         self, resolution: Tuple[int,
                                 int] = (1280, 720)) -> PinholeCameraParameter:
-        """Get camera parameter of the sequence.
+        """Get camera parameter used in the sequence.
 
         Args:
             resolution (Tuple[int, int], optional):
