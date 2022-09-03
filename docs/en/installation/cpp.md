@@ -87,7 +87,7 @@ cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j4
 cd build
 wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
-PYTHONPATH=./cpp/pybind/ python ../cpp/tests/test_multi_camera_calibrator.py
+PYTHONPATH=./lib/ python ../cpp/tests/test_multi_camera_calibrator.py
 ```
 
 ### How to link in C++ projects
