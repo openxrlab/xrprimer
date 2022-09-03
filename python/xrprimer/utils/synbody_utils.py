@@ -21,6 +21,7 @@ PathLike = Union[str, Path]
 class SynbodyExrReader(ExrReader):
     """Load `.exr` format file.
     """
+
     @staticmethod
     def float2int(array: np.ndarray) -> np.ndarray:
         """Convert float type data to uint8 that can be display as image."""
@@ -41,7 +42,7 @@ class SynbodyExrReader(ExrReader):
         img = self.float2int(img)
         return img
 
-    def get_flow(self, bgr: bool = True) -> np.ndarray:
+    def get_flow(self) -> np.ndarray:
         """Get optical flow in `.exr` format.
 
         Returns:
@@ -50,7 +51,7 @@ class SynbodyExrReader(ExrReader):
         flow_r = self.read_channel('R')
         flow_g = self.read_channel('G')
         flow = np.stack((flow_r, flow_g), axis=2)
-        img = flow_vis.flow_to_color(flow, convert_to_bgr=bgr)
+        img = flow_vis.flow_to_color(flow, convert_to_bgr=False)
         return img
 
     def get_depth(self, depth_rescale: float = 1.0) -> np.ndarray:
@@ -58,7 +59,7 @@ class SynbodyExrReader(ExrReader):
 
         Args:
             depth_rescale (float, optional): scaling the depth to map it into (0, 255).
-                Defaults to 1.0.
+                Depth values great than `depth_rescale` will be clipped. Defaults to 1.0.
 
         Returns:
             np.ndarray: depth data of shape (H, W, 3)
@@ -76,6 +77,7 @@ class SynbodyExrReader(ExrReader):
 class SeqDataReader:
     """Load 'seq_data.json' files, which contain sequences composition information.
     """
+
     def __init__(self, seq_data_path: PathLike) -> None:
         """Load seq_data.json in SynBody dataset
 
@@ -87,7 +89,7 @@ class SeqDataReader:
         self.seq_data: Dict = seq_data
 
     def get_mask_colors(self) -> List[Tuple[int, int, int]]:
-        """Load seq_data.json, get mask colors (rgb).
+        """Get all actor models' segmentation mask colors (rgb) from the seq_data.
 
         Returns:
             List[Tuple[int, int, int]]: list of mask colors in (R, G, B)
