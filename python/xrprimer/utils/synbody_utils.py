@@ -18,6 +18,87 @@ from ..io.exr_reader import ExrReader
 PathLike = Union[str, Path]
 
 
+class SynbodyReader:
+    """Load from SynBody dataset of one sequence.
+    Provide utils to get data of various modalities.
+    """
+    # folder names of each data modal
+    MASK = 'mask'
+    DEPTH = 'depth'
+    OPTICAL_FLOW = 'optical_flow'
+    RGB = 'rgb'
+    SMPLX = 'smplx'
+    NORMAL = 'normal'
+
+    def __init__(self, seq_data_path: PathLike) -> None:
+        """Load seq_data.json in SynBody dataset
+
+        Args:
+            seq_data_path (PathLike): Files are named: 'seq_data.json'
+        """
+        self.seq_data_reader = SeqDataReader(seq_data_path)
+        self.sequence_dir = Path(seq_data_path).parent
+
+    def get_mask_colors(self) -> List[Tuple[int, int, int]]:
+        """Get all actor models' segmentation mask colors (rgb) from the seq_data.
+
+        Returns:
+            List[Tuple[int, int, int]]: list of mask colors in (R, G, B)
+        """
+        return self.seq_data_reader.get_mask_colors()
+
+    def get_mask(self, frame: int) -> np.ndarray:
+        """Get mask of the given frame ("mask/{frame:04d}.exr")
+
+        Args:
+            frame (int): the frame number
+
+        Returns:
+            np.ndarray: masks of shape (H, W, 3)
+        """
+        folder = self.sequence_dir / self.MASK
+        if not folder.exists():
+            raise ValueError(f"Folder of masks not found: {folder}")
+        file_path = folder / f'{frame:04d}.exr'
+        if not file_path.exists():
+            raise ValueError(f"Mask of {frame}-frame not found: {file_path}")
+        return SynbodyExrReader(file_path).get_mask()
+
+    def get_depth(self, frame: int) -> np.ndarray:
+        """Get depth of the given frame ("depth/{frame:04d}.exr")
+
+        Args:
+            frame (int): the frame number
+
+        Returns:
+            np.ndarray: depth of shape (H, W, 3)
+        """
+        folder = self.sequence_dir / self.DEPTH
+        if not folder.exists():
+            raise ValueError(f"Folder of depth not found: {folder}")
+        file_path = folder / f'{frame:04d}.exr'
+        if not file_path.exists():
+            raise ValueError(f"Depth of {frame}-frame not found: {file_path}")
+        return SynbodyExrReader(file_path).get_depth()
+
+    def get_flow(self, frame: int):
+        """Get optical flow of the given frame ("optical_flow/{frame:04d}.exr")
+
+        Args:
+            frame (int): the frame number
+
+        Returns:
+            np.ndarray: optical flow of shape (H, W, 3)
+        """
+        folder = self.sequence_dir / self.OPTICAL_FLOW
+        if not folder.exists():
+            raise ValueError(f"Folder of depth not found: {folder}")
+        file_path = folder / f'{frame:04d}.exr'
+        if not file_path.exists():
+            raise ValueError(f"Depth of {frame}-frame not found: {file_path}")
+        return SynbodyExrReader(file_path).get_flow()
+
+
 class SynbodyExrReader(ExrReader):
     """Load `.exr` format file.
     """
