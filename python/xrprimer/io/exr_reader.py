@@ -1,4 +1,3 @@
-
 """Utils for exr format data.
 
 Requirements:
@@ -14,14 +13,12 @@ import Imath
 import OpenEXR
 import numpy as np
 
-PathLike = Union[str, Path]
-
 
 class ExrReader:
     """Load `.exr` format file.
     """
 
-    def __init__(self, exr_path: PathLike):
+    def __init__(self, exr_path: Union[str, Path]):
         """Initialize with a `.exr` format file.
 
         Args:
