@@ -30,9 +30,6 @@ jobs:
         shell: bash -l {0}
     container:
       image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
-      credentials:
-        username: ${{secrets.DOCKERHUB_USERNAME}}
-        password: ${{secrets.DOCKERHUB_PWD}}
     steps:
       - uses: actions/checkout@v2
       - name: Show conda env
@@ -79,9 +76,6 @@ jobs:
         shell: bash -l {0}
     container:
       image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
-      credentials:
-        username: ${{secrets.DOCKERHUB_USERNAME}}
-        password: ${{secrets.DOCKERHUB_PWD}}
     steps:
       - uses: actions/checkout@v2
       - name: Show conda env
