@@ -94,7 +94,7 @@ class SynbodyReader:
             raise ValueError(f"Mask of {frame}-frame not found: {file_path}")
         return SynbodyExrReader(file_path).get_mask()
 
-    def get_depth(self, frame: int) -> np.ndarray:
+    def get_depth(self, frame: int, depth_rescale=1.0) -> np.ndarray:
         """Get depth of the given frame ("depth/{frame:04d}.exr")
 
         Args:
@@ -109,13 +109,16 @@ class SynbodyReader:
         file_path = folder / f'{frame:04d}.exr'
         if not file_path.exists():
             raise ValueError(f"Depth of {frame}-frame not found: {file_path}")
-        return SynbodyExrReader(file_path).get_depth()
+        return SynbodyExrReader(file_path).get_depth(depth_rescale=depth_rescale)
 
     def get_flow(self, frame: int):
         """Get optical flow of the given frame ("optical_flow/{frame:04d}.exr")
 
         Args:
             frame (int): the frame number (starts from 1)
+            depth_rescale (float, optional): scaling the depth
+                to map it into (0, 255). Depth values great than
+                `depth_rescale` will be clipped. Defaults to 1.0.
 
         Returns:
             np.ndarray: optical flow of shape (H, W, 3)
