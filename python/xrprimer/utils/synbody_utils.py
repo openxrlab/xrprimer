@@ -11,51 +11,29 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
 import flow_vis
-import Imath
-import OpenEXR
 import numpy as np
+
+from ..io.exr_reader import ExrReader
 
 PathLike = Union[str, Path]
 
 
-class ExrReader:
+class SynbodyExrReader(ExrReader):
     """Load `.exr` format file.
     """
-
-    def __init__(self, exr_path: PathLike):
-        File = OpenEXR.InputFile(str(exr_path))
-        dw = File.header()['dataWindow']
-        size = (dw.max.x - dw.min.x + 1, dw.max.y - dw.min.y + 1)
-        self.File = File
-        self.size: Tuple[int, int] = size
-
     @staticmethod
     def float2int(array: np.ndarray) -> np.ndarray:
+        """Convert float type data to uint8 that can be display as image."""
         array = np.round(array * 255)
         array = np.clip(array, 0, 255)
         return array.astype(np.uint8)
 
-    @property
-    def channels(self) -> List[str]:
-        return self.File.header()['channels']
-
-    def read_channel(self, channel: str) -> np.ndarray:
-        ChannelType = self.File.header()['channels'][channel]
-        if ChannelType == Imath.Channel(Imath.PixelType(Imath.PixelType.HALF)):
-            PixType = Imath.PixelType(Imath.PixelType.HALF)
-            dtype = np.float16
-        elif ChannelType == Imath.Channel(Imath.PixelType(Imath.PixelType.FLOAT)):
-            PixType = Imath.PixelType(Imath.PixelType.FLOAT)
-            dtype = np.float32
-        else:
-            raise ValueError('please specify PixelType')
-
-        img = np.frombuffer(self.File.channel(channel, PixType), dtype=dtype)
-        img = np.reshape(img, (self.size[1], self.size[0])).astype(np.float32)
-        return img
-
     def get_mask(self) -> np.ndarray:
-        """Get mask in `.exr` format."""
+        """Get mask in `.exr` format.
+
+        Returns:
+            np.ndarray: masks of shape (H, W, 3)
+        """
         r = self.read_channel('R')
         g = self.read_channel('G')
         b = self.read_channel('B')
@@ -64,7 +42,11 @@ class ExrReader:
         return img
 
     def get_flow(self, bgr: bool = True) -> np.ndarray:
-        """Get optical flow in `.exr` format."""
+        """Get optical flow in `.exr` format.
+
+        Returns:
+            np.ndarray: optical flow data of (H, W, 3) converted to colors
+        """
         flow_r = self.read_channel('R')
         flow_g = self.read_channel('G')
         flow = np.stack((flow_r, flow_g), axis=2)
@@ -72,7 +54,15 @@ class ExrReader:
         return img
 
     def get_depth(self, depth_rescale: float = 1.0) -> np.ndarray:
-        """Get depth in `.exr` format."""
+        """Get depth in `.exr` format.
+
+        Args:
+            depth_rescale (float, optional): scaling the depth to map it into (0, 255).
+                Defaults to 1.0.
+
+        Returns:
+            np.ndarray: depth data of shape (H, W, 3)
+        """
         r = self.read_channel('R')
         g = self.read_channel('G')
         b = self.read_channel('B')
@@ -87,16 +77,23 @@ class SeqDataReader:
     """Load 'seq_data.json' files, which contain sequences composition information.
     """
     def __init__(self, seq_data_path: PathLike) -> None:
+        """Load seq_data.json in SynBody dataset
+
+        Args:
+            seq_data_path (PathLike): Files are named: 'seq_data.json'
+        """
         with open(seq_data_path, 'r') as f:
             seq_data = json.load(f)
         self.seq_data: Dict = seq_data
 
-    def get_mask_colors(self):
+    def get_mask_colors(self) -> List[Tuple[int, int, int]]:
         """Load seq_data.json, get mask colors (rgb).
-        'seq_data.json'
+
+        Returns:
+            List[Tuple[int, int, int]]: list of mask colors in (R, G, B)
         """
         masks_rgb = [
-            np.array(value['mask_rgb_value']).astype(int).tolist()
+            tuple(np.array(value['mask_rgb_value']).astype(int).tolist())
             for value in self.seq_data['Actors']['CharacterActors'].values()
         ]
         return masks_rgb
