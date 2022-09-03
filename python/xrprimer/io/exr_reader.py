@@ -5,13 +5,22 @@ Requirements:
 ```
 pip install numpy imath openexr
 ```
+
+If you encounter any problems with openexr installation, refer to the following link:
+https://github.com/AcademySoftwareFoundation/openexr/blob/main/INSTALL.md
 """
 from pathlib import Path
 from typing import List, Tuple, Union
 
-import Imath
-import OpenEXR
 import numpy as np
+
+try:
+    import Imath
+    import OpenEXR
+except ImportError as e:
+    print(
+        "warning: please install Imath and OpenEXR in order to read .exr format files."
+    )
 
 
 class ExrReader:
@@ -52,7 +61,8 @@ class ExrReader:
         if ChannelType == Imath.Channel(Imath.PixelType(Imath.PixelType.HALF)):
             PixType = Imath.PixelType(Imath.PixelType.HALF)
             dtype = np.float16
-        elif ChannelType == Imath.Channel(Imath.PixelType(Imath.PixelType.FLOAT)):
+        elif ChannelType == Imath.Channel(
+                Imath.PixelType(Imath.PixelType.FLOAT)):
             PixType = Imath.PixelType(Imath.PixelType.FLOAT)
             dtype = np.float32
         else:
