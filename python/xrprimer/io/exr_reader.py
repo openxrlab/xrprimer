@@ -22,10 +22,15 @@ class ExrReader:
     """
 
     def __init__(self, exr_path: PathLike):
-        File = OpenEXR.InputFile(str(exr_path))
-        dw = File.header()['dataWindow']
+        """Initialize with a `.exr` format file.
+
+        Args:
+            exr_path (PathLike): path to `.exr` format file
+        """
+        file_ = OpenEXR.InputFile(str(exr_path))
+        dw = file_.header()['dataWindow']
         size = (dw.max.x - dw.min.x + 1, dw.max.y - dw.min.y + 1)
-        self.File = File
+        self.file = file_
         self.size: Tuple[int, int] = size
 
     @property
@@ -35,7 +40,7 @@ class ExrReader:
         Returns:
             List[str]: list of channel names
         """
-        return self.File.header()['channels']
+        return self.file.header()['channels']
 
     def read_channel(self, channel: str) -> np.ndarray:
         """Read channel's data.
@@ -46,7 +51,7 @@ class ExrReader:
         Returns:
             np.ndarray: channel's data in np.ndarray format with shape (H, W)
         """
-        ChannelType = self.File.header()['channels'][channel]
+        ChannelType = self.file.header()['channels'][channel]
         if ChannelType == Imath.Channel(Imath.PixelType(Imath.PixelType.HALF)):
             PixType = Imath.PixelType(Imath.PixelType.HALF)
             dtype = np.float16
@@ -56,6 +61,6 @@ class ExrReader:
         else:
             raise ValueError('please specify PixelType')
 
-        img = np.frombuffer(self.File.channel(channel, PixType), dtype=dtype)
+        img = np.frombuffer(self.file.channel(channel, PixType), dtype=dtype)
         img = np.reshape(img, (self.size[1], self.size[0])).astype(np.float32)
         return img
