@@ -174,7 +174,7 @@ class SynbodyReader:
                     - expression: of shape (N, 10)
 
                 (N is the number of frames + 1,
-                    and the 0-th frame is at T-Pose for calibration.)
+                    where the 0-th frame is rest pose at T for calibration.)
         """
         smplx = []
         for actor_data in self.seq_data_reader.get_actors():
@@ -210,7 +210,15 @@ class SynbodyExrReader(ExrReader):
 
     @staticmethod
     def float2int(array: np.ndarray) -> np.ndarray:
-        """Convert float type data to uint8 that can be display as image."""
+        """Convert ndarray to uint8 that can be display as image. Values
+        greater than 255 will be clipped.
+
+        Args:
+            array (np.ndarray): input ndarray
+
+        Returns:
+            np.ndarray: array of dtype=unit8
+        """
         array = np.round(array * 255)
         array = np.clip(array, 0, 255)
         return array.astype(np.uint8)
