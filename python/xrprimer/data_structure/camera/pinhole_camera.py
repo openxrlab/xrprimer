@@ -65,7 +65,7 @@ class PinholeCameraParameter(PinholeCameraParameter_cpp, BaseCameraParameter):
             logger=logger)
 
     def clone(self) -> 'PinholeCameraParameter':
-        """Clone a new CameraPrameter instance like self.
+        """Clone a new CameraParameter instance like self.
 
         Returns:
             PinholeCameraParameter
