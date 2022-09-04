@@ -24,13 +24,15 @@ from ..io.exr_reader import ExrReader
 try:
     import flow_vis
 except ImportError:
-    print("warning: please install flow_vis to visualize optical flows.")
+    print('warning: please install flow_vis'
+          ' in order to visualize optical flows.')
 
 PathLike = Union[str, Path]
 
 
 class SynbodyReader:
     """Load from SynBody dataset of one sequence.
+
     Provide utils to get data of various modalities.
     """
     # folder names of each data modal
@@ -42,7 +44,7 @@ class SynbodyReader:
     NORMAL = 'normal'
 
     def __init__(self, seq_data_path: PathLike) -> None:
-        """Load seq_data.json in SynBody dataset
+        """Load seq_data.json in SynBody dataset.
 
         Args:
             seq_data_path (PathLike): Files are named: 'seq_data.json'
@@ -51,8 +53,8 @@ class SynbodyReader:
         self.sequence_dir = Path(seq_data_path).parent
 
     def get_mask_colors(self) -> List[Tuple[int, int, int]]:
-        """Get all actor models' segmentation mask colors (rgb)
-        from the seq_data.
+        """Get all actor models' segmentation mask colors (rgb) from the
+        seq_data.
 
         Returns:
             List[Tuple[int, int, int]]: list of mask colors in (R, G, B)
@@ -60,7 +62,7 @@ class SynbodyReader:
         return self.seq_data_reader.get_mask_colors()
 
     def get_rgb(self, frame: int) -> np.ndarray:
-        """Get rgb image of the given frame ("rgb/{frame:04d}.jpeg")
+        """Get rgb image of the given frame ('rgb/{frame:04d}.jpeg')
 
         Args:
             frame (int): the frame number (starts from 1)
@@ -70,16 +72,16 @@ class SynbodyReader:
         """
         folder = self.sequence_dir / self.RGB
         if not folder.exists():
-            raise ValueError(f"Folder of rgb images not found: {folder}")
+            raise ValueError(f'Folder of rgb images not found: {folder}')
         file_path = folder / f'{frame:04d}.jpeg'
         if not file_path.exists():
-            raise ValueError(f"Image of {frame}-frame not found: {file_path}")
+            raise ValueError(f'Image of {frame}-frame not found: {file_path}')
         img = cv2.imread(str(file_path))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         return img
 
     def get_mask(self, frame: int) -> np.ndarray:
-        """Get mask of the given frame ("mask/{frame:04d}.exr")
+        """Get mask of the given frame ('mask/{frame:04d}.exr')
 
         Args:
             frame (int): the frame number (starts from 1)
@@ -89,14 +91,14 @@ class SynbodyReader:
         """
         folder = self.sequence_dir / self.MASK
         if not folder.exists():
-            raise ValueError(f"Folder of masks not found: {folder}")
+            raise ValueError(f'Folder of masks not found: {folder}')
         file_path = folder / f'{frame:04d}.exr'
         if not file_path.exists():
-            raise ValueError(f"Mask of {frame}-frame not found: {file_path}")
+            raise ValueError(f'Mask of {frame}-frame not found: {file_path}')
         return SynbodyExrReader(file_path).get_mask()
 
     def get_depth(self, frame: int, depth_rescale=1.0) -> np.ndarray:
-        """Get depth of the given frame ("depth/{frame:04d}.exr")
+        """Get depth of the given frame ('depth/{frame:04d}.exr')
 
         Args:
             frame (int): the frame number (starts from 1)
@@ -106,15 +108,15 @@ class SynbodyReader:
         """
         folder = self.sequence_dir / self.DEPTH
         if not folder.exists():
-            raise ValueError(f"Folder of depth not found: {folder}")
+            raise ValueError(f'Folder of depth not found: {folder}')
         file_path = folder / f'{frame:04d}.exr'
         if not file_path.exists():
-            raise ValueError(f"Depth of {frame}-frame not found: {file_path}")
+            raise ValueError(f'Depth of {frame}-frame not found: {file_path}')
         return SynbodyExrReader(file_path).get_depth(
             depth_rescale=depth_rescale)
 
     def get_flow(self, frame: int):
-        """Get optical flow of the given frame ("optical_flow/{frame:04d}.exr")
+        """Get optical flow of the given frame ('optical_flow/{frame:04d}.exr')
 
         Args:
             frame (int): the frame number (starts from 1)
@@ -127,14 +129,14 @@ class SynbodyReader:
         """
         folder = self.sequence_dir / self.OPTICAL_FLOW
         if not folder.exists():
-            raise ValueError(f"Folder of depth not found: {folder}")
+            raise ValueError(f'Folder of depth not found: {folder}')
         file_path = folder / f'{frame:04d}.exr'
         if not file_path.exists():
-            raise ValueError(f"Depth of {frame}-frame not found: {file_path}")
+            raise ValueError(f'Depth of {frame}-frame not found: {file_path}')
         return SynbodyExrReader(file_path).get_flow()
 
     def get_normal(self, frame: int) -> np.ndarray:
-        """Get normal map of the given frame ("normal/{frame:04d}.png")
+        """Get normal map of the given frame ('normal/{frame:04d}.png')
 
         Args:
             frame (int): the frame number (starts from 1)
@@ -144,17 +146,17 @@ class SynbodyReader:
         """
         folder = self.sequence_dir / self.NORMAL
         if not folder.exists():
-            raise ValueError(f"Folder of normal mpa not found: {folder}")
+            raise ValueError(f'Folder of normal mpa not found: {folder}')
         file_path = folder / f'{frame:04d}.png'
         if not file_path.exists():
             raise ValueError(
-                f"Normal map of {frame}-frame not found: {file_path}")
+                f'Normal map of {frame}-frame not found: {file_path}')
         img = cv2.imread(str(file_path))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         return img
 
     def get_smplx(self) -> List[Dict[str, np.ndarray]]:
-        """Get smplx of actors in the sequence ("smplx/*.npz")
+        """Get smplx of actors in the sequence ('smplx/*.npz')
 
         Returns:
             List[Dict[str, np.ndarray]]: list of all actors' SMPL-X
@@ -204,8 +206,7 @@ class SynbodyReader:
 
 
 class SynbodyExrReader(ExrReader):
-    """Load `.exr` format file.
-    """
+    """Load `.exr` format file."""
 
     @staticmethod
     def float2int(array: np.ndarray) -> np.ndarray:
@@ -261,12 +262,11 @@ class SynbodyExrReader(ExrReader):
 
 
 class SeqDataReader:
-    """Load 'seq_data.json' files,
-    which contain sequences composition information.
-    """
+    """Load 'seq_data.json' files, which contain sequences composition
+    information."""
 
     def __init__(self, seq_data_path: PathLike) -> None:
-        """Load seq_data.json in SynBody dataset
+        """Load seq_data.json in SynBody dataset.
 
         Args:
             seq_data_path (PathLike): Files are named: 'seq_data.json'
@@ -278,7 +278,7 @@ class SeqDataReader:
         self._actors = None
 
     def get_actors(self) -> List[Dict[str, Any]]:
-        """Get actors transformations
+        """Get actors transformations.
 
         Returns:
             List[Dict[str, Union[str, np.ndarray, Tuple[int, int, int]]]]:
@@ -348,10 +348,10 @@ class SeqDataReader:
         w, h = resolution
         fx = fy = max(resolution) / 2 / np.tan(np.deg2rad(fov / 2))
         K = np.array([[fx, 0, w / 2], [0, fy, h / 2], [0, 0, 1]])
-        # rotation convert from ue to opencv
+        # rotation convert from Unreal to opencv
         R = spRotation.from_euler(
             'zxy', camera_data['rotation'], degrees=True).as_matrix()
-        # translation convert from ue to opencv with units scaling of 100.0
+        # translation convert from Unreal to opencv with units scaling of 100.0
         T = np.array([
             camera_data['location'][1],
             -camera_data['location'][2],
@@ -384,8 +384,8 @@ class SeqDataReader:
         )
 
     def get_mask_colors(self) -> List[Tuple[int, int, int]]:
-        """Get all actor models' segmentation mask colors (rgb)
-        from the seq_data.
+        """Get all actor models' segmentation mask colors (rgb) from the
+        seq_data.
 
         Returns:
             List[Tuple[int, int, int]]: list of mask colors in (R, G, B)
@@ -401,7 +401,7 @@ class SeqDataReader:
         return [value['name'] for value in self.get_actors()]
 
     def get_actor_smplx_filenames(self) -> List[str]:
-        """Get filenames of smplx annotations of all actors in the sequence
+        """Get filenames of smplx annotations of all actors in the sequence.
 
         Returns:
             List[str]: filenames of actors' smplx annotations.

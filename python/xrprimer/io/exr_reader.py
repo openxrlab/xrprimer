@@ -19,13 +19,12 @@ try:
     import Imath
     import OpenEXR
 except ImportError:
-    print("warning: please install Imath and OpenEXR "
-          "in order to read .exr format files.")
+    print('warning: please install Imath and OpenEXR'
+          ' in order to read .exr format files.')
 
 
 class ExrReader:
-    """Load `.exr` format file.
-    """
+    """Load `.exr` format file."""
 
     def __init__(self, exr_path: Union[str, Path]):
         """Initialize with a `.exr` format file.
