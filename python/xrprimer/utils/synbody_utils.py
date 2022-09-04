@@ -6,7 +6,8 @@ Requirements:
 pip install numpy imath openexr flow_vis opencv-python
 ```
 
-If you encounter any problems with openexr installation, refer to the following link:
+If you encounter any problems with openexr installation,
+refer to the following link:
 https://github.com/AcademySoftwareFoundation/openexr/blob/main/INSTALL.md
 """
 import json
@@ -260,7 +261,8 @@ class SynbodyExrReader(ExrReader):
 
 
 class SeqDataReader:
-    """Load 'seq_data.json' files, which contain sequences composition information.
+    """Load 'seq_data.json' files,
+    which contain sequences composition information.
     """
 
     def __init__(self, seq_data_path: PathLike) -> None:
@@ -335,10 +337,11 @@ class SeqDataReader:
                 resolution of rgb images (W, H). Defaults to (1280, 720)
 
         Returns:
-            Tuple[np.ndarray, np.ndarray, np.ndarray]: respectively for K, R, T,
-                K: intrinsic matrix of shape (3, 3),
-                R: rotation matrix of shape (3, 3), from camera to world,
-                T: translation of shape (3,), from camera to world.
+            Tuple[np.ndarray, np.ndarray, np.ndarray]:
+                respectively for K, R, T,
+                    - K: intrinsic matrix of shape (3, 3),
+                    - R: rotation matrix of shape (3, 3), from camera to world,
+                    - T: translation of shape (3,), from camera to world.
         """
         camera_data = self._seq_data['Actors']['CameraActor']
         fov = camera_data['fov']
@@ -381,7 +384,8 @@ class SeqDataReader:
         )
 
     def get_mask_colors(self) -> List[Tuple[int, int, int]]:
-        """Get all actor models' segmentation mask colors (rgb) from the seq_data.
+        """Get all actor models' segmentation mask colors (rgb)
+        from the seq_data.
 
         Returns:
             List[Tuple[int, int, int]]: list of mask colors in (R, G, B)

@@ -6,7 +6,8 @@ Requirements:
 pip install numpy imath openexr
 ```
 
-If you encounter any problems with openexr installation, refer to the following link:
+If you encounter any problems with openexr installation,
+refer to the following link:
 https://github.com/AcademySoftwareFoundation/openexr/blob/main/INSTALL.md
 """
 from pathlib import Path
@@ -17,10 +18,9 @@ import numpy as np
 try:
     import Imath
     import OpenEXR
-except ImportError as e:
-    print(
-        "warning: please install Imath and OpenEXR in order to read .exr format files."
-    )
+except ImportError:
+    print("warning: please install Imath and OpenEXR "
+          "in order to read .exr format files.")
 
 
 class ExrReader:
