@@ -52,7 +52,7 @@ It is currently tested on Linux and iOS. Ideally it can be also compiled on macO
 
 ```bash
 # build external from source
-cmake -S. -Bbuild -DBUILD_EXTERNAL=ON -DCMAKE_BUILD_TYPE=Release
+cmake -S. -Bbuild -DBUILD_EXTERNAL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=install
 cmake --build build --target install
 
 # use conan for external
