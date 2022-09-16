@@ -2,10 +2,11 @@
 
 <div align="left">
 
+[![Documentation](https://readthedocs.org/projects/xrprimer/badge/?version=latest)](https://xrprimer.readthedocs.io/en/latest/?badge=latest)
 [![actions](https://github.com/openxrlab/xrprimer/workflows/build/badge.svg)](https://github.com/openxrlab/xrprimer/actions)
 [![codecov](https://codecov.io/gh/openxrlab/xrprimer/branch/main/graph/badge.svg)](https://codecov.io/gh/openxrlab/xrprimer)
 [![PyPI](https://img.shields.io/pypi/v/xrprimer)](https://pypi.org/project/xrprimer/)
-[![LICENSE](https://img.shields.io/github/license/openxrlab/xrprimer.svg)](https://github.com/openxrlab/xrprimer/blob/main/LICENSE)
+[![Percentage of issues still open](https://isitmaintained.com/badge/open/openxrlab/xrprimer.svg)](https://github.com/openxrlab/xrprimer/issues)
 
 </div>
 
@@ -82,7 +83,7 @@ If you face some installation issues, you may first refer to this [Frequently As
 
 ## License
 
-This project is released under the [Apache 2.0 license](LICENSE).
+The license of our codebase is Apache-2.0. Note that this license only applies to code in our library, the dependencies of which are separate and individually licensed. We would like to pay tribute to open-source implementations to which we rely on. Please be aware that using the content of dependencies may affect the license of our codebase. Refer to [LICENSE](LICENSE) to view the full license.
 
 ## Citation
 
