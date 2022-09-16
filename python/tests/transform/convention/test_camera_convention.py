@@ -10,7 +10,7 @@ from xrprimer.transform.convention.camera import (
     upgrade_k_3x3,
 )
 
-cam_param_dir = 'test/data/data_structure/camera_parameter'
+cam_param_dir = 'tests/data/data_structure/camera_parameter'
 
 
 def test_intrinsic():

@@ -10,8 +10,8 @@ from xrprimer.data_structure.camera import PinholeCameraParameter
 from xrprimer.ops.projection.builder import build_projector
 from xrprimer.transform.camera.extrinsic import rotate_camera, translate_camera
 
-input_dir = 'test/data/transform/camera/test_extrinsic'
-output_dir = 'test/data/output/transform/camera/test_extrinsic'
+input_dir = 'tests/data/transform/camera/test_extrinsic'
+output_dir = 'tests/data/output/transform/camera/test_extrinsic'
 
 
 @pytest.fixture(scope='module', autouse=True)

@@ -9,8 +9,8 @@ from xrprimer.utils.path_utils import (
     check_path_suffix,
 )
 
-input_dir = 'test/data/utils/test_path_utils'
-output_dir = 'test/data/output/utils/test_path_utils'
+input_dir = 'tests/data/utils/test_path_utils'
+output_dir = 'tests/data/output/utils/test_path_utils'
 
 
 @pytest.fixture(scope='module', autouse=True)

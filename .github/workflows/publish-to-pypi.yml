@@ -5,22 +5,21 @@ on: push
 jobs:
   build-n-publish:
     runs-on: ubuntu-18.04
+    if: startsWith(github.event.ref, 'refs/tags')
     container:
       image: openxrlab/xrprimer_ci:manylinux2014_x86_64_torch180_mmcv150
-      credentials:
-        username: ${{secrets.DOCKERHUB_USERNAME}}
-        password: ${{secrets.DOCKERHUB_PWD}}
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, 3.10]
+        python-version: [3.6, 3.7, 3.8, 3.9, '3.10']
     steps:
+      - uses: actions/checkout@v2
       - name: Build XRPrimer
         run: |
-          source /root/miniconda3/etc/profile.d/conda.sh && conda activate py-${{ matrix.python-version }}
-          pip install wheel
+          source /workspace/init_env.sh && conda activate py-${{ matrix.python-version }}
+          conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
           python setup.py sdist bdist_wheel
       - name: Publish distribution to PyPI
         run: |
-          source /root/miniconda3/etc/profile.d/conda.sh && conda activate py-${{ matrix.python-version }}
+          source /workspace/init_env.sh && conda activate py-${{ matrix.python-version }}
           twine --h
-          # twine upload dist/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}
+          twine upload dist/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}

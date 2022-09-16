@@ -3,7 +3,20 @@
 
 name: build
 
-on: push
+on:
+  push:
+    branches:
+     - main
+    paths-ignore:
+      - 'README.md'
+      - 'README_CN.md'
+      - 'docs/**'
+
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - 'README_CN.md'
+      - 'docs/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -89,7 +102,7 @@ jobs:
           wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
           mv xrprimer/test/data ./
-          rm -rf xrprimer && cd ..
+          rm -rf xrprimer && cd ../../
       - name: Install pytest plugin
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
@@ -97,12 +110,11 @@ jobs:
       - name: Run unittests
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
-          coverage run --source xrprimer -m pytest python/tests/
+          cd python && coverage run --source xrprimer -m pytest tests/ && cd ..
       - name: Generate coverage report
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
-          coverage xml
-          coverage report -m
+          cd python && coverage xml && coverage report -m && cd ..
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
