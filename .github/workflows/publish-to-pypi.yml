@@ -9,7 +9,7 @@ jobs:
       image: openxrlab/xrprimer_ci:manylinux2014_x86_64_torch180_mmcv150
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, 3.10]
+        python-version: [3.6, 3.7, 3.8, 3.9, '3.10']
     steps:
       - uses: actions/checkout@v2
       - name: Build XRPrimer

@@ -89,7 +89,7 @@ jobs:
           wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
           mv xrprimer/test/data ./
-          rm -rf xrprimer && cd ..
+          rm -rf xrprimer && cd ../../
       - name: Install pytest plugin
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
@@ -97,7 +97,7 @@ jobs:
       - name: Run unittests
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
-          coverage run --source xrprimer -m pytest python/tests/
+          cd python && coverage run --source xrprimer -m pytest tests/ && cd ..
       - name: Generate coverage report
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
