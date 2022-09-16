@@ -10,8 +10,8 @@ import pytest
 from xrprimer.data_structure.camera import PinholeCameraParameter
 from xrprimer.ops.triangulation.builder import build_triangulator  # noqa:E501
 
-input_dir = 'test/data/ops/test_triangulation'
-output_dir = 'test/data/output/ops/test_triangulation'
+input_dir = 'tests/data/ops/test_triangulation'
+output_dir = 'tests/data/output/ops/test_triangulation'
 
 
 @pytest.fixture(scope='module', autouse=True)

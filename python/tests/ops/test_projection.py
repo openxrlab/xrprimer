@@ -10,8 +10,8 @@ import pytest
 from xrprimer.data_structure.camera import PinholeCameraParameter
 from xrprimer.ops.projection.builder import build_projector
 
-input_dir = 'test/data/ops/test_projection'
-output_dir = 'test/data/output/ops/test_projection'
+input_dir = 'tests/data/ops/test_projection'
+output_dir = 'tests/data/output/ops/test_projection'
 
 
 @pytest.fixture(scope='module', autouse=True)

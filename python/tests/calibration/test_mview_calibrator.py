@@ -14,8 +14,8 @@ from xrprimer.data_structure.camera import (
 )
 from xrprimer.utils.path_utils import Existence, check_path_existence
 
-input_dir = 'test/data/calib_pinhole_camera/input'
-output_dir = 'test/data/output/calibration/test_mview_extrinsic_calibrator'
+input_dir = 'tests/data/calib_pinhole_camera/input'
+output_dir = 'tests/data/output/calibration/test_mview_extrinsic_calibrator'
 
 
 @pytest.fixture(scope='module', autouse=True)

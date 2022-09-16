@@ -16,8 +16,8 @@ from xrprimer.utils.ffmpeg_utils import (
     video_to_array,
 )
 
-input_dir = 'test/data/utils/test_ffmpeg_utils'
-output_dir = 'test/data/output/utils/test_ffmpeg_utils'
+input_dir = 'tests/data/utils/test_ffmpeg_utils'
+output_dir = 'tests/data/output/utils/test_ffmpeg_utils'
 
 
 @pytest.fixture(scope='module', autouse=True)

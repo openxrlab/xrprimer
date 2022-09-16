@@ -15,6 +15,7 @@ jobs:
       - name: Build XRPrimer
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate py-${{ matrix.python-version }}
+          conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
           python setup.py sdist bdist_wheel
       - name: Publish distribution to PyPI
         run: |
