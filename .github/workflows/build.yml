@@ -3,20 +3,7 @@
 
 name: build
 
-on:
-  push:
-    branches:
-     - main
-    paths-ignore:
-      - 'README.md'
-      - 'README_CN.md'
-      - 'docs/**'
-
-  pull_request:
-    paths-ignore:
-      - 'README.md'
-      - 'README_CN.md'
-      - 'docs/**'
+on: push
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -52,7 +39,7 @@ jobs:
           wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
           ln -sfn xrprimer/test test
-      - name: Run unittests and generate coverage report
+      - name: Run unittests
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
           cd build
@@ -63,6 +50,9 @@ jobs:
           ./bin/test_camera
           PYTHONPATH=./lib python ../cpp/tests/test_multi_camera_calibrator.py
           PYTHONPATH=./lib python ../cpp/tests/test_pnpsolver.py
+      - name: Generate coverage report
+        run: |
+          echo "TODO"
           # pip install gcovr
           # mkdir coverage_html
           # coverage_filter="--filter ${CI_PROJECT_DIR}/cpp"
@@ -76,6 +66,8 @@ jobs:
         shell: bash -l {0}
     container:
       image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
+      env:
+        GITHUB_ACTIONS: true
     steps:
       - uses: actions/checkout@v2
       - name: Show conda env
@@ -98,10 +90,17 @@ jobs:
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
           mv xrprimer/test/data ./
           rm -rf xrprimer && cd ..
-      - name: Run unittests and generate coverage report
+      - name: Install pytest plugin
+        run: |
+          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          pip install pytest-github-actions-annotate-failures
+      - name: Run unittests
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
           coverage run --source xrprimer -m pytest python/tests/
+      - name: Generate coverage report
+        run: |
+          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
           coverage xml
           coverage report -m
       - name: Upload coverage to Codecov

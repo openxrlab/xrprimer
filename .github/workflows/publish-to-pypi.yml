@@ -15,16 +15,13 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, 3.10]
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
       - name: Build XRPrimer
         run: |
+          source /root/miniconda3/etc/profile.d/conda.sh && conda activate py-${{ matrix.python-version }}
           pip install wheel
           python setup.py sdist bdist_wheel
       - name: Publish distribution to PyPI
         run: |
-          pip install twine
-          twine upload dist/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}
+          source /root/miniconda3/etc/profile.d/conda.sh && conda activate py-${{ matrix.python-version }}
+          twine --h
+          # twine upload dist/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}
