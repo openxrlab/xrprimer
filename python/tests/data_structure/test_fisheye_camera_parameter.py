@@ -7,8 +7,8 @@ import pytest
 from xrprimer.data_structure.camera.fisheye_camera import \
     FisheyeCameraParameter  # noqa:E501
 
-input_dir = 'test/data/data_structure/camera_parameter'
-output_dir = 'test/data/output/data_structure/test_fisheye_camera_parameter'
+input_dir = 'tests/data/data_structure/camera_parameter'
+output_dir = 'tests/data/output/data_structure/test_fisheye_camera_parameter'
 eps = 1e-4
 focal_length_x = 954.5469360351562
 

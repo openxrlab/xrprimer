@@ -9,8 +9,8 @@ import pytest
 from xrprimer.calibration.builder import build_calibrator
 from xrprimer.data_structure.camera import FisheyeCameraParameter
 
-input_dir = 'test/data/calibration/test_sview_intrinsic_calibrator'
-output_dir = 'test/data/output/calibration/test_sview_intrinsic_calibrator'
+input_dir = 'tests/data/calibration/test_sview_intrinsic_calibrator'
+output_dir = 'tests/data/output/calibration/test_sview_intrinsic_calibrator'
 eps = 1e-4
 
 

@@ -6,8 +6,8 @@ import pytest
 
 from xrprimer.utils.log_utils import get_logger, setup_logger
 
-input_dir = 'test/data/utils/test_log_utils'
-output_dir = 'test/data/output/utils/test_log_utils'
+input_dir = 'tests/data/utils/test_log_utils'
+output_dir = 'tests/data/output/utils/test_log_utils'
 
 
 @pytest.fixture(scope='module', autouse=True)
