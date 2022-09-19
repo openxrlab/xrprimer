@@ -5,6 +5,7 @@ on: push
 jobs:
   build-n-publish:
     runs-on: ubuntu-18.04
+    if: startsWith(github.event.ref, 'refs/tags')
     container:
       image: openxrlab/xrprimer_ci:manylinux2014_x86_64_torch180_mmcv150
     strategy:
@@ -21,4 +22,4 @@ jobs:
         run: |
           source /workspace/init_env.sh && conda activate py-${{ matrix.python-version }}
           twine --h
-          # twine upload dist/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}
+          twine upload dist/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}
