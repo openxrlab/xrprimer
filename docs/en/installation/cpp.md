@@ -13,6 +13,9 @@
 + C++14 or later compiler
 + GCC 7.5+
 + CMake 3.15+
++ LAPACK & BLAS
+    1. If using conda, `conda install -c conda-forge lapack`
+    2. If sudo is available, `apt update & apt -y install libatlas-base-dev`
 
 Optional:
 + [Conan](https://docs.conan.io/en/1.46/installation.html) (for using pre-built 3rd-party libraries)
