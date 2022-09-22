@@ -49,6 +49,12 @@ Welcome to XRPrimer's documentation!
    changelog.md
 
 .. toctree::
+   :maxdepth: 2
+   :caption: License
+
+   license.rst
+
+.. toctree::
    :maxdepth: 1
    :caption: API Reference
 
