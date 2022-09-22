@@ -17,22 +17,23 @@ from xrprimer.utils.log_utils import get_logger
 
 # Super class of all projectors, cannot be built
 class BaseProjector:
+    """BaseProjector for points projection."""
+
     CAMERA_CONVENTION = 'opencv'
     CAMERA_WORLD2CAM = False
 
     def __init__(self,
                  camera_parameters: List[Union[PinholeCameraParameter, str]],
                  logger: Union[None, str, logging.Logger] = None) -> None:
-        """BaseProjector for points projection.
+        """Initialization for BaseProjector.
 
         Args:
             camera_parameters (List[Union[PinholeCameraParameter, str]]):
                 A list of PinholeCameraParameter, or a list
                 of paths to dumped PinholeCameraParameters.
-            multiview_reduction (Literal['mean', 'median']):
-                When more than 2 views are provided, how to
-                reduce among view pairs.
-                Defaults to mean.
+            logger (Union[None, str, logging.Logger], optional):
+                Logger for logging. If None, root logger will be selected.
+                Defaults to None.
         """
         self.camera_parameters = []
         self.set_cameras(camera_parameters)

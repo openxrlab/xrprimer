@@ -9,17 +9,21 @@ from .base_projector import BaseProjector
 
 
 class OpencvProjector(BaseProjector):
+    """Projector for points projection, powered by OpenCV."""
     CAMERA_CONVENTION = 'opencv'
     CAMERA_WORLD2CAM = True
 
     def __init__(self,
                  camera_parameters: List[FisheyeCameraParameter],
                  logger: Union[None, str, logging.Logger] = None) -> None:
-        """Projector for points projection, powered by OpenCV.
+        """Initialization for OpencvProjector.
 
         Args:
             camera_parameters (List[FisheyeCameraParameter]):
                 A list of FisheyeCameraParameter.
+            logger (Union[None, str, logging.Logger], optional):
+                Logger for logging. If None, root logger will be selected.
+                Defaults to None.
         """
         BaseProjector.__init__(self, camera_parameters, logger=logger)
 

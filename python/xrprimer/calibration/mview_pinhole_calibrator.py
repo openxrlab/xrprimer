@@ -10,6 +10,7 @@ from .base_calibrator import BaseCalibrator
 
 
 class MviewPinholeCalibrator(BaseCalibrator):
+    """Multi-view extrinsic calibrator for pinhole cameras."""
 
     def __init__(self,
                  chessboard_width: int,
@@ -18,7 +19,7 @@ class MviewPinholeCalibrator(BaseCalibrator):
                  calibrate_intrinsic: bool = False,
                  calibrate_extrinsic: bool = True,
                  logger: Union[None, str, logging.Logger] = None) -> None:
-        """Mview extrinsic calibrator for distorted fisheye cameras.
+        """Initialization for MviewPinholeCalibrator class.
 
         Args:
             chessboard_width (int):

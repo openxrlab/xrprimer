@@ -18,6 +18,7 @@ from .sview_fisheye_calibrator import SviewFisheyeDistortionCalibrator
 
 
 class MviewFisheyeCalibrator(MviewPinholeCalibrator):
+    """Multi-view extrinsic calibrator for distorted fisheye cameras."""
 
     def __init__(self,
                  chessboard_width: int,
@@ -28,7 +29,7 @@ class MviewFisheyeCalibrator(MviewPinholeCalibrator):
                  calibrate_distortion: bool = False,
                  calibrate_extrinsic: bool = True,
                  logger: Union[None, str, logging.Logger] = None) -> None:
-        """Mview extrinsic calibrator for distorted fisheye cameras.
+        """Initialization for MviewFisheyeCalibrator class.
 
         Args:
             chessboard_width (int):
