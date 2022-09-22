@@ -73,9 +73,10 @@ Refer to [build_ios.sh](../../../scripts/build_ios.sh) for more details.
 CPP library
 
 ```bash
-# compile
+# compile (Skip the following two lines if it has been compiled)
 cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DENABLE_TEST=ON
 cmake --build build -j4
+
 # run test
 cd build
 wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
@@ -86,8 +87,11 @@ ln -sfn xrprimer/test test
 Python library
 
 ```bash
-cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+# compile (Skip the following two lines if it has been compiled)
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DENABLE_TEST=ON
 cmake --build build -j4
+
+# run test
 cd build
 wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
 PYTHONPATH=./lib/ python ../cpp/tests/test_multi_camera_calibrator.py
