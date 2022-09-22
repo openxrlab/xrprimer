@@ -18,13 +18,15 @@ from ..projection.base_projector import BaseProjector
 
 # Super class of all triangulators, cannot be built
 class BaseTriangulator:
+    """BaseTriangulator for points triangulation."""
+
     CAMERA_CONVENTION = 'opencv'
     CAMERA_WORLD2CAM = False
 
     def __init__(self,
                  camera_parameters: List[Union[PinholeCameraParameter, str]],
                  logger: Union[None, str, logging.Logger] = None) -> None:
-        """BaseTriangulator for points triangulation.
+        """Initialization for BaseTriangulator.
 
         Args:
             camera_parameters (List[Union[PinholeCameraParameter, str]]):

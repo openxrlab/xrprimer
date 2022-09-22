@@ -44,7 +44,7 @@ jobs:
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
           pip install conan
           conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
-          cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DBUILD_EXTERNAL=ON -DENABLE_TEST=ON -DCODE_COVERAGE=ON
+          cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DBUILD_EXTERNAL=OFF -DENABLE_TEST=ON -DCODE_COVERAGE=ON
           cmake --build build -j4 --target install
       - name: Prepare test data
         run: |

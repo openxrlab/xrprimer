@@ -6,11 +6,12 @@ from xrprimer.utils.log_utils import get_logger
 
 
 class BaseCalibrator():
+    """Base class of camera calibrator."""
 
     def __init__(self,
                  work_dir: str = './temp',
                  logger: Union[None, str, logging.Logger] = None) -> None:
-        """Base class of camera calibrator.
+        """Initialization for camera calibrator.
 
         Args:
             work_dir (str, optional):

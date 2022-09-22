@@ -258,16 +258,14 @@ def video_to_array(
         end: int = None,
         disable_log: bool = False,
         logger: Union[None, str, logging.Logger] = None) -> np.ndarray:
-    """
-    Read a video/gif as an array of (f * h * w * 3).
+    """Read a video/gif as an array of (f * h * w * 3).
 
     Args:
         input_path (str): input path.
-        resolution (Union[Tuple[int, int], Tuple[float, float]],
-            optional): resolution(height, width) of output.
-            Defaults to None.
+        resolution (Union[Tuple[int, int], Tuple[float, float]], optional):
+            resolution(height, width) of output. Defaults to None.
         start (int, optional): start frame index. Inclusive.
-             If < 0, will be converted to frame_index range in [0, n_frame].
+            If < 0, will be converted to frame_index range in [0, n_frame].
             Defaults to 0.
         end (int, optional): end frame index. Exclusive.
             Could be positive int or negative int or None.
@@ -345,8 +343,7 @@ def images_to_array_opencv(
         start: int = 0,
         end: int = None,
         logger: Union[None, str, logging.Logger] = None) -> np.ndarray:
-    """
-    Read a folder of images as an array of (f * h * w * 3).
+    """Read a folder of images as an array of (f * h * w * 3).
 
     Args:
         input_folder (str): folder of input images.
@@ -356,7 +353,7 @@ def images_to_array_opencv(
             Format of images to be read, 'jpg' or 'png'.
             Defaults to None.
         start (int, optional): start frame index. Inclusive.
-             If < 0, will be converted to frame_index range in [0, n_frame].
+            If < 0, will be converted to frame_index range in [0, n_frame].
             Defaults to 0.
         end (int, optional): end frame index. Exclusive.
             Could be positive int or negative int or None.
@@ -411,8 +408,7 @@ def images_to_array(
         remove_raw_files: bool = False,
         disable_log: bool = False,
         logger: Union[None, str, logging.Logger] = None) -> np.ndarray:
-    """
-    Read a folder of images as an array of (f * h * w * 3).
+    """Read a folder of images as an array of (f * h * w * 3).
 
     Args:
         input_folder (str): folder of input images.
@@ -421,7 +417,7 @@ def images_to_array(
         img_format (str, optional): format of images to be read.
             Defaults to '%06d.png'.
         start (int, optional): start frame index. Inclusive.
-             If < 0, will be converted to frame_index range in [0, n_frame].
+            If < 0, will be converted to frame_index range in [0, n_frame].
             Defaults to 0.
         end (int, optional): end frame index. Exclusive.
             Could be positive int or negative int or None.
@@ -562,11 +558,11 @@ def array_to_video(image_array: np.ndarray,
         image_array (np.ndarray): shape should be (f * h * w * 3).
         output_path (str): output video file path.
         fps (Union[int, float, optional): fps. Defaults to 30.
-        resolution (Optional[Union[Tuple[int, int], Tuple[float, float]]],
-            optional): (height, width) of the output video.
-            Defaults to None.
+        resolution (Optional[Union[Tuple[int, int], Tuple[float, float]]], \
+            optional): (height, width) of the output video. Defaults to None.
         disable_log (bool, optional): whether close the ffmepg command info.
             Defaults to False.
+
     Raises:
         FileNotFoundError: check output path.
         TypeError: check input array.
@@ -649,9 +645,8 @@ def array_to_images(image_array: np.ndarray,
         output_folder (str): output folder for the images.
         img_format (str, optional): format of the images.
             Defaults to '%06d.png'.
-        resolution (Optional[Union[Tuple[int, int], Tuple[float, float]]],
-            optional): resolution(height, width) of output.
-            Defaults to None.
+        resolution (Optional[Union[Tuple[int, int], Tuple[float, float]]], \
+            optional): (height, width) of the output images. Defaults to None.
         disable_log (bool, optional): whether close the ffmepg command info.
             Defaults to False.
 

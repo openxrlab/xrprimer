@@ -9,13 +9,16 @@ from .base_calibrator import BaseCalibrator
 
 
 class SviewFisheyeDistortionCalibrator(BaseCalibrator):
+    """Single-view distortion calibrator for distorted fisheye camera.
+
+    It takes an init intrinsic, fix it and calibrate distortion coefficients.
+    """
 
     def __init__(self,
                  chessboard_width: int,
                  chessboard_height: int,
                  logger: Union[None, str, logging.Logger] = None) -> None:
-        """Single-view distortion calibrator for distorted fisheye camera. It
-        takes an init intrinsic, fix it and calibrate distortion coefficients.
+        """Initialization for SviewFisheyeDistortionCalibrator class.
 
         Args:
             chessboard_width (int):

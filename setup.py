@@ -188,13 +188,14 @@ class CMakeBuild(build_ext):
                 # CMake 3.12+ only.
                 build_args += [f'-j{self.parallel}']
 
-        install_dir = 'install'
+        # The LIBRARY_OUTPUT_PATH of pybind has been set in
+        # cpp/pybind/CMakeList.txt, thus we also set build_lib explicitly,
+        # where self.build_lib is the directory for compiled extension modules
         build_temp = self.build_temp
-        clean_cmake(folders=['_deps', '_exts', build_temp, install_dir])
+        self.build_lib = os.path.join(build_temp, 'lib')
+        clean_cmake(folders=['_deps', '_exts', self.build_temp])
         subprocess.check_call(['cmake', '-S.', '-B', build_temp] + cmake_args)
-        subprocess.check_call(
-            ['cmake', '--build', build_temp, '--target', install_dir] +
-            build_args)
+        subprocess.check_call(['cmake', '--build', build_temp] + build_args)
 
 
 def readme():

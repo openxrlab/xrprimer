@@ -5,17 +5,18 @@ def upgrade_k_3x3(k: np.ndarray, is_perspective: bool = True) -> np.ndarray:
     """Convert opencv 3x3 intrinsic matrix to 4x4.
 
     Args:
-        K (np.ndarray):
-            Input 3x3 intrinsic matrix, left mm defined.
+        K (np.ndarray): Input 3x3 intrinsic matrix, left mm defined.
+
             [[fx,   0,   px],
              [0,   fy,   py],
              [0,    0,   1]]
+
         is_perspective (bool, optional): whether is perspective projection.
             Defaults to True.
 
     Returns:
-        np.ndarray:
-            Output intrinsic matrix.
+        np.ndarray: Output intrinsic matrix.
+
             for perspective:
                 [[fx,   0,    px,   0],
                 [0,   fy,    py,   0],
@@ -54,8 +55,8 @@ def downgrade_k_4x4(k: np.ndarray) -> np.ndarray:
             Input 4x4 intrinsic matrix, left mm defined.
 
     Returns:
-        np.ndarray:
-            Output 3x3 intrinsic matrix, left mm defined.
+        np.ndarray: Output 3x3 intrinsic matrix, left mm defined.
+
             [[fx,   0,   px],
              [0,   fy,   py],
              [0,    0,   1]]

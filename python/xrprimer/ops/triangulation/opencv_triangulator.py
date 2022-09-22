@@ -19,6 +19,8 @@ except ImportError:
 
 
 class OpencvTriangulator(BaseTriangulator):
+    """Triangulator for points triangulation, powered by OpenCV."""
+
     CAMERA_CONVENTION = 'opencv'
     CAMERA_WORLD2CAM = True
 
@@ -26,7 +28,7 @@ class OpencvTriangulator(BaseTriangulator):
                  camera_parameters: List[FisheyeCameraParameter],
                  multiview_reduction: Literal['mean', 'median'] = 'mean',
                  logger: Union[None, str, logging.Logger] = None) -> None:
-        """Triangulator for points triangulation, powered by OpenCV.
+        """Initialization for OpencvTriangulator.
 
         Args:
             camera_parameters (List[FisheyeCameraParameter]):

@@ -13,6 +13,9 @@
 + C++14 or later compiler
 + GCC 7.5+
 + CMake 3.15+
++ LAPACK & BLAS
+    1. If using conda, `conda install -c conda-forge lapack`
+    2. If sudo is available, `apt update & apt -y install libatlas-base-dev`
 
 Optional:
 + [Conan](https://docs.conan.io/en/1.46/installation.html) (for using pre-built 3rd-party libraries)
@@ -70,9 +73,10 @@ Refer to [build_ios.sh](../../../scripts/build_ios.sh) for more details.
 CPP library
 
 ```bash
-# compile
+# compile (Skip the following two lines if it has been compiled)
 cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DENABLE_TEST=ON
 cmake --build build -j4
+
 # run test
 cd build
 wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
@@ -83,11 +87,14 @@ ln -sfn xrprimer/test test
 Python library
 
 ```bash
-cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+# compile (Skip the following two lines if it has been compiled)
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DENABLE_TEST=ON
 cmake --build build -j4
+
+# run test
 cd build
 wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz && tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
-PYTHONPATH=./cpp/pybind/ python ../cpp/tests/test_multi_camera_calibrator.py
+PYTHONPATH=./lib/ python ../cpp/tests/test_multi_camera_calibrator.py
 ```
 
 ### How to link in C++ projects

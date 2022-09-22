@@ -15,9 +15,7 @@ def rotate_camera(
     """Apply rotation to a camera parameter.
 
     Args:
-        cam_param (Union[
-                PinholeCameraParameter,
-                FisheyeCameraParameter]):
+        cam_param (Union[PinholeCameraParameter, FisheyeCameraParameter]):
             The camera to rotate.
         rotation_mat (np.ndarray):
             Rotation matrix defined in world space,
@@ -49,10 +47,8 @@ def translate_camera(
     """Apply the translation to a camera parameter.
 
     Args:
-        cam_param (Union[
-                PinholeCameraParameter,
-                FisheyeCameraParameter]):
-            The camera to rotate.
+        cam_param (Union[PinholeCameraParameter, FisheyeCameraParameter]):
+            The camera to translate.
         translation (np.ndarray):
             Translation vector defined in world space,
             shape [3,].
