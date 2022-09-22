@@ -9,10 +9,10 @@
 Download data from the file server, and extract files to `python/tests/data`.
 
 ```
-cd python/test
+cd python/tests
 wget -q https://openxrlab-share.oss-cn-hongkong.aliyuncs.com/xrprimer/xrprimer.tar.gz
 tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
-cp -r xrprimer/test/data ./
+cp -r xrprimer/tests/data ./
 rm -rf xrprimer && cd ../../
 ```
 
@@ -21,7 +21,7 @@ rm -rf xrprimer && cd ../../
 Install packages for test.
 
 ```
-pip install -r python/requirements/test.txt
+pip install -r requirements/test.txt
 ```
 
 ## Running tests through pytest
