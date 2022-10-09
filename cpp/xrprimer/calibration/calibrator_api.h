@@ -1,5 +1,9 @@
-
 #pragma once
+
+/**
+ * @file calibrator_api.h
+ * @brief Interface to calibrate multiple pinhole camera
+ */
 
 #include <data_structure/camera/pinhole_camera.h>
 #include <vector>
