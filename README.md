@@ -1,4 +1,10 @@
-# XRPrimer
+<br/>
+
+<div align="center">
+    <img src="resources/xrprimer-logo.png" width="600"/>
+</div>
+
+<br/>
 
 <div align="left">
 
