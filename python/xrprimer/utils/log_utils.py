@@ -7,7 +7,9 @@ logging.basicConfig(
 
 
 def setup_logger(logger_name: str = 'root',
-                 logger_level: int = logging.INFO,
+                 file_level: int = logging.INFO,
+                 console_level: int = logging.INFO,
+                 logger_level: Union[int, None] = None,
                  logger_path: str = None,
                  logger_format: str = None) -> logging.Logger:
     """Set up a logger.
@@ -15,9 +17,18 @@ def setup_logger(logger_name: str = 'root',
     Args:
         logger_name (str, optional):
             Name of the logger. Defaults to 'root'.
-        logger_level (int, optional):
-            Set the logging level of this logger.
+        file_level (int, optional):
+            Set the logging level of file stream.
             Defaults to logging.INFO.
+        console_level (int, optional):
+            Set the logging level of console stream.
+            Defaults to logging.INFO.
+        logger_level (Union[int, None], optional):
+            Set the logging level of this logger,
+            level of every stream will be overwritten
+            if logger_level is set.
+            This argument has been deprecated.
+            Defaults to None.
         logger_path (str, optional):
             Path to the log file.
             Defaults to None, no file will be written,
@@ -31,14 +42,23 @@ def setup_logger(logger_name: str = 'root',
             A logger with settings above.
     """
     logger = logging.getLogger(logger_name)
-    logger.setLevel(level=logger_level)
+    level_candidates = [file_level, console_level]
+    if logger_level is not None:
+        level_candidates = [
+            logger_level,
+        ]
+        console_level = logger_level
+        file_level = logger_level
+    min_level = min(level_candidates)
+    logger.setLevel(level=min_level)
     # prevent logging twice in stdout
     logger.propagate = False
     stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.INFO)
+    stream_handler.setLevel(console_level)
     handlers = [stream_handler]
     if logger_path is not None:
         handler = logging.FileHandler(logger_path)
+        handler.setLevel(file_level)
         handlers.append(handler)
     if logger_format is not None:
         formatter = logging.Formatter(logger_format)
@@ -51,6 +71,9 @@ def setup_logger(logger_name: str = 'root',
     for handler in handlers:
         handler.setFormatter(formatter)
         logger.addHandler(handler)
+    if logger_level is not None:
+        logger.warning('UserWarning: logger_level is now deprecated, ' +
+                       'please specify file_level/console_level instead.')
     return logger
 
 
