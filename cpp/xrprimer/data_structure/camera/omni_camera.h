@@ -1,7 +1,12 @@
+// Copyright (c) OpenXRLab. All rights reserved.
+
 #pragma once
 
 #include <data_structure/camera/camera.h>
 
+/// \class OmniCameraParameter
+///
+/// \brief Contains the omni camera parameter.
 class XRPRIMER_EXPORT OmniCameraParameter : public BaseCameraParameter {
   public:
     OmniCameraParameter();

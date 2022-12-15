@@ -1,3 +1,5 @@
+// Copyright (c) OpenXRLab. All rights reserved.
+
 #pragma once
 
 #include <Eigen/Eigen>

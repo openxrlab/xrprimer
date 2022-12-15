@@ -1,3 +1,5 @@
+// Copyright (c) OpenXRLab. All rights reserved.
+
 #pragma once
 
 #include <Eigen/Core>
@@ -8,6 +10,9 @@
 #include <data_structure/math_util.h>
 #include <xrprimer_export.h>
 
+/// \class BaseCameraParameter
+///
+/// \brief Contains the base camera parameter.
 class XRPRIMER_EXPORT BaseCameraParameter {
   public:
     virtual ~BaseCameraParameter() = default;

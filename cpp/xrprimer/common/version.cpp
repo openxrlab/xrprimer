@@ -1,3 +1,5 @@
+// Copyright (c) OpenXRLab. All rights reserved.
+
 #include <common/config.h>
 #include <common/version.h>
 #define FMT_HEADER_ONLY
