@@ -12,6 +12,7 @@
 #
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -65,8 +66,27 @@ def get_version(version_file):
     return version
 
 
+def build_doxygen_docs(release, temp_dir='doxygen', cpp_dir='cpp_api'):
+    """Build sphinx docs for C++"""
+    cmd = ['doxygen', 'Doxyfile.in']
+    subprocess.check_call(
+        cmd,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        env=dict(os.environ, PROJECT_NUMBER=release))
+    # move generated results to _build
+    doxygen_dir = os.path.join(temp_dir, 'html')
+    dst_dir = os.path.join('_build', 'html', cpp_dir)
+    shutil.copytree(doxygen_dir, dst_dir, dirs_exist_ok=True)
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
+
+
 # The full version, including alpha/beta/rc tags
 release = get_version(version_file)
+
+# build c++ doxygen
+build_doxygen_docs(release)
 
 # -- General configuration ---------------------------------------------------
 
@@ -115,11 +135,3 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 myst_enable_extensions = ['colon_fence']
 
 master_doc = 'index'
-
-
-def builder_inited_handler(app):
-    subprocess.run(['./build_docs.py'])
-
-
-def setup(app):
-    app.connect('builder-inited', builder_inited_handler)

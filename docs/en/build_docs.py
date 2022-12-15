@@ -39,5 +39,6 @@ def build_doxygen_docs(temp_dir='doxygen', cpp_dir='cpp_api'):
 
 
 if __name__ == '__main__':
+    """Used for local debugging."""
     build_sphinx_docs()
     build_doxygen_docs()
