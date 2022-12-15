@@ -51,6 +51,52 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
                line_thickness: Union[str, int] = 'auto',
                point_radius: Union[str, int] = 'auto',
                logger: Union[None, str, logging.Logger] = None) -> np.ndarray:
+    """Plot points and/or lines on a single frame, with opencv.
+
+    Args:
+        point_palette (Union[PointPalette, None], optional):
+            An instance of PointPalette. Location, color and
+            visibility are kept by point_palette.
+            Defaults to None, do not plot points.
+        line_palette (Union[LinePalette, None], optional):
+            An instance of LinePalette. Location, connection,
+            color and
+            visibility are kept by point_palette.
+            Defaults to None, do not plot lines.
+        backgroud_arr (Union[np.ndarray, None], optional):
+            A background image array, in shape [h, w, c].
+            If backgroud_arr is not None, do not pass height
+            and width.
+            Defaults to None, use white background.
+        height (Union[int, None], optional):
+            Height of the canvas. When backgroud_arr is None,
+            size of canvas is decided by height and width.
+            Defaults to None.
+        width (Union[int, None], optional):
+            Width of the canvas. When backgroud_arr is None,
+            size of canvas is decided by height and width.
+            Defaults to None.
+        line_thickness (Union[str, int], optional):
+            Thickness of lines in pixel.
+            Defaults to 'auto'.
+        point_radius (Union[str, int], optional):
+            Radius of point circles in pixel.
+            Defaults to 'auto'.
+        logger (Union[None, str, logging.Logger], optional):
+            Logger for logging. If None, root logger will be selected.
+            Defaults to None.
+
+    Raises:
+        RuntimeError:
+            Both point_palette and line_palette are passed.
+        RuntimeError:
+            Both backgroud_arr and [height, width] are passed.
+        ValueError:
+            Either height or width is None when backgroud_arr is None.
+
+    Returns:
+        np.ndarray: The plotted image array.
+    """
     logger = get_logger(logger)
     # check if input is valid
     if point_palette is None and \
