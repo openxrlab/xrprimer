@@ -12,6 +12,7 @@
 #
 import os
 import re
+import subprocess
 import sys
 
 import sphinx_rtd_theme
@@ -114,3 +115,11 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 myst_enable_extensions = ['colon_fence']
 
 master_doc = 'index'
+
+
+def builder_inited_handler(app):
+    subprocess.run(['./build_docs.py'])
+
+
+def setup(app):
+    app.connect('builder-inited', builder_inited_handler)
