@@ -1,3 +1,5 @@
+// Copyright (c) OpenXRLab. All rights reserved.
+
 #include "calibrator.h"
 
 #include <ceres/ceres.h>

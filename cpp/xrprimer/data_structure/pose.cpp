@@ -1,3 +1,5 @@
+// Copyright (c) OpenXRLab. All rights reserved.
+
 #include <data_structure/pose.h>
 
 Pose::Pose() {

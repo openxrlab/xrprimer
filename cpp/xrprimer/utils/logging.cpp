@@ -1,3 +1,5 @@
+// Copyright (c) OpenXRLab. All rights reserved.
+
 #include "logging.h"
 #include <memory>
 #include <spdlog/sinks/stdout_color_sinks.h>

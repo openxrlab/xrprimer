@@ -1,3 +1,5 @@
+// Copyright (c) OpenXRLab. All rights reserved.
+
 #include <algorithm>
 #include <data_structure/image.h>
 #include <map>
