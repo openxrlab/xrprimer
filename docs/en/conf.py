@@ -77,7 +77,9 @@ def build_doxygen_docs(release, temp_dir='doxygen', cpp_dir='cpp_api'):
     # move generated results to _build
     doxygen_dir = os.path.join(temp_dir, 'html')
     dst_dir = os.path.join('_build', 'html', cpp_dir)
-    shutil.copytree(doxygen_dir, dst_dir, dirs_exist_ok=True)
+    if os.path.exists(dst_dir):
+        shutil.rmtree(dst_dir)
+    shutil.copytree(doxygen_dir, dst_dir)
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
