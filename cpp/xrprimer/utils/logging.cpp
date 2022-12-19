@@ -7,8 +7,6 @@
 
 #define LOG_MSGBUF_INIT 512
 
-namespace roam {
-
 static spdlog::logger *logger() {
     static std::unique_ptr<spdlog::logger> s_logger;
     if (!s_logger) {
@@ -64,5 +62,3 @@ void log_message(XRLogLevel level, const char *format, ...) {
     }
     logger()->log(lvl, msgbuf.data());
 }
-
-} // namespace roam

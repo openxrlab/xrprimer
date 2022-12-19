@@ -503,3 +503,5 @@ inbox/*
 **/_build/
 **/latex/
 .DS_Store
+
+doxygen/
