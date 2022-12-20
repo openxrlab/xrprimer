@@ -6,7 +6,7 @@ include(FetchContent)
 FetchContent_Declare(
     opencv
     GIT_REPOSITORY https://github.com/opencv/opencv.git
-    GIT_TAG        371bba8f54560b374fbcd47e7e02f015ac4969ad #4.1.0
+    GIT_TAG        b0dc474160e389b9c9045da5db49d03ae17c6a6b #4.6.0
     SOURCE_DIR     ${CMAKE_SOURCE_DIR}/_ext/opencv
     BINARY_DIR     ${CMAKE_SOURCE_DIR}/_deps/opencv
 )
