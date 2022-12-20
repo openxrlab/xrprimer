@@ -289,9 +289,8 @@ def video_to_array(
     else:
         width, height = int(info['width']), int(info['height'])
     n_frames = int(info['nb_frames'])
-    start = (min(start, n_frames - 1) + n_frames) % n_frames
-    end = (min(end, n_frames - 1) +
-           n_frames) % n_frames if end is not None else n_frames
+    start = max(start, 0) % (n_frames + 1)
+    end = min(end, n_frames) % (n_frames + 1) if end is not None else n_frames
     command = [
         'ffmpeg',
         '-i',
@@ -458,7 +457,7 @@ def images_to_array(
         width, height = int(info['width']), int(info['height'])
 
     n_frames = len(os.listdir(input_folder))
-    start = max(start, 0) % n_frames
+    start = max(start, 0) % (n_frames + 1)
     end = min(end, n_frames) % (n_frames + 1) \
         if end is not None else n_frames
     command = [
@@ -716,3 +715,102 @@ def array_to_images(image_array: np.ndarray,
     process.stdin.close()
     process.stderr.close()
     process.wait()
+
+
+def images_to_video(input_folder: str,
+                    output_path: str,
+                    remove_raw_file: bool = False,
+                    img_format: str = '%06d.png',
+                    fps: Union[int, float] = 30,
+                    resolution: Union[Tuple[int, int], Tuple[float,
+                                                             float]] = None,
+                    start: int = 0,
+                    end: int = None,
+                    disable_log: bool = False,
+                    logger: Union[None, str, logging.Logger] = None) -> None:
+    """Convert a folder of images to a video.
+
+    Args:
+        input_folder (str): input image folder
+        output_path (str): output video file path
+        remove_raw_file (bool, optional): whether remove raw images.
+            Defaults to False.
+        img_format (str, optional): format to name the images].
+            Defaults to '%06d.png'.
+        fps (Union[int, float], optional): output video fps. Defaults to 30.
+        resolution (Optional[Union[Tuple[int, int], Tuple[float, float]]],
+            optional): (height, width) of output.
+            defaults to None.
+        start (int, optional): start frame index. Inclusive.
+            If < 0, will be converted to frame_index range in [0, frame_num].
+            Defaults to 0.
+        end (int, optional): end frame index. Exclusive.
+            Could be positive int or negative int or None.
+            If None, all frames from start till the last frame are included.
+            Defaults to None.
+        disable_log (bool, optional): whether close the ffmepg command info.
+            Defaults to False.
+    Raises:
+        FileNotFoundError: check the input path.
+        FileNotFoundError: check the output path.
+    Returns:
+        None
+    """
+    logger = get_logger(logger)
+    check_path(
+        input_path=input_folder,
+        allowed_existence=[Existence.DirectoryExistNotEmpty],
+        allowed_suffix=[''],
+        path_type='dir',
+        logger=logger)
+    prepare_output_path(
+        output_path,
+        allowed_suffix=['.mp4'],
+        tag='output video',
+        path_type='file',
+        overwrite=True,
+        logger=logger)
+    n_frames = len(os.listdir(input_folder))
+    start = max(start, 0) % (n_frames + 1)
+    end = min(end, n_frames) % (n_frames + 1) \
+        if end is not None else n_frames
+    command = [
+        'ffmpeg',
+        '-y',
+        '-threads',
+        '4',
+        '-start_number',
+        f'{start}',
+        '-r',
+        f'{fps}',
+        '-i',
+        f'{input_folder}/{img_format}',
+        '-frames:v',
+        f'{end - start}',
+        '-profile:v',
+        'baseline',
+        '-level',
+        '3.0',
+        '-c:v',
+        'libx264',
+        '-pix_fmt',
+        'yuv420p',
+        '-an',
+        '-v',
+        'error',
+        '-loglevel',
+        'error',
+        output_path,
+    ]
+    if resolution:
+        height, width = resolution
+        width += width % 2
+        height += height % 2
+        command.insert(1, '-s')
+        command.insert(2, '%dx%d' % (width, height))
+    if not disable_log:
+        print(f'Running \"{" ".join(command)}\"')
+    subprocess.call(command)
+    if remove_raw_file:
+        if Path(input_folder).is_dir():
+            shutil.rmtree(input_folder)
