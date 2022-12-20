@@ -56,7 +56,13 @@ Welcome to XRPrimer's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: API Reference
+   :caption: C++ API
+
+   cpp_api
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Python API
 
    api.rst
 

@@ -1,7 +1,12 @@
+// Copyright (c) OpenXRLab. All rights reserved.
+
 #pragma once
 
 #include <data_structure/camera/camera.h>
 
+/// \class FisheyeCameraParameter
+///
+/// \brief Contains the fisheye camera parameter.
 class XRPRIMER_EXPORT FisheyeCameraParameter : public BaseCameraParameter {
   public:
     FisheyeCameraParameter();

@@ -1,3 +1,5 @@
+// Copyright (c) OpenXRLab. All rights reserved.
+
 #ifndef XR_LOGGINHT_H_
 #define XR_LOGGINHT_H_
 
@@ -12,6 +14,11 @@ enum XRLogLevel {
     XR_LOG_EMERG = 6    /**< system is unusable                 **/
 };
 
+/** @brief Log message
+ * @param level Message level defined in XRLogLevel
+ * @param format Pointer to a string which consists of characters along with
+ * optional format specifiers starting with %
+ */
 void log_message(XRLogLevel level, const char *format, ...);
 
 #define xr_log_emergency(...) log_message(XR_LOG_EMERG, __VA_ARGS__)

@@ -500,4 +500,8 @@ ext/*
 _ext/*
 inbox/*
 **/build/
+**/_build/
+**/latex/
 .DS_Store
+
+doxygen/

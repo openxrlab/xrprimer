@@ -12,6 +12,8 @@
 #
 import os
 import re
+import shutil
+import subprocess
 import sys
 
 import sphinx_rtd_theme
@@ -64,8 +66,29 @@ def get_version(version_file):
     return version
 
 
+def build_doxygen_docs(release, temp_dir='doxygen', cpp_dir='cpp_api'):
+    """Build sphinx docs for C++"""
+    cmd = ['doxygen', 'Doxyfile.in']
+    subprocess.check_call(
+        cmd,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        env=dict(os.environ, PROJECT_NUMBER=release))
+    # move generated results to _build
+    doxygen_dir = os.path.join(temp_dir, 'html')
+    dst_dir = os.path.join('_build', 'html', cpp_dir)
+    if os.path.exists(dst_dir):
+        shutil.rmtree(dst_dir)
+    shutil.copytree(doxygen_dir, dst_dir)
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
+
+
 # The full version, including alpha/beta/rc tags
 release = get_version(version_file)
+
+# build c++ doxygen
+build_doxygen_docs(release)
 
 # -- General configuration ---------------------------------------------------
 
