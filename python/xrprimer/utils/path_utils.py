@@ -161,11 +161,11 @@ def check_path(input_path: str,
         suffix_matched = \
             check_path_suffix(input_path, allowed_suffix=allowed_suffix)
         if not suffix_matched:
-            logger.error(f'Wrong file suffix: {input_path}.' +
+            logger.error(f'Wrong file suffix: {input_path}. ' +
                          f'Expect {allowed_suffix}.')
             raise ValueError
     else:
-        logger.error(f'File not found at {input_path}.' +
+        logger.error(f'File not found at {input_path}. ' +
                      f'Existence: {str(exist_result)}')
         raise FileNotFoundError
 

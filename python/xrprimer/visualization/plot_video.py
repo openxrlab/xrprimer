@@ -69,6 +69,7 @@ def plot_video(
         write_video = True
         if batch_size < data_len:
             output_dir = f'{output_path}_temp'
+            os.makedirs(output_dir, exist_ok=True)
             write_img = True
             remove_output_dir = True
         else:
@@ -89,7 +90,7 @@ def plot_video(
         end_idx = min(start_idx + batch_size, data_len)
         # prepare background array for this batch
         if backgroud_arr is not None:
-            backgroud_arr_batch = backgroud_arr[start_idx:end_idx, ...]
+            backgroud_arr_batch = backgroud_arr[start_idx:end_idx, ...].copy()
         elif backgroud_dir is not None:
             file_names_cache = file_names_cache \
                 if file_names_cache is not None \

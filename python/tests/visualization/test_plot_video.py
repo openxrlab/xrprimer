@@ -9,7 +9,7 @@ from xrprimer.utils.ffmpeg_utils import (
     array_to_video,
     video_to_array,
 )
-from xrprimer.visualization.palette.point_palette import PointPalette
+from xrprimer.visualization.palette import LinePalette, PointPalette
 from xrprimer.visualization.plot_video import plot_video
 
 output_dir = 'tests/data/output/visualization/test_plot_video'
@@ -120,3 +120,72 @@ def test_backgroud_args():
         point_palette=point_palette,
         height=64,
         width=128)
+    # test duplicate source
+    output_path = os.path.join(output_dir, 'backgroud_duplicate_source.mp4')
+    with pytest.raises(ValueError):
+        plot_video(
+            output_path=output_path,
+            mframe_point_data=mframe_point_data,
+            point_palette=point_palette,
+            backgroud_video=video_path,
+            height=64,
+            width=128)
+    # test zero source
+    output_path = os.path.join(output_dir, 'backgroud_duplicate_source.mp4')
+    with pytest.raises(ValueError):
+        plot_video(
+            output_path=output_path,
+            mframe_point_data=mframe_point_data,
+            point_palette=point_palette)
+
+
+def test_plot_args():
+    img_arr = video_to_array(video_path)
+    point_palette = PointPalette(point_array=np.zeros(shape=(1, 2)), )
+    mframe_point_data = np.zeros(shape=(5, 1, 2))
+    for i in range(5):
+        mframe_point_data[i] += i * 10
+    line_palette = LinePalette(
+        point_array=np.zeros(shape=(2, 2)), conn_array=np.array([[0, 1]]))
+    mframe_line_data = np.zeros(shape=(5, 2, 2))
+    mframe_line_data[:, 0, 0] += 5
+    mframe_line_data[:, 0, 1] += 10
+    mframe_line_data[:, 1, 0] += 10
+    mframe_line_data[:, 1, 1] += 5
+    for i in range(5):
+        mframe_line_data[i] += i * 10
+    # test plot points
+    output_path = os.path.join(output_dir, 'plot_args_points.mp4')
+    plot_video(
+        output_path=output_path,
+        mframe_point_data=mframe_point_data,
+        point_palette=point_palette,
+        backgroud_arr=img_arr)
+    # test plot lines
+    output_path = os.path.join(output_dir, 'plot_args_lines.mp4')
+    plot_video(
+        output_path=output_path,
+        mframe_line_data=mframe_line_data,
+        line_palette=line_palette,
+        backgroud_arr=img_arr)
+    # test plot both
+    output_path = os.path.join(output_dir, 'plot_args_both.mp4')
+    plot_video(
+        output_path=output_path,
+        mframe_point_data=mframe_point_data,
+        point_palette=point_palette,
+        mframe_line_data=mframe_line_data,
+        line_palette=line_palette,
+        backgroud_arr=img_arr)
+    # test plot neither
+    output_path = os.path.join(output_dir, 'plot_args_neither.mp4')
+    with pytest.raises(ValueError):
+        plot_video(output_path=output_path, backgroud_arr=img_arr)
+    # test batch_size
+    output_path = os.path.join(output_dir, 'plot_batch_size.mp4')
+    plot_video(
+        batch_size=1,
+        output_path=output_path,
+        mframe_point_data=mframe_point_data,
+        point_palette=point_palette,
+        backgroud_arr=img_arr)
