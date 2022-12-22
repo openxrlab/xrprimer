@@ -9,18 +9,12 @@ from xrprimer.utils.ffmpeg_utils import (
     array_to_video,
     video_to_array,
 )
+from xrprimer.visualization.opencv.plot_video import plot_video
 from xrprimer.visualization.palette import LinePalette, PointPalette
-from xrprimer.visualization.plot_video import plot_video
 
 output_dir = 'tests/data/output/visualization/test_plot_video'
 img_dir = os.path.join(output_dir, 'input_img_dir')
 video_path = os.path.join(output_dir, 'input_video.mp4')
-
-RGB_COLORS = dict(
-    red=[255, 0, 0],
-    green=[0, 255, 0],
-    blue=[0, 0, 255],
-)
 
 
 @pytest.fixture(scope='module', autouse=True)

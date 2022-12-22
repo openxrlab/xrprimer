@@ -4,6 +4,7 @@ from typing import Union
 
 import cv2
 import numpy as np
+from tqdm import tqdm
 
 from xrprimer.utils.ffmpeg_utils import (
     VideoInfoReader,
@@ -17,35 +18,102 @@ from xrprimer.utils.path_utils import (
     check_path_existence,
     check_path_suffix,
 )
-from .opencv.plot_frame import plot_frame as plot_frame_opencv
-from .palette.line_palette import LinePalette
-from .palette.point_palette import PointPalette
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
+from ..palette.line_palette import LinePalette
+from ..palette.point_palette import PointPalette
+from .plot_frame import plot_frame as plot_frame_opencv
 
 
 def plot_video(
-        # output args
-        output_path: str,
-        overwrite: bool = True,
-        return_array: bool = False,
-        # plot args
-        batch_size: int = 1000,
-        backend: Literal['opencv'] = 'opencv',
-        mframe_point_data: Union[np.ndarray, None] = None,
-        mframe_line_data: Union[np.ndarray, None] = None,
-        point_palette: Union[PointPalette, None] = None,
-        line_palette: Union[LinePalette, None] = None,
-        # background args
-        backgroud_arr: Union[np.ndarray, None] = None,
-        backgroud_dir: Union[np.ndarray, None] = None,
-        backgroud_video: Union[np.ndarray, None] = None,
-        height: Union[int, None] = None,
-        width: Union[int, None] = None,
-        logger: Union[None, str, logging.Logger] = None) -> np.ndarray:
+    # output args
+    output_path: str,
+    overwrite: bool = True,
+    return_array: bool = False,
+    # plot args
+    batch_size: int = 1000,
+    mframe_point_data: Union[np.ndarray, None] = None,
+    mframe_line_data: Union[np.ndarray, None] = None,
+    mframe_point_mask: Union[np.ndarray, None] = None,
+    mframe_line_mask: Union[np.ndarray, None] = None,
+    point_palette: Union[PointPalette, None] = None,
+    line_palette: Union[LinePalette, None] = None,
+    # background args
+    backgroud_arr: Union[np.ndarray, None] = None,
+    backgroud_dir: Union[np.ndarray, None] = None,
+    backgroud_video: Union[np.ndarray, None] = None,
+    height: Union[int, None] = None,
+    width: Union[int, None] = None,
+    # verbose args
+    disable_tqdm: bool = True,
+    logger: Union[None, str,
+                  logging.Logger] = None) -> Union[np.ndarray, None]:
+    """Plot a video(or a number of images) with opencv. For plot args, please
+    offer either points or lines, or both. For background args, please offer
+    only one of them.
+
+    Args:
+        output_path (str):
+            Path to the output mp4 video file or image directory.
+        overwrite (bool, optional):
+            Whether to overwrite the file at output_path.
+            Defaults to True.
+        return_array (bool, optional):
+            Whether to return the video array. If True,
+            please make sure your RAM is enough for the video.
+            Defaults to False, return None.
+        batch_size (int, optional):
+            How many frames will be in RAM at the same
+            time when plotting.
+            Defaults to 1000.
+        mframe_point_data (Union[np.ndarray, None], optional):
+            Multi-frame point data,
+            in shape [n_frame, n_point, 2].
+            Defaults to None.
+        mframe_line_data (Union[np.ndarray, None], optional):
+            Multi-frame line data, locations for line ends,
+            in shape [n_frame, n_line, 2].
+            Defaults to None. Defaults to None.
+        mframe_point_mask (Union[np.ndarray, None], optional):
+            Visibility mask of multi-frame point data,
+            in shape [n_frame, n_point].
+            Defaults to None.
+        mframe_line_mask (Union[np.ndarray, None], optional):
+            Visibility mask of multi-frame line data,
+            in shape [n_frame, n_line].
+            Defaults to None. Defaults to None.
+        point_palette (Union[PointPalette, None], optional):
+            An instance of PointPalette. Color and
+            visibility are kept by point_palette.
+            Defaults to None, do not plot points.
+        line_palette (Union[LinePalette, None], optional):
+            An instance of LinePalette. Connection,
+            color and
+            visibility are kept by point_palette.
+            Defaults to None, do not plot lines.
+        backgroud_arr (Union[np.ndarray, None], optional):
+            Background image array. Defaults to None.
+        backgroud_dir (Union[np.ndarray, None], optional):
+            Path to the image directory for background.
+            Defaults to None.
+        backgroud_video (Union[np.ndarray, None], optional):
+            Path to the video for background.
+            Defaults to None.
+        height (Union[int, None], optional):
+            Height of background. Defaults to None.
+        width (Union[int, None], optional):
+            Width of background. Defaults to None.
+        disable_tqdm (bool, optional):
+            Whether to disable tqdm progress bar.
+            Defaults to True.
+        logger (Union[None, str, logging.Logger], optional):
+            Logger for logging. If None, root logger will be selected.
+            Defaults to None.
+
+    Returns:
+        Union[np.ndarray, None]:
+            Plotted multi-frame image array or None.
+            If it's an array, its shape shall be
+            [n_frame, height, width, 3].
+    """
     logger = get_logger(logger)
     # check parent and whether to overwrite
     _check_output_path(
@@ -86,7 +154,8 @@ def plot_video(
         img_list = []
     # to save time for list file and sort
     file_names_cache = None
-    for start_idx in range(0, data_len, batch_size):
+    for start_idx in tqdm(
+            range(0, data_len, batch_size), disable=disable_tqdm):
         end_idx = min(start_idx + batch_size, data_len)
         # prepare background array for this batch
         if backgroud_arr is not None:
@@ -114,18 +183,20 @@ def plot_video(
         for abs_idx in range(start_idx, end_idx):
             if point_palette is not None:
                 point_palette.set_point_array(mframe_point_data[abs_idx])
+                if mframe_point_mask is not None:
+                    point_palette.set_point_mask(
+                        np.expand_dims(mframe_point_mask[abs_idx], -1))
             if line_palette is not None:
                 line_palette.set_point_array(mframe_line_data[abs_idx])
+                if mframe_line_mask is not None:
+                    line_palette.set_conn_mask(
+                        np.expand_dims(mframe_line_mask[abs_idx], -1))
             backgroud_sframe = backgroud_arr_batch[abs_idx - start_idx]
-            if backend == 'opencv':
-                result_sframe = plot_frame_opencv(
-                    point_palette=point_palette,
-                    line_palette=line_palette,
-                    backgroud_arr=backgroud_sframe,
-                    logger=logger)
-            else:
-                logger.error(f'Backend {backend} has not been implemented.')
-                raise NotImplementedError
+            result_sframe = plot_frame_opencv(
+                point_palette=point_palette,
+                line_palette=line_palette,
+                backgroud_arr=backgroud_sframe,
+                logger=logger)
             batch_results.append(result_sframe)
             if write_img:
                 cv2.imwrite(
