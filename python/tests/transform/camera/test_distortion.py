@@ -141,13 +141,12 @@ def test_fast_undistort_images():
     test_img = cv2.imread(filename=os.path.join(input_dir, 'dist_img.png'))
     img_backup = test_img.copy()
     undistortor = FastImageUndistortor(fisheye_param=fisheye_param)
-    new_img = undistortor.undistort_image(test_img)
+    undist_img = undistortor.undistort_image(test_img)
     # test input not changed
     assert np.all(
         intrinsic_backup == np.asarray(fisheye_param.get_intrinsic()))
     assert np.all(img_backup == test_img)
-    assert np.all(new_img.shape == test_img.shape)
-    undist_img = new_img
+    assert np.all(undist_img.shape == test_img.shape)
     cv2.imwrite(
         filename=os.path.join(output_dir, 'fast_undist_img.jpg'),
         img=undist_img)

@@ -211,3 +211,19 @@ class FastImageUndistortor:
         img_arr = cv2.remap(
             img_arr, self.map1, self.map2, interpolation=cv2.INTER_NEAREST)
         return img_arr
+
+    def get_distort_cam(self) -> FisheyeCameraParameter:
+        """Get the camera parameter before undistortion.
+
+        Returns:
+            FisheyeCameraParameter
+        """
+        return self.fisheye_param
+
+    def get_undistort_cam(self) -> PinholeCameraParameter:
+        """Get the camera parameter after undistortion.
+
+        Returns:
+            PinholeCameraParameter
+        """
+        return self.pinhole_param
