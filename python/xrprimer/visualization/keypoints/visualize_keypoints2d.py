@@ -17,7 +17,7 @@ def visualize_keypoints2d(
     keypoints: Keypoints,
     # output args
     output_path: str,
-    overwrite: bool = False,
+    overwrite: bool = True,
     return_array: bool = False,
     plot_points: bool = True,
     plot_lines: bool = True,
@@ -31,6 +31,59 @@ def visualize_keypoints2d(
     disable_tqdm: bool = True,
     logger: Union[None, str,
                   logging.Logger] = None) -> Union[None, np.ndarray]:
+    """Visualize multi-frame keypoints2d by OpenCV. For plot args, please
+    either plot_points or plot_lines, or both. For background args, please
+    offer only one of them.
+
+    Args:
+        keypoints (Keypoints):
+            An instance of class Keypoints. If n_person > 1,
+            each person has its own color, else each point
+            and line has different color.
+        output_path (str):
+            Path to the output mp4 video file or image directory.
+        overwrite (bool, optional):
+            Whether to overwrite the file at output_path.
+            Defaults to True.
+        return_array (bool, optional):
+            Whether to return the video array. If True,
+            please make sure your RAM is enough for the video.
+            Defaults to False, return None.
+        plot_points (bool, optional):
+            Whether to plot points according to keypoints'
+            location.
+            Defaults to True.
+        plot_lines (bool, optional):
+            Whether to plot lines according to keypoints'
+            limbs. Defaults to True.
+        backgroud_arr (Union[np.ndarray, None], optional):
+            Background image array. Defaults to None.
+        backgroud_dir (Union[np.ndarray, None], optional):
+            Path to the image directory for background.
+            Defaults to None.
+        backgroud_video (Union[np.ndarray, None], optional):
+            Path to the video for background.
+            Defaults to None.
+        height (Union[int, None], optional):
+            Height of background. Defaults to None.
+        width (Union[int, None], optional):
+            Width of background. Defaults to None.
+        disable_tqdm (bool, optional):
+            Whether to disable tqdm progress bar.
+            Defaults to True.
+        logger (Union[None, str, logging.Logger], optional):
+            Logger for logging. If None, root logger will be selected.
+            Defaults to None.
+
+    Raises:
+        ValueError: Neither plot_points nor plot_lines is True.
+
+    Returns:
+        Union[np.ndarray, None]:
+            Plotted multi-frame image array or None.
+            If it's an array, its shape shall be
+            [n_frame, height, width, 3].
+    """
     logger = get_logger(logger)
     if not plot_points and not plot_lines:
         logger.error('plot_points or plot_lines must be True.')
