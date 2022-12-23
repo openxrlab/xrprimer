@@ -1,4 +1,5 @@
-from typing import Tuple
+import logging
+from typing import Tuple, Union
 
 import cv2
 import numpy as np
@@ -8,6 +9,7 @@ from xrprimer.data_structure.camera import (
     PinholeCameraParameter,
 )
 from xrprimer.transform.convention.camera import convert_camera_parameter
+from xrprimer.utils.log_utils import get_logger
 
 
 def undistort_camera(
@@ -145,3 +147,83 @@ def undistort_points(
         P=corrected_intrinsic33)
     corrected_points = corrected_points.reshape(*shape_backup)
     return corrected_cam_param, corrected_points
+
+
+def get_undistort_maps(
+        fisheye_param: FisheyeCameraParameter
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Get Undistortion and rectification maps defined in opencv.
+
+    Args:
+        fisheye_param (FisheyeCameraParameter):
+            FisheyeCameraParameter for the distorted image.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray]:
+            Undistortion and rectification transformation map.
+    """
+    pinhole_param = undistort_camera(fisheye_param)
+    dist_coeff_np = np.array(fisheye_param.get_dist_coeff())
+    map1, map2 = cv2.initUndistortRectifyMap(
+        cameraMatrix=np.array(fisheye_param.get_intrinsic(3)),
+        distCoeffs=dist_coeff_np,
+        R=np.eye(3),
+        newCameraMatrix=np.array(pinhole_param.get_intrinsic(3)),
+        size=np.array((
+            pinhole_param.width,
+            pinhole_param.height,
+        )),
+        m1type=cv2.CV_32FC1)
+    return map1, map2
+
+
+class FastImageUndistortor:
+    """A class for fast image undistortion."""
+
+    def __init__(self,
+                 fisheye_param: FisheyeCameraParameter,
+                 logger: Union[None, str, logging.Logger] = None) -> None:
+        """
+        Args:
+            fisheye_param (FisheyeCameraParameter):
+                FisheyeCameraParameter for the distorted image.
+            logger (Union[None, str, logging.Logger], optional):
+                Logger for logging. If None, root logger will be selected.
+                Defaults to None.
+        """
+        self.logger = get_logger(logger)
+        self.fisheye_param = fisheye_param
+        self.pinhole_param = undistort_camera(fisheye_param)
+        map1, map2 = get_undistort_maps(fisheye_param)
+        self.map1 = map1
+        self.map2 = map2
+
+    def undistort_image(self, img_arr: np.ndarray) -> np.ndarray:
+        """Undistort an image captured by self.fisheye_param.
+
+        Args:
+            img_arr (np.ndarray):
+                Image array in shape [h, w, c].
+
+        Returns:
+            np.ndarray: Undistorted image.
+        """
+        img_arr = cv2.remap(
+            img_arr, self.map1, self.map2, interpolation=cv2.INTER_NEAREST)
+        return img_arr
+
+    def get_distort_cam(self) -> FisheyeCameraParameter:
+        """Get the camera parameter before undistortion.
+
+        Returns:
+            FisheyeCameraParameter
+        """
+        return self.fisheye_param
+
+    def get_undistort_cam(self) -> PinholeCameraParameter:
+        """Get the camera parameter after undistortion.
+
+        Returns:
+            PinholeCameraParameter
+        """
+        return self.pinhole_param
