@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 import torch
 
-from xrprimer.data_structure.keypoints import Keypoints
+from xrprimer.data_structure import Keypoints
 
 output_dir = 'tests/data/output/data_structure/' +\
     'test_keypoints'

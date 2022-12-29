@@ -37,9 +37,9 @@ def plot_video(
     point_palette: Union[PointPalette, None] = None,
     line_palette: Union[LinePalette, None] = None,
     # background args
-    backgroud_arr: Union[np.ndarray, None] = None,
-    backgroud_dir: Union[np.ndarray, None] = None,
-    backgroud_video: Union[np.ndarray, None] = None,
+    background_arr: Union[np.ndarray, None] = None,
+    background_dir: Union[np.ndarray, None] = None,
+    background_video: Union[np.ndarray, None] = None,
     height: Union[int, None] = None,
     width: Union[int, None] = None,
     # verbose args
@@ -89,12 +89,12 @@ def plot_video(
             color and
             visibility are kept by point_palette.
             Defaults to None, do not plot lines.
-        backgroud_arr (Union[np.ndarray, None], optional):
+        background_arr (Union[np.ndarray, None], optional):
             Background image array. Defaults to None.
-        backgroud_dir (Union[np.ndarray, None], optional):
+        background_dir (Union[np.ndarray, None], optional):
             Path to the image directory for background.
             Defaults to None.
-        backgroud_video (Union[np.ndarray, None], optional):
+        background_video (Union[np.ndarray, None], optional):
             Path to the video for background.
             Defaults to None.
         height (Union[int, None], optional):
@@ -119,10 +119,10 @@ def plot_video(
     _check_output_path(
         output_path=output_path, overwrite=overwrite, logger=logger)
     # check if only one background source
-    backgroud_len = _check_background(
-        backgroud_arr=backgroud_arr,
-        backgroud_dir=backgroud_dir,
-        backgroud_video=backgroud_video,
+    background_len = _check_background(
+        background_arr=background_arr,
+        background_dir=background_dir,
+        background_video=background_video,
         height=height,
         width=width,
         logger=logger)
@@ -130,7 +130,7 @@ def plot_video(
     data_len = _check_data_len(
         mframe_point_data=mframe_point_data,
         mframe_line_data=mframe_line_data,
-        backgroud_len=backgroud_len,
+        background_len=background_len,
         logger=logger)
     # check whether to write video directly or write images first
     if check_path_suffix(output_path, '.mp4'):
@@ -158,25 +158,27 @@ def plot_video(
             range(0, data_len, batch_size), disable=disable_tqdm):
         end_idx = min(start_idx + batch_size, data_len)
         # prepare background array for this batch
-        if backgroud_arr is not None:
-            backgroud_arr_batch = backgroud_arr[start_idx:end_idx, ...].copy()
-        elif backgroud_dir is not None:
+        if background_arr is not None:
+            background_arr_batch = background_arr[start_idx:end_idx,
+                                                  ...].copy()
+        elif background_dir is not None:
             file_names_cache = file_names_cache \
                 if file_names_cache is not None \
-                else sorted(os.listdir(backgroud_dir))
+                else sorted(os.listdir(background_dir))
             file_names_batch = file_names_cache[start_idx:end_idx]
-            backgroud_list_batch = []
+            background_list_batch = []
             for file_name in file_names_batch:
-                backgroud_list_batch.append(
+                background_list_batch.append(
                     np.expand_dims(
-                        cv2.imread(os.path.join(backgroud_dir, file_name)),
+                        cv2.imread(os.path.join(background_dir, file_name)),
                         axis=0))
-            backgroud_arr_batch = np.concatenate(backgroud_list_batch, axis=0)
-        elif backgroud_video is not None:
-            backgroud_arr_batch = video_to_array(
-                backgroud_video, start=start_idx, end=end_idx)
+            background_arr_batch = np.concatenate(
+                background_list_batch, axis=0)
+        elif background_video is not None:
+            background_arr_batch = video_to_array(
+                background_video, start=start_idx, end=end_idx)
         else:
-            backgroud_arr_batch = np.zeros(
+            background_arr_batch = np.zeros(
                 shape=(end_idx - start_idx, height, width, 3), dtype=np.uint8)
         # plot frames in batch one by one
         batch_results = []
@@ -191,11 +193,11 @@ def plot_video(
                 if mframe_line_mask is not None:
                     line_palette.set_conn_mask(
                         np.expand_dims(mframe_line_mask[abs_idx], -1))
-            backgroud_sframe = backgroud_arr_batch[abs_idx - start_idx]
+            background_sframe = background_arr_batch[abs_idx - start_idx]
             result_sframe = plot_frame_opencv(
                 point_palette=point_palette,
                 line_palette=line_palette,
-                backgroud_arr=backgroud_sframe,
+                background_arr=background_sframe,
                 logger=logger)
             batch_results.append(result_sframe)
             if write_img:
@@ -233,12 +235,12 @@ def _check_output_path(output_path: str, overwrite: bool,
         os.makedirs(output_path, exist_ok=True)
 
 
-def _check_background(backgroud_arr: Union[np.ndarray, None],
-                      backgroud_dir: Union[np.ndarray, None],
-                      backgroud_video: Union[np.ndarray,
-                                             None], height: Union[int, None],
+def _check_background(background_arr: Union[np.ndarray, None],
+                      background_dir: Union[np.ndarray, None],
+                      background_video: Union[np.ndarray,
+                                              None], height: Union[int, None],
                       width: Union[int, None], logger: logging.Logger) -> int:
-    candidates = [backgroud_arr, backgroud_dir, backgroud_video]
+    candidates = [background_arr, background_dir, background_video]
     not_none_count = 0
     for candidate in candidates:
         if candidate is not None:
@@ -247,15 +249,15 @@ def _check_background(backgroud_arr: Union[np.ndarray, None],
         not_none_count += 1
     if not_none_count != 1:
         logger.error('Please pass only one background source' +
-                     ' among backgroud_arr, backgroud_dir,' +
-                     ' backgroud_video and height+width.')
+                     ' among background_arr, background_dir,' +
+                     ' background_video and height+width.')
         raise ValueError
-    if backgroud_arr is not None:
-        return backgroud_arr.shape[0]
-    elif backgroud_dir is not None:
-        return len(os.listdir(backgroud_dir))
-    elif backgroud_video is not None:
-        reader = VideoInfoReader(backgroud_video, logger)
+    if background_arr is not None:
+        return background_arr.shape[0]
+    elif background_dir is not None:
+        return len(os.listdir(background_dir))
+    elif background_video is not None:
+        reader = VideoInfoReader(background_video, logger)
         return int(reader['nb_frames'])
     else:
         return -1
@@ -263,11 +265,11 @@ def _check_background(backgroud_arr: Union[np.ndarray, None],
 
 def _check_data_len(mframe_point_data: Union[np.ndarray, None],
                     mframe_line_data: Union[np.ndarray, None],
-                    backgroud_len: int, logger: logging.Logger) -> int:
+                    background_len: int, logger: logging.Logger) -> int:
     empty_data = True
     len_list = []
-    if backgroud_len > 0:
-        len_list.append(backgroud_len)
+    if background_len > 0:
+        len_list.append(background_len)
     if mframe_point_data is not None:
         empty_data = False
         len_list.append(mframe_point_data.shape[0])

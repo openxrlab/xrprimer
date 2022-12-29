@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import torch
 
-from xrprimer.data_structure.limbs import Limbs
+from xrprimer.data_structure import Limbs
 
 output_dir = 'tests/data/output/data_structure/' +\
     'test_limbs'
@@ -91,7 +91,7 @@ def test_set_points():
     # test points2d
     points = np.zeros(shape=[20, 2])
     limbs.set_points(points)
-    # test points3d
+    # test points3d/points2d_conf
     points = np.zeros(shape=[20, 3])
     limbs.set_points(points)
     # test points3d+conf

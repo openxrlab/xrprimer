@@ -41,7 +41,7 @@ def test_output_args():
         output_path=output_path,
         mframe_point_data=mframe_point_data,
         point_palette=point_palette,
-        backgroud_arr=img_arr)
+        background_arr=img_arr)
     assert ret_value is None
     # test write video return array
     output_path = os.path.join(output_dir, 'test_output_args_video.mp4')
@@ -49,7 +49,7 @@ def test_output_args():
         output_path=output_path,
         mframe_point_data=mframe_point_data,
         point_palette=point_palette,
-        backgroud_arr=img_arr,
+        background_arr=img_arr,
         return_array=True)
     assert ret_value.shape[0] == 5
     # test write img dir correctly
@@ -58,7 +58,7 @@ def test_output_args():
         output_path=output_path,
         mframe_point_data=mframe_point_data,
         point_palette=point_palette,
-        backgroud_arr=img_arr)
+        background_arr=img_arr)
     # test missing parent
     output_path = os.path.join(output_dir, 'test_output_args_missing_parent',
                                'test_output_args_missing_parent.mp4')
@@ -67,7 +67,7 @@ def test_output_args():
             output_path=output_path,
             mframe_point_data=mframe_point_data,
             point_palette=point_palette,
-            backgroud_arr=img_arr)
+            background_arr=img_arr)
     # test not overwrite
     output_path = os.path.join(output_dir, 'test_output_args_video.mp4')
     with pytest.raises(FileExistsError):
@@ -75,39 +75,39 @@ def test_output_args():
             output_path=output_path,
             mframe_point_data=mframe_point_data,
             point_palette=point_palette,
-            backgroud_arr=img_arr,
+            background_arr=img_arr,
             overwrite=False)
 
 
-def test_backgroud_args():
+def test_background_args():
     img_arr = video_to_array(video_path)
     point_palette = PointPalette(point_array=np.zeros(shape=(1, 2)), )
     mframe_point_data = np.zeros(shape=(5, 1, 2))
     for i in range(5):
         mframe_point_data[i] += i * 10
-    # test backgroud_arr
-    output_path = os.path.join(output_dir, 'backgroud_args_arr.mp4')
+    # test background_arr
+    output_path = os.path.join(output_dir, 'background_args_arr.mp4')
     plot_video(
         output_path=output_path,
         mframe_point_data=mframe_point_data,
         point_palette=point_palette,
-        backgroud_arr=img_arr)
-    # test backgroud_dir
-    output_path = os.path.join(output_dir, 'backgroud_args_dir.mp4')
+        background_arr=img_arr)
+    # test background_dir
+    output_path = os.path.join(output_dir, 'background_args_dir.mp4')
     plot_video(
         output_path=output_path,
         mframe_point_data=mframe_point_data,
         point_palette=point_palette,
-        backgroud_dir=img_dir)
-    # test backgroud_video
-    output_path = os.path.join(output_dir, 'backgroud_args_video.mp4')
+        background_dir=img_dir)
+    # test background_video
+    output_path = os.path.join(output_dir, 'background_args_video.mp4')
     plot_video(
         output_path=output_path,
         mframe_point_data=mframe_point_data,
         point_palette=point_palette,
-        backgroud_video=video_path)
+        background_video=video_path)
     # test resolution
-    output_path = os.path.join(output_dir, 'backgroud_args_resolution.mp4')
+    output_path = os.path.join(output_dir, 'background_args_resolution.mp4')
     plot_video(
         output_path=output_path,
         mframe_point_data=mframe_point_data,
@@ -115,17 +115,17 @@ def test_backgroud_args():
         height=64,
         width=128)
     # test duplicate source
-    output_path = os.path.join(output_dir, 'backgroud_duplicate_source.mp4')
+    output_path = os.path.join(output_dir, 'background_duplicate_source.mp4')
     with pytest.raises(ValueError):
         plot_video(
             output_path=output_path,
             mframe_point_data=mframe_point_data,
             point_palette=point_palette,
-            backgroud_video=video_path,
+            background_video=video_path,
             height=64,
             width=128)
     # test zero source
-    output_path = os.path.join(output_dir, 'backgroud_duplicate_source.mp4')
+    output_path = os.path.join(output_dir, 'background_duplicate_source.mp4')
     with pytest.raises(ValueError):
         plot_video(
             output_path=output_path,
@@ -154,14 +154,14 @@ def test_plot_args():
         output_path=output_path,
         mframe_point_data=mframe_point_data,
         point_palette=point_palette,
-        backgroud_arr=img_arr)
+        background_arr=img_arr)
     # test plot lines
     output_path = os.path.join(output_dir, 'plot_args_lines.mp4')
     plot_video(
         output_path=output_path,
         mframe_line_data=mframe_line_data,
         line_palette=line_palette,
-        backgroud_arr=img_arr)
+        background_arr=img_arr)
     # test plot both
     output_path = os.path.join(output_dir, 'plot_args_both.mp4')
     plot_video(
@@ -170,11 +170,11 @@ def test_plot_args():
         point_palette=point_palette,
         mframe_line_data=mframe_line_data,
         line_palette=line_palette,
-        backgroud_arr=img_arr)
+        background_arr=img_arr)
     # test plot neither
     output_path = os.path.join(output_dir, 'plot_args_neither.mp4')
     with pytest.raises(ValueError):
-        plot_video(output_path=output_path, backgroud_arr=img_arr)
+        plot_video(output_path=output_path, background_arr=img_arr)
     # test batch_size
     output_path = os.path.join(output_dir, 'plot_batch_size.mp4')
     plot_video(
@@ -182,4 +182,4 @@ def test_plot_args():
         output_path=output_path,
         mframe_point_data=mframe_point_data,
         point_palette=point_palette,
-        backgroud_arr=img_arr)
+        background_arr=img_arr)

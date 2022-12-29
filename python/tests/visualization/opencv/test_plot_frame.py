@@ -40,7 +40,7 @@ def test_plot_points():
             point_palette.set_point_array(location)
             img_arr = plot_frame(
                 point_palette=point_palette,
-                backgroud_arr=canvas,
+                background_arr=canvas,
                 point_radius=point_radius)
         cv2.imwrite(
             os.path.join(output_dir, f'{color_str}_manual_radius.jpg'),
@@ -102,7 +102,7 @@ def test_plot_lines():
             line_palette.set_point_array(point_array)
             img_arr = plot_frame(
                 line_palette=line_palette,
-                backgroud_arr=canvas,
+                background_arr=canvas,
                 line_thickness=thickness)
             start_location = start_location + \
                 10 * np.array([thickness, thickness])
@@ -165,5 +165,5 @@ def test_points_and_lines():
     img_arr = plot_frame(
         point_palette=point_palette,
         line_palette=line_palette,
-        backgroud_arr=canvas)
+        background_arr=canvas)
     cv2.imwrite(os.path.join(output_dir, 'points_and_lines.jpg'), img_arr)

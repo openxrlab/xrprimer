@@ -11,7 +11,7 @@ from xrprimer.visualization.palette.point_palette import PointPalette
 
 @overload
 def plot_frame(point_palette: Union[PointPalette, None],
-               backgroud_arr: Union[np.ndarray, None] = None,
+               background_arr: Union[np.ndarray, None] = None,
                height: Union[int, None] = None,
                width: Union[int, None] = None,
                line_thickness: Union[str, int] = 'auto',
@@ -22,7 +22,7 @@ def plot_frame(point_palette: Union[PointPalette, None],
 
 @overload
 def plot_frame(line_palette: Union[PointPalette, None],
-               backgroud_arr: Union[np.ndarray, None] = None,
+               background_arr: Union[np.ndarray, None] = None,
                height: Union[int, None] = None,
                width: Union[int, None] = None,
                line_thickness: Union[str, int] = 'auto',
@@ -34,7 +34,7 @@ def plot_frame(line_palette: Union[PointPalette, None],
 @overload
 def plot_frame(point_palette: Union[PointPalette, None],
                line_palette: Union[PointPalette, None],
-               backgroud_arr: Union[np.ndarray, None] = None,
+               background_arr: Union[np.ndarray, None] = None,
                height: Union[int, None] = None,
                width: Union[int, None] = None,
                line_thickness: Union[str, int] = 'auto',
@@ -45,7 +45,7 @@ def plot_frame(point_palette: Union[PointPalette, None],
 
 def plot_frame(point_palette: Union[PointPalette, None] = None,
                line_palette: Union[LinePalette, None] = None,
-               backgroud_arr: Union[np.ndarray, None] = None,
+               background_arr: Union[np.ndarray, None] = None,
                height: Union[int, None] = None,
                width: Union[int, None] = None,
                line_thickness: Union[str, int] = 'auto',
@@ -63,17 +63,17 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
             color and
             visibility are kept by point_palette.
             Defaults to None, do not plot lines.
-        backgroud_arr (Union[np.ndarray, None], optional):
+        background_arr (Union[np.ndarray, None], optional):
             A background image array, in shape [h, w, c].
-            If backgroud_arr is not None, do not pass height
+            If background_arr is not None, do not pass height
             and width.
             Defaults to None, use white background.
         height (Union[int, None], optional):
-            Height of the canvas. When backgroud_arr is None,
+            Height of the canvas. When background_arr is None,
             size of canvas is decided by height and width.
             Defaults to None.
         width (Union[int, None], optional):
-            Width of the canvas. When backgroud_arr is None,
+            Width of the canvas. When background_arr is None,
             size of canvas is decided by height and width.
             Defaults to None.
         line_thickness (Union[str, int], optional):
@@ -90,9 +90,9 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
         RuntimeError:
             Both point_palette and line_palette are passed.
         RuntimeError:
-            Both backgroud_arr and [height, width] are passed.
+            Both background_arr and [height, width] are passed.
         ValueError:
-            Either height or width is None when backgroud_arr is None.
+            Either height or width is None when background_arr is None.
 
     Returns:
         np.ndarray: The plotted image array.
@@ -105,12 +105,13 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
                      ' or line_palette, or both.')
         raise RuntimeError
     # decide canvas
-    if backgroud_arr is not None and (height is not None or width is not None):
-        logger.error('To plot a frame, please offer either backgroud_arr' +
+    if background_arr is not None and (height is not None
+                                       or width is not None):
+        logger.error('To plot a frame, please offer either background_arr' +
                      ' or [height, width], not both.')
         raise RuntimeError
-    if backgroud_arr is not None:
-        canvas = backgroud_arr
+    if background_arr is not None:
+        canvas = background_arr
         # gray to rgb
         if len(canvas.shape) == 2:
             canvas = np.expand_dims(canvas, axis=-1)

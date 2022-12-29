@@ -22,9 +22,9 @@ def visualize_keypoints2d(
     plot_points: bool = True,
     plot_lines: bool = True,
     # background args
-    backgroud_arr: Union[np.ndarray, None] = None,
-    backgroud_dir: Union[np.ndarray, None] = None,
-    backgroud_video: Union[np.ndarray, None] = None,
+    background_arr: Union[np.ndarray, None] = None,
+    background_dir: Union[np.ndarray, None] = None,
+    background_video: Union[np.ndarray, None] = None,
     height: Union[int, None] = None,
     width: Union[int, None] = None,
     # verbose args
@@ -56,12 +56,12 @@ def visualize_keypoints2d(
         plot_lines (bool, optional):
             Whether to plot lines according to keypoints'
             limbs. Defaults to True.
-        backgroud_arr (Union[np.ndarray, None], optional):
+        background_arr (Union[np.ndarray, None], optional):
             Background image array. Defaults to None.
-        backgroud_dir (Union[np.ndarray, None], optional):
+        background_dir (Union[np.ndarray, None], optional):
             Path to the image directory for background.
             Defaults to None.
-        backgroud_video (Union[np.ndarray, None], optional):
+        background_video (Union[np.ndarray, None], optional):
             Path to the video for background.
             Defaults to None.
         height (Union[int, None], optional):
@@ -180,9 +180,9 @@ def visualize_keypoints2d(
         mframe_line_mask=mframe_line_mask,
         point_palette=point_palette,
         line_palette=line_palette,
-        backgroud_arr=backgroud_arr,
-        backgroud_dir=backgroud_dir,
-        backgroud_video=backgroud_video,
+        background_arr=background_arr,
+        background_dir=background_dir,
+        background_video=background_video,
         height=height,
         width=width,
         disable_tqdm=disable_tqdm,
