@@ -63,9 +63,8 @@ class PointPalette:
         self.set_color_array(color_array)
 
     def __len__(self) -> int:
-        ret_len = 0 if self.point_array is None \
+        return 0 if self.point_array is None \
             else len(self.point_array)
-        return ret_len
 
     def set_point_array(self, point_array: Union[list, np.ndarray,
                                                  torch.Tensor]):

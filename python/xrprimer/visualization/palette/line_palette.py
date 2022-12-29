@@ -69,9 +69,8 @@ class LinePalette(PointPalette):
         self.set_color_array(color_array)
 
     def __len__(self) -> int:
-        ret_len = 0 if self.conn_array is None \
+        return 0 if self.conn_array is None \
             else len(self.conn_array)
-        return ret_len
 
     def set_conn_array(self, conn_array: Union[list, np.ndarray,
                                                torch.Tensor]):
