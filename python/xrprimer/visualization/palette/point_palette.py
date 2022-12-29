@@ -34,14 +34,14 @@ class PointPalette:
                 Name of this point palette.
                 Defaults to 'default_point_palette'.
             point_mask (Union[list, np.ndarray, torch.Tensor, None], optional):
-                An array of points' visibility mask, in shape
-                [1] or [n_point, 1].
+                An array of points' visibility mask, in shape[1]
+                or [n_point, 1].
                 Defaults to None, all visible.
             color_array (Union[
                     list,
                     np.ndarray, torch.Tensor, None], optional):
-                An array of points' color, in shape
-                [3] or [n_point, 3].
+                An array of points' color, in shape[3] or
+                [n_point, 3].
                 Defaults to None, all red.
             logger (Union[None, str, logging.Logger], optional):
                 Logger for logging. If None, root logger will be selected.
@@ -93,8 +93,8 @@ class PointPalette:
 
         Args:
             point_mask (Union[list, np.ndarray, torch.Tensor]):
-                An array of points' visibility mask, in shape
-                [1] or [n_point, 1].
+                An array of points' visibility mask, in shape[1] or
+                [n_point, 1].
         """
         point_mask = fix_arr_type(point_mask)
         target_len = None if self.point_array is None \
@@ -115,8 +115,8 @@ class PointPalette:
 
         Args:
             color_array (Union[list, np.ndarray, torch.Tensor]):
-                An array of points' color, in shape
-                [3] or [n_point, 3].
+                An array of points' color, in shape[3] or
+                [n_point, 3].
         """
         color_array = fix_arr_type(color_array)
         target_len = None if self.point_array is None \

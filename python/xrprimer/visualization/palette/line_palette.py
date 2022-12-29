@@ -29,8 +29,7 @@ class LinePalette(PointPalette):
         """
         Args:
             conn_array (Union[list, np.ndarray, torch.Tensor]):
-                An array of point locations, in shape
-                [n_lines, 2].
+                An array of point locations, in shape[n_lines, 2].
             point_array (Union[list, np.ndarray, torch.Tensor]):
                 An array of point locations, in shape
                 [n_points, location_dim].
@@ -38,14 +37,14 @@ class LinePalette(PointPalette):
                 Name of this line palette.
                 Defaults to 'default_line_palette'.
             point_mask (Union[list, np.ndarray, torch.Tensor, None], optional):
-                An array of points' visibility mask, in shape
-                [1] or [n_point, 1].
+                An array of points' visibility mask, in shape[1]
+                or [n_point, 1].
                 Defaults to None, all visible.
             color_array (Union[
                     list, np.ndarray,
                     torch.Tensor, None], optional):
-                An array of points' color, in shape
-                [3] or [n_point, 3].
+                An array of points' color, in shape[3]
+                or [n_point, 3].
                 Defaults to None, all red.
             logger (Union[None, str, logging.Logger], optional):
                 Logger for logging. If None, root logger will be selected.
@@ -99,8 +98,7 @@ class LinePalette(PointPalette):
 
         Args:
             conn_mask (Union[list, np.ndarray, torch.Tensor]):
-                An array of lines' visibility mask, in shape
-                [1] or [n_line, 1].
+                An array of lines' visibility mask, in shape[1] or [n_line, 1].
         """
         conn_mask = fix_arr_type(conn_mask)
         target_len = None if self.conn_array is None \
@@ -133,8 +131,8 @@ class LinePalette(PointPalette):
 
         Args:
             color_array (Union[list, np.ndarray, torch.Tensor]):
-                An array of points' color, in shape
-                [3] or [n_line, 3].
+                An array of points' color, in shape[3]
+                or [n_line, 3].
         """
         color_array = fix_arr_type(color_array)
         target_len = None if self.conn_array is None \
