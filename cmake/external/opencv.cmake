@@ -1,18 +1,17 @@
 # IOS USE framework
 if(NOT IOS)
 
-include(FetchContent)
+  include(FetchContent)
 
-FetchContent_Declare(
+  FetchContent_Declare(
     opencv
     GIT_REPOSITORY https://github.com/opencv/opencv.git
-    GIT_TAG        b0dc474160e389b9c9045da5db49d03ae17c6a6b #4.6.0
-    SOURCE_DIR     ${CMAKE_SOURCE_DIR}/_ext/opencv
-    BINARY_DIR     ${CMAKE_SOURCE_DIR}/_deps/opencv
-)
+    GIT_TAG b0dc474160e389b9c9045da5db49d03ae17c6a6b # 4.6.0
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/_ext/opencv BINARY_DIR
+    ${CMAKE_SOURCE_DIR}/_deps/opencv)
 
-FetchContent_GetProperties(opencv)
-if(NOT opencv_POPULATED)
+  FetchContent_GetProperties(opencv)
+  if(NOT opencv_POPULATED)
     # Fetch the content using previously declared details
     FetchContent_Populate(opencv)
     # cmake 3.13
@@ -96,54 +95,79 @@ if(NOT opencv_POPULATED)
 
     add_subdirectory(${opencv_SOURCE_DIR} ${opencv_BINARY_DIR})
 
-    set(OpenCV_INCLUDE_DIRS )
+    set(OpenCV_INCLUDE_DIRS)
     list(APPEND OpenCV_INCLUDE_DIRS ${OPENCV_CONFIG_FILE_INCLUDE_DIR}/)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/calib3d/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/core/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/dnn/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/features2d/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/flann/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/gapi/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/highgui/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/imgcodecs/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/imgproc/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/objdetect/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/photo/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/stitching/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/ts/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/video/include)
-    list(APPEND OpenCV_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/videoio/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/calib3d/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/core/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/dnn/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/features2d/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/flann/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/gapi/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/highgui/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/imgcodecs/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/imgproc/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/objdetect/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/photo/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/stitching/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/ts/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/video/include)
+    list(APPEND OpenCV_INCLUDE_DIRS
+         ${CMAKE_SOURCE_DIR}/_ext/opencv/modules/videoio/include)
     include_directories(${OpenCV_INCLUDE_DIRS})
 
-    SET(OPENCV_VERSION_FILE "${CMAKE_SOURCE_DIR}/_ext/opencv/modules/core/include/opencv2/core/version.hpp")
-    file(STRINGS "${OPENCV_VERSION_FILE}" OPENCV_VERSION_PARTS REGEX "#define CV_VERSION_[A-Z]+[ ]+" )
-    string(REGEX REPLACE ".+CV_VERSION_MAJOR[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_MAJOR "${OPENCV_VERSION_PARTS}")
-    string(REGEX REPLACE ".+CV_VERSION_MINOR[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_MINOR "${OPENCV_VERSION_PARTS}")
-    string(REGEX REPLACE ".+CV_VERSION_REVISION[ ]+([0-9]+).*" "\\1" OPENCV_VERSION_PATCH "${OPENCV_VERSION_PARTS}")
-    string(REGEX REPLACE ".+CV_VERSION_STATUS[ ]+\"([^\"]*)\".*" "\\1" OPENCV_VERSION_STATUS "${OPENCV_VERSION_PARTS}")
-endif()
+    set(OPENCV_VERSION_FILE
+        "${CMAKE_SOURCE_DIR}/_ext/opencv/modules/core/include/opencv2/core/version.hpp"
+    )
+    file(STRINGS "${OPENCV_VERSION_FILE}" OPENCV_VERSION_PARTS
+         REGEX "#define CV_VERSION_[A-Z]+[ ]+")
+    string(REGEX REPLACE ".+CV_VERSION_MAJOR[ ]+([0-9]+).*" "\\1"
+                         OPENCV_VERSION_MAJOR "${OPENCV_VERSION_PARTS}")
+    string(REGEX REPLACE ".+CV_VERSION_MINOR[ ]+([0-9]+).*" "\\1"
+                         OPENCV_VERSION_MINOR "${OPENCV_VERSION_PARTS}")
+    string(REGEX REPLACE ".+CV_VERSION_REVISION[ ]+([0-9]+).*" "\\1"
+                         OPENCV_VERSION_PATCH "${OPENCV_VERSION_PARTS}")
+    string(REGEX REPLACE ".+CV_VERSION_STATUS[ ]+\"([^\"]*)\".*" "\\1"
+                         OPENCV_VERSION_STATUS "${OPENCV_VERSION_PARTS}")
+  endif()
 
 else()
-    message(STATUS "using opencv framework")
-    if(NOT TARGET Opencv::OpenCV)
+  message(STATUS "using opencv framework")
+  if(NOT TARGET Opencv::OpenCV)
     FetchContent_Declare(
-        opencv
-        URL     https://github.com/opencv/opencv/releases/download/4.0.1/opencv-4.0.1-ios-framework.zip
-        URL_MD5 35ebe10de1089f6b1e1cce04d822f740
-        SOURCE_DIR  ${CMAKE_INSTALL_PREFIX}/framework/opencv2.framework
-    )
+      opencv
+      URL https://github.com/opencv/opencv/releases/download/4.0.1/opencv-4.0.1-ios-framework.zip
+      URL_MD5 35ebe10de1089f6b1e1cce04d822f740
+      SOURCE_DIR ${CMAKE_INSTALL_PREFIX}/framework/opencv2.framework)
     FetchContent_GetProperties(opencv)
     if(NOT opencv_POPULATED)
-        message(STATUS "Fetching precompiled OpenCV framework")
-        FetchContent_Populate(opencv)
-        message(STATUS "Fetching precompiled OpenCV framework - done")
-        message(STATUS "Configuring OpenCV framework")
-        message(STATUS "Configuring OpenCV framework - done")
+      message(STATUS "Fetching precompiled OpenCV framework")
+      FetchContent_Populate(opencv)
+      message(STATUS "Fetching precompiled OpenCV framework - done")
+      message(STATUS "Configuring OpenCV framework")
+      message(STATUS "Configuring OpenCV framework - done")
     endif()
     add_library(OpenCV::OpenCV INTERFACE IMPORTED GLOBAL)
-    target_compile_options(OpenCV::OpenCV INTERFACE -framework opencv2 -F${CMAKE_INSTALL_PREFIX}/framework $<$<COMPILE_LANGUAGE:CXX>:-Wno-unused-command-line-argument>)
+    target_compile_options(
+      OpenCV::OpenCV
+      INTERFACE -framework opencv2 -F${CMAKE_INSTALL_PREFIX}/framework
+                $<$<COMPILE_LANGUAGE:CXX>:-Wno-unused-command-line-argument>)
     target_link_libraries(OpenCV::OpenCV INTERFACE "-framework opencv2")
-    target_link_options(OpenCV::OpenCV INTERFACE "-F${CMAKE_INSTALL_PREFIX}/framework")
-    endif()
+    target_link_options(OpenCV::OpenCV INTERFACE
+                        "-F${CMAKE_INSTALL_PREFIX}/framework")
+  endif()
 
 endif()

@@ -13,9 +13,10 @@ if(CODE_COVERAGE)
   set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE 1)
   set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
 
-  if((CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-      AND
-     (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"))
+  if((CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL
+                                              "Clang")
+     AND (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID
+                                                       STREQUAL "AppleClang"))
     set(_GCOV_FLAGS "-fprofile-instr-generate -fcoverage-mapping")
   endif()
   if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
