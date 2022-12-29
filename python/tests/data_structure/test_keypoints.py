@@ -32,9 +32,7 @@ def test_new():
     mask_np = np.zeros(shape=(2, 3, 25))
     convention = 'openpose_25'
     keypoints = Keypoints(kps=kps_np, mask=mask_np, convention=convention)
-    assert keypoints.get_frame_number() == 2
-    assert keypoints.get_person_number() == 3
-    assert keypoints.get_keypoints_number() == 25
+    assert keypoints.get_keypoints().shape[:3] == (2, 3, 25)
     # new with torch values
     kps_tensor = torch.zeros(size=(2, 3, 25, 3))
     mask_tensor = torch.zeros(size=(2, 3, 25))
@@ -42,6 +40,7 @@ def test_new():
     keypoints = Keypoints(
         kps=kps_tensor, mask=mask_tensor, convention=convention)
     assert isinstance(keypoints.get_keypoints(), torch.Tensor)
+    assert keypoints.get_keypoints().shape[:3] == (2, 3, 25)
     assert keypoints.get_frame_number() == 2
     assert keypoints.get_person_number() == 3
     assert keypoints.get_keypoints_number() == 25
