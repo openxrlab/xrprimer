@@ -4,6 +4,7 @@ repos:
     rev: v14.0.1
     hooks:
       - id: clang-format
+        exclude: (.*\.json)
   - repo: https://github.com/PyCQA/flake8.git
     rev: 5.0.4
     hooks:
