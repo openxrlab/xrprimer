@@ -2,7 +2,7 @@ include(FetchContent)
 
 fetchcontent_declare(
     ceres GIT_REPOSITORY https://github.com/ceres-solver/ceres-solver.git
-    GIT_TAG 399cda773035d99eaf1f4a129a666b3c4df9d1b1 # 2.0.0
+    GIT_TAG f68321e7de8929fbcdb95dd42877531e64f72f66 # 2.1.0
 )
 
 fetchcontent_getproperties(ceres)
