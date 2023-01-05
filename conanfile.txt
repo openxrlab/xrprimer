@@ -1,7 +1,6 @@
 [requires]
 ceres-solver/2.0.0@xrlab/stable
 eigen/3.3.4@xrlab/stable
-gtest/1.8.1@xrlab/stable
 jsoncpp/1.9.5@xrlab/stable
 opencv/4.5.1@xrlab/stable
 pybind11/2.6.2@xrlab/stable

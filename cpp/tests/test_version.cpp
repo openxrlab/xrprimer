@@ -1,7 +1,10 @@
 #include <common/version.h>
-#include <gtest/gtest.h>
+#include <iostream>
 
-TEST(test_version, get_version) {
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
+
+TEST_CASE("Meta", "Get Version") {
 
     int major = get_version_major();
     int minor = get_version_minor();
