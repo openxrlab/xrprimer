@@ -505,3 +505,5 @@ inbox/*
 .DS_Store
 
 doxygen/
+3rdparty
+build_*/

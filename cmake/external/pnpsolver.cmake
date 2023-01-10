@@ -1,25 +1,14 @@
-#
-# Pnp solver, ios not support
-#
-
 if(NOT IOS)
-    include(FetchContent)
+    include(ExternalProject)
 
-    fetchcontent_declare(
-        pnpsolver GIT_REPOSITORY https://github.com/xxlxsyhl/pnpsolver.git
-        GIT_TAG 8710099931eb2ab8112b2a17800d638df3ec8c0a
+    externalproject_add(
+        ext_pnpsolver
+        PREFIX pnpsolver
+        GIT_REPOSITORY https://github.com/GACLove/pnpsolver.git
+        GIT_TAG 08182c16424d8730b36fce50168f820fc0733a74
+        CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF
+                   -DCMAKE_INSTALL_PREFIX=${STAGED_INSTALL_PREFIX}/pnpsolver
+                   -DCMAKE_PREFIX_PATH=${STAGED_INSTALL_PREFIX}
     )
-
-    fetchcontent_getproperties(pnpsolver)
-
-    if(NOT pnpsolver_POPULATED)
-        fetchcontent_populate(pnpsolver)
-
-        set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-
-        add_subdirectory(${pnpsolver_SOURCE_DIR} ${pnpsolver_BINARY_DIR})
-    endif()
-
-else()
-    message(STATUS "pnpsolver NOT support ios")
+    add_dependencies(ext_pnpsolver ext_ceres)
 endif()

@@ -10,5 +10,11 @@ pnpsolver/1.0.0@xrlab/stable
 [options]
 pnpsolver:shared=False
 
-[generators]
-cmake
+[imports]
+., * -> ../3rdparty/eigen3  @ root_package=eigen
+., * -> ../3rdparty/ceres  @ root_package=ceres-solver
+., * -> ../3rdparty/jsoncpp  @ root_package=jsoncpp
+., * -> ../3rdparty/opencv  @ root_package=opencv
+., * -> ../3rdparty/pybind11  @ root_package=pybind11
+., * -> ../3rdparty/spdlog  @ root_package=spdlog
+., * -> ../3rdparty/pnpsolver  @ root_package=pnpsolver

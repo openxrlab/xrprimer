@@ -54,7 +54,9 @@ target_link_libraries(
 )
 
 install(TARGETS ${target} DESTINATION lib EXPORT ${target}-targets)
-install(EXPORT ${target}-targets DESTINATION lib/cmake NAMESPACE XRPrimer::)
+install(EXPORT ${target}-targets DESTINATION lib/cmake/xrprimer
+        NAMESPACE XRPrimer::
+)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING
         PATTERN "*.h"
 )
@@ -63,8 +65,14 @@ include(CMakePackageConfigHelpers)
 configure_package_config_file(
     ${CMAKE_SOURCE_DIR}/cmake/XRPrimerConfig.cmake.in
     "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfig.cmake"
-    INSTALL_DESTINATION lib/cmake/ NO_CHECK_REQUIRED_COMPONENTS_MACRO
+    INSTALL_DESTINATION lib/cmake/xrprimer NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
+
+file(READ ${CMAKE_SOURCE_DIR}/cmake/dependencies.cmake DEPS_FILE_CONTENTS)
+string(REPLACE "find_package" "find_dependency" DEPS_FILE_CONTENTS
+               ${DEPS_FILE_CONTENTS}
+)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/dependencies.cmake ${DEPS_FILE_CONTENTS})
 
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfigVersion.cmake"
@@ -73,9 +81,11 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion
 )
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfig.cmake"
-              "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfigVersion.cmake"
-        DESTINATION lib/cmake
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfig.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfigVersion.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/dependencies.cmake"
+    DESTINATION lib/cmake/xrprimer
 )
 
 configure_file(common/config.h.in common/config.h)

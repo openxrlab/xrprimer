@@ -4,10 +4,10 @@ project(sample)
 
 if(NOT XRPrimer_DIR)
     # set XRPrimer_DIR pointer to XRPrimerConfig.cmake directory
-    set(XRPrimer_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../install/lib/cmake")
+    list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../install/")
     message(
         STATUS
-            "**[XRPrimer]** XRPrimer_DIR default path: ${CMAKE_CURRENT_SOURCE_DIR}/../../install/lib/cmake"
+            "**[XRPrimer]** XRPrimer_DIR default path: ${CMAKE_CURRENT_SOURCE_DIR}/../../install/"
     )
 endif()
 
