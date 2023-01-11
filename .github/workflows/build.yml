@@ -45,7 +45,7 @@ jobs:
           pip3 install conan
           apt update && apt install ninja-build -y
           conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
-          cmake -S. -Bbuild_dep -D3RT_FROM_LOCAL=ON -G "Ninja"
+          cmake -S. -Bbuild_dep -D3RT_FROM_CONAN=ON -G "Ninja"
           cmake --build build_dep -j4
           cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DENABLE_TEST=ON -DCODE_COVERAGE=ON -G "Ninja"
           cmake --build build --target install -j4
