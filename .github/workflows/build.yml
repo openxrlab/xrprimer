@@ -6,17 +6,17 @@ name: build
 on:
   push:
     branches:
-     - main
+      - main
     paths-ignore:
-      - 'README.md'
-      - 'README_CN.md'
-      - 'docs/**'
+      - "README.md"
+      - "README_CN.md"
+      - "docs/**"
 
   pull_request:
     paths-ignore:
-      - 'README.md'
-      - 'README_CN.md'
-      - 'docs/**'
+      - "README.md"
+      - "README_CN.md"
+      - "docs/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -42,10 +42,13 @@ jobs:
         run: |
           rm -rf xrprimer.egg-info
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
-          pip install conan
+          pip3 install conan
+          apt update && apt install ninja-build -y
           conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
-          cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DBUILD_EXTERNAL=OFF -DENABLE_TEST=ON -DCODE_COVERAGE=ON
-          cmake --build build -j4 --target install
+          cmake -S. -Bbuild_dep -D3RT_FROM_LOCAL=ON -G "Ninja"
+          cmake --build build_dep -j4
+          cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DENABLE_TEST=ON -DCODE_COVERAGE=ON -G "Ninja"
+          cmake --build build --target install -j4
       - name: Prepare test data
         run: |
           cd build
@@ -70,7 +73,6 @@ jobs:
           # mkdir coverage_html
           # coverage_filter="--filter ${CI_PROJECT_DIR}/cpp"
           # gcovr ${coverage_filter} -r . --object-directory=${CI_PROJECT_DIR}/build
-
 
   build_py38:
     runs-on: ubuntu-18.04
