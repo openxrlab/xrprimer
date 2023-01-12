@@ -1,11 +1,12 @@
 
 #include "filesystem_utils.hpp"
 #include <calibration/calibrator_api.h>
-#include <gtest/gtest.h>
 #include <iostream>
 #include <iterator>
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
 
-TEST(test_calibrator, MultiPinholeCamera) {
+TEST_CASE("test_calibrator", "MultiPinholeCamera") {
 
     const std::string images_folder =
         "test/data/calib_pinhole_camera/input/images/";
@@ -22,8 +23,8 @@ TEST(test_calibrator, MultiPinholeCamera) {
     // std::copy(cameras_json_files.begin(), cameras_json_files.end(),
     //           std::ostream_iterator<std::string>(std::cout, "\n"));
 
-    EXPECT_NE(0, image_files.size());
-    EXPECT_NE(0, cameras_json_files.size());
+    REQUIRE(0 != image_files.size());
+    REQUIRE(0 != cameras_json_files.size());
 
     int max_frame_idx = 0;
     std::for_each(
@@ -96,11 +97,8 @@ TEST(test_calibrator, MultiPinholeCamera) {
                   << " param file: " << (prefix + std::to_string(i) + postfix)
                   << std::endl;
 
-        EXPECT_EQ(cameras[i].intrinsic_, loadcamera[i].intrinsic_)
-            << "K compare";
-        EXPECT_EQ(cameras[i].extrinsic_r_, loadcamera[i].extrinsic_r_)
-            << "R compare";
-        EXPECT_EQ(cameras[i].extrinsic_t_, loadcamera[i].extrinsic_t_)
-            << "T compare";
+        REQUIRE(cameras[i].intrinsic_ == loadcamera[i].intrinsic_);
+        REQUIRE(cameras[i].extrinsic_r_ == loadcamera[i].extrinsic_r_);
+        REQUIRE(cameras[i].extrinsic_t_ == loadcamera[i].extrinsic_t_);
     }
 }

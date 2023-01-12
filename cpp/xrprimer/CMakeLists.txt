@@ -36,60 +36,60 @@ add_library(XRPrimer::${target} ALIAS ${target})
 target_compile_options(${target} PRIVATE -fPIC)
 
 include(GenerateExportHeader)
-generate_export_header(${target} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/xrprimer_export.h)
-
-
-target_include_directories(${target}
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/cpp/xrprimer>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/>
-    $<INSTALL_INTERFACE:include/xrprimer>
+generate_export_header(
+    ${target} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/xrprimer_export.h
 )
 
-set(opencv_target opencv_core)
-set(pnpsolver_target PnpSolver::pnpsolver)
-if(IOS)
-    set(opencv_target OpenCV::OpenCV)
-    set(pnpsolver_target "")
-endif()
+target_include_directories(
+    ${target}
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/cpp/xrprimer>
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/>
+           $<INSTALL_INTERFACE:include/xrprimer>
+)
 
-target_link_libraries(${target} PUBLIC
-    ${pnpsolver_target}
-    Eigen3::Eigen
-    Ceres::ceres
-    ${opencv_target}
-    jsoncpp_static
-    spdlog::spdlog_header_only
+target_link_libraries(
+    ${target}
+    PUBLIC $<$<NOT:$<PLATFORM_ID:IOS>>:PnpSolver::pnpsolver> OpenCV::OpenCV
+           Eigen3::Eigen Ceres::ceres jsoncpp_static spdlog::spdlog_header_only
 )
 
 install(TARGETS ${target} DESTINATION lib EXPORT ${target}-targets)
-install(EXPORT ${target}-targets DESTINATION lib/cmake NAMESPACE XRPrimer::)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    DESTINATION include
-    FILES_MATCHING
-    PATTERN "*.h"
+install(EXPORT ${target}-targets DESTINATION lib/cmake/xrprimer
+        NAMESPACE XRPrimer::
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING
+        PATTERN "*.h"
 )
 
 include(CMakePackageConfigHelpers)
-configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/XRPrimerConfig.cmake.in
+configure_package_config_file(
+    ${CMAKE_SOURCE_DIR}/cmake/XRPrimerConfig.cmake.in
     "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfig.cmake"
-    INSTALL_DESTINATION lib/cmake/
-    NO_CHECK_REQUIRED_COMPONENTS_MACRO
+    INSTALL_DESTINATION lib/cmake/xrprimer NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
+
+file(READ ${CMAKE_SOURCE_DIR}/cmake/dependencies.cmake DEPS_FILE_CONTENTS)
+string(REPLACE "find_package" "find_dependency" DEPS_FILE_CONTENTS
+               ${DEPS_FILE_CONTENTS}
+)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/dependencies.cmake ${DEPS_FILE_CONTENTS})
 
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfigVersion.cmake"
-    VERSION "${XRPRIMER_VERSION_MAJOR}.${XRPRIMER_VERSION_MINOR}.${XRPRIMER_VERSION_PATCH}"
+    VERSION
+        "${XRPRIMER_VERSION_MAJOR}.${XRPRIMER_VERSION_MINOR}.${XRPRIMER_VERSION_PATCH}"
     COMPATIBILITY AnyNewerVersion
 )
 
-install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfigVersion.cmake"
-    DESTINATION lib/cmake
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfig.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/XRPrimerConfigVersion.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/dependencies.cmake"
+    DESTINATION lib/cmake/xrprimer
 )
 
 configure_file(common/config.h.in common/config.h)
 
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/xrprimer_export.h DESTINATION include/xrprimer)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/xrprimer_export.h
+        DESTINATION include/xrprimer
+)

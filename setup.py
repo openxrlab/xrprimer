@@ -110,12 +110,6 @@ class CMakeBuild(build_ext):
 
         # Enable test
         cmake_args += ['-DENABLE_TEST=OFF']
-        # Build external from pre-built libs by default
-        ret = os.system('conan remote list | grep xrlab')
-        if ret == 0:  # remote exists
-            cmake_args += ['-DBUILD_EXTERNAL=OFF']
-        else:
-            cmake_args += ['-DBUILD_EXTERNAL=ON']
 
         # Pass version
         for key, version in VERSION_INFO.items():
@@ -194,6 +188,19 @@ class CMakeBuild(build_ext):
         build_temp = self.build_temp
         self.build_lib = os.path.join(build_temp, 'lib')
         clean_cmake(folders=['_deps', '_exts', self.build_temp])
+
+        # Build external from pre-built libs by default
+        ret = os.system('conan remote list | grep xrlab')
+        if ret == 0:  # remote exists
+            prebuilt_args = '-D3RT_FROM_CONAN=ON'
+        else:
+            prebuilt_args = '-D3RT_FROM_LOCAL=ON'
+
+        # get external
+        subprocess.check_call(['cmake', '-S.', '-B', '_deps', prebuilt_args] +
+                              cmake_args)
+        subprocess.check_call(['cmake', '--build', '_deps'])
+        # build project
         subprocess.check_call(['cmake', '-S.', '-B', build_temp] + cmake_args)
         subprocess.check_call(['cmake', '--build', build_temp] + build_args)
 

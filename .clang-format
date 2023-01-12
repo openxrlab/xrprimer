@@ -84,7 +84,7 @@ IncludeCategories:
     Priority: 2
     SortPriority: 0
     CaseSensitive: false
-  - Regex: '^(<|"(gtest|gmock|isl|json)/)'
+  - Regex: '^(<|"(isl|json)/)'
     Priority: 3
     SortPriority: 0
     CaseSensitive: false

@@ -2,10 +2,13 @@
 
 <!-- TOC -->
 
-- [Requirements](#requirements)
-- [Compilation](#compilation)
-- [Test](#test)
-- [How to link in C++ projects](#how-to-link-in-c-projects)
+- [Installation (CPP)](#installation-cpp)
+    - [Requirements](#requirements)
+    - [Compilation](#compilation)
+      - [Compilation options](#compilation-options)
+      - [Compilation on iOS](#compilation-on-ios)
+    - [Test](#test)
+    - [How to link in C++ projects](#how-to-link-in-c-projects)
 
 <!-- TOC -->
 
@@ -40,6 +43,11 @@ Optional:
 git clone https://github.com/openxrlab/xrprimer.git
 cd xrprimer/
 
+# build and install deps
+cmake -S. -Bbuild_deps -D3RT_FROM_LOCAL=ON
+cmake --build build_deps -j4
+
+# compiler xrprimer
 cmake -S. -Bbuild [Compilation options]
 cmake --build build --target install -j4
 ```
@@ -48,25 +56,30 @@ It is currently tested on Linux and iOS. Ideally it can be also compiled on macO
 
 #### Compilation options
 
-+ `ENABLE_TEST` Enable unit test. default: `OFF`
-+ `PYTHON_BINDING` Enable Python binding. default: `ON`
-+ `BUILD_EXTERNAL` Enable build external. default: `OFF`, download deps libraries from conan.
+> Get external dependencies
 
+- `3RT_FROM_LOCAL` Dependencies library will be built or find in local host. default: `OFF`
+- `3RT_FROM_CONAN` Dependencies library will be download from openxrlab conan remote. default: `OFF`
+
+> Config xrprimer
+
+- `ENABLE_TEST` Enable unit test. default: `OFF`
+- `PYTHON_BINDING` Enable Python binding. default: `ON`
 
 ```bash
-# build external from source
-cmake -S. -Bbuild -DBUILD_EXTERNAL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=install
+#1. First run, get external dependencies, will install external deps to 3rdparty
+cmake -S. -Bbuild_deps <-D3RT_FROM_LOCAL=ON/-D3RT_FROM_CONAN=ON>
+cmake --build build_deps
+
+#2. build xrprimer
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=install
 cmake --build build --target install
 
-# use conan for external
-cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target install
 ```
 
 #### Compilation on iOS
 
 Refer to [build_ios.sh](../../../scripts/build_ios.sh) for more details.
-
 
 ### Test
 
