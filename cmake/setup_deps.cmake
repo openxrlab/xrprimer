@@ -22,6 +22,6 @@ if(3RT_FROM_CONAN)
     conan_cmake_autodetect(settings)
     conan_cmake_install(
         PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR} REMOTE openxrlab SETTINGS
-        ${settings}
+        ${settings} UPDATE
     )
 endif()

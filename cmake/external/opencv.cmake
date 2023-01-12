@@ -8,6 +8,7 @@ if(NOT IOS)
             SHA256=158db5813a891c7eda8644259fc1dbd76b21bd1ffb9854a8b4b8115a4ceec359
         CMAKE_ARGS
             ${ExternalProject_CMAKE_ARGS_hidden}
+            -DBUILD_ZLIB=ON
             -DWITH_1394=OFF
             -DWITH_ADE=OFF
             -DWITH_ARAVIS=OFF
