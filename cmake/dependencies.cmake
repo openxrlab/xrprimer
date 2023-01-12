@@ -13,7 +13,6 @@ find_package(OpenCV REQUIRED CONFIG)
 if(OpenCV_FOUND)
     add_library(OpenCV::OpenCV INTERFACE IMPORTED GLOBAL)
     target_include_directories(OpenCV::OpenCV INTERFACE ${OpenCV_INCLUDE_DIRS})
-
     target_link_libraries(OpenCV::OpenCV INTERFACE ${OpenCV_LIBS})
 endif()
 

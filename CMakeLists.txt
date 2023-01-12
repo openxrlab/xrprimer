@@ -78,6 +78,7 @@ endif()
 #
 # for project
 #
+option(BUILD_SHARED_LIBS "Build shared instead of static libraries." OFF)
 option(ENABLE_TEST "Build unit test case." OFF)
 option(PYTHON_BINDING "Enable Python binding." ON)
 option(CODE_COVERAGE "code coverage" OFF)

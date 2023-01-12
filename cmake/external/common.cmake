@@ -11,6 +11,7 @@ set(ExternalProject_CMAKE_ARGS
     # Always build 3rd party code in Release mode. Ignored by multi-config
     # generators (XCode, MSVC). MSVC needs matching config anyway.
     -DCMAKE_BUILD_TYPE=Release
+    -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
     -DCMAKE_POLICY_DEFAULT_CMP0091:STRING=NEW
     -DCMAKE_MSVC_RUNTIME_LIBRARY:STRING=${CMAKE_MSVC_RUNTIME_LIBRARY}
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
