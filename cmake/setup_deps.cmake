@@ -1,3 +1,7 @@
+#
+# when first config, only configure external project
+#
+
 if(3RT_FROM_LOCAL)
     include(${CMAKE_SOURCE_DIR}/cmake/external/common.cmake)
     include(${CMAKE_SOURCE_DIR}/cmake/external/eigen.cmake)

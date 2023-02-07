@@ -1,9 +1,12 @@
+include(ExternalProject)
+
 if(NOT IOS)
-    include(ExternalProject)
+    set(OPENCV_URL https://github.com/opencv/opencv/archive/refs/tags/4.6.0.zip)
+    message(STATUS "opencv url: ${OPENCV_URL}")
     externalproject_add(
         ext_opencv
         PREFIX opencv
-        URL https://github.com/opencv/opencv/archive/refs/tags/4.6.0.zip
+        URL ${OPENCV_URL}
         URL_HASH
             SHA256=158db5813a891c7eda8644259fc1dbd76b21bd1ffb9854a8b4b8115a4ceec359
         CMAKE_ARGS
@@ -48,4 +51,21 @@ if(NOT IOS)
     )
 
     add_dependencies(ext_opencv ext_eigen)
+else()
+    # iOS use framework
+    set(OPENCV_URL
+        https://github.com/opencv/opencv/releases/download/4.6.0/opencv-4.6.0-ios-framework.zip
+    )
+    message(STATUS "opencv url: ${OPENCV_URL}")
+
+    # only download
+    externalproject_add(
+        ext_opencv
+        PREFIX opencv
+        URL ${OPENCV_URL}
+        SOURCE_DIR "${STAGED_INSTALL_PREFIX}/opencv2.framework"
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND ""
+        INSTALL_COMMAND ""
+    )
 endif()

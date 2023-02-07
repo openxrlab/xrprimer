@@ -11,4 +11,6 @@ if(NOT IOS)
                    -DCMAKE_INSTALL_PREFIX=${STAGED_INSTALL_PREFIX}/pybind11
                    -DBUILD_TESTING=OFF
     )
+else()
+    message(STATUS "[XRPrimer] Disable pybind11 on IOS")
 endif()

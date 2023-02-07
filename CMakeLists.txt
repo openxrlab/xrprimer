@@ -17,12 +17,6 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX ${_DEFAULT_INSTALL_PREFIX}
         CACHE PATH "default install prefix" FORCE
     )
-
-    if(IOS)
-        set(CMAKE_INSTALL_PREFIX ${_DEFAULT_INSTALL_PREFIX}/ios
-            CACHE PATH "ios default install prefix" FORCE
-        )
-    endif()
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -35,6 +29,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # for project dependencies libraries
 #
 # Setup dependencies library, when first run
+#
 option(3RT_FROM_LOCAL
        "Dependencies library will be built or find in local host." OFF
 )
@@ -42,6 +37,7 @@ option(3RT_FROM_CONAN
        "Dependencies library will be download from openxrlab conan remote" OFF
 )
 
+# set external project install prefix
 set(STAGED_INSTALL_PREFIX
     ${CMAKE_SOURCE_DIR}/3rdparty
     CACHE
@@ -49,7 +45,15 @@ set(STAGED_INSTALL_PREFIX
         "dependencies install directory, if not exist, need setup You need to get the dependencies first"
 )
 
+# add cmake prefix path for find external project, find_package(<xxx>)
 list(INSERT CMAKE_PREFIX_PATH 0 ${STAGED_INSTALL_PREFIX})
+
+if(IOS)
+    # for find external framework bundle（same as 3rdparty）
+    set(xrprimer_framework_path ${STAGED_INSTALL_PREFIX})
+endif()
+
+# install 3rdparty for dist.
 install(DIRECTORY ${STAGED_INSTALL_PREFIX}/ DESTINATION 3rdparty/)
 
 if(NOT EXISTS ${STAGED_INSTALL_PREFIX} AND NOT 3RT_FROM_LOCAL
