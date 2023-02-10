@@ -1,15 +1,20 @@
 [requires]
-ceres-solver/2.0.0@xrlab/stable
-eigen/3.3.4@xrlab/stable
-gtest/1.8.1@xrlab/stable
+ceres/2.1.0@xrlab/stable
+eigen3/3.4.0@xrlab/stable
 jsoncpp/1.9.5@xrlab/stable
-opencv/4.5.1@xrlab/stable
 pybind11/2.6.2@xrlab/stable
 spdlog/1.9.1@xrlab/stable
 pnpsolver/1.0.0@xrlab/stable
+opencv/4.6.0@xrlab/stable
 
 [options]
 pnpsolver:shared=False
 
-[generators]
-cmake
+[imports]
+., * -> ../3rdparty/eigen3  @ root_package=eigen3
+., * -> ../3rdparty/ceres  @ root_package=ceres
+., * -> ../3rdparty/jsoncpp  @ root_package=jsoncpp
+., * -> ../3rdparty/opencv  @ root_package=opencv
+., * -> ../3rdparty/pybind11  @ root_package=pybind11
+., * -> ../3rdparty/spdlog  @ root_package=spdlog
+., * -> ../3rdparty/pnpsolver  @ root_package=pnpsolver
