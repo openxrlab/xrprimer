@@ -3,7 +3,7 @@ from typing import Union, overload
 import cv2
 import numpy as np
 
-from xrprimer.transform.image.color import bgr2rgb
+from xrprimer.transform.image.color import rgb2bgr
 from xrprimer.utils.log_utils import get_logger, logging
 from xrprimer.visualization.palette.line_palette import LinePalette
 from xrprimer.visualization.palette.point_palette import PointPalette
@@ -130,7 +130,7 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
             line_thickness = max(int(min(canvas.shape[:2]) / 300), 1)
         else:
             line_thickness = int(line_thickness)
-        color_array = bgr2rgb(line_palette.color_array.copy())
+        color_array = rgb2bgr(line_palette.color_array.copy())
         for line_idx in range(len(line_palette)):
             conn_mask = line_palette.conn_mask[line_idx]
             if conn_mask == 0:
@@ -151,7 +151,7 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
             point_radius = max(int(min(canvas.shape[:2]) / 70), 1)
         else:
             point_radius = int(point_radius)
-        color_array = bgr2rgb(point_palette.color_array.copy())
+        color_array = rgb2bgr(point_palette.color_array.copy())
         for point_idx in range(len(point_palette)):
             point_mask = point_palette.point_mask[point_idx]
             if point_mask == 0:

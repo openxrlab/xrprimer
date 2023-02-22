@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import pytest
 
-from xrprimer.visualization.opencv.plot_frame import plot_frame
+from xrprimer.visualization.opencv import plot_frame
 from xrprimer.visualization.palette.line_palette import LinePalette
 from xrprimer.visualization.palette.point_palette import PointPalette
 
@@ -86,7 +86,7 @@ def test_plot_points():
 
 
 def test_plot_lines():
-    # test manual thickness, R/G/B points
+    # test manual thickness, R/G/B lines
     for color_str, color_list in RGB_COLORS.items():
         start_location = np.array([10.0, 10.0], )
         line_palette = LinePalette(
