@@ -1,5 +1,8 @@
 include(CMakeParseArguments)
 
+include(CTest)
+enable_testing()
+
 function(xr_add_test_catch2 target)
     set(options)
     set(multiValueArgs LINKS SRCS)
@@ -10,4 +13,5 @@ function(xr_add_test_catch2 target)
     set_target_properties(
         ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
     )
+    add_test(NAME ${target} COMMAND ${target})
 endfunction()

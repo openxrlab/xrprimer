@@ -2,6 +2,7 @@
 
 #include "logging.h"
 #include <memory>
+#include <cstdarg>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 

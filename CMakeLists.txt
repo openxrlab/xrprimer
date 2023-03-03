@@ -113,3 +113,5 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 # cpp
 #
 add_subdirectory(cpp)
+
+include(CPack)
