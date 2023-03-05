@@ -12,6 +12,8 @@ include(cmake/version.cmake)
 
 project(${META_PROJECT_NAME} VERSION ${META_VERSION} LANGUAGES C CXX)
 
+set(CMAKE_INSTALL_RPATH "$ORIGIN")
+
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(_DEFAULT_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install)
     set(CMAKE_INSTALL_PREFIX ${_DEFAULT_INSTALL_PREFIX}
@@ -21,6 +23,16 @@ endif()
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
+endif()
+
+if(BUILD_WITH_ASAN)
+    add_compile_options(-fsanitize=address)
+    add_link_options(-fsanitize=address)
+endif()
+
+if(BUILD_WITH_UBSAN)
+    add_compile_options(-fsanitize=undefined)
+    add_link_options(-fsanitize=undefined)
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -100,6 +112,8 @@ cmake_policy(SET CMP0077 NEW) # ENABLE CMP0077: option() honors normal variables
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #
 # hidden

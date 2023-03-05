@@ -33,8 +33,6 @@ set(target xrprimer)
 add_library(${target} ${Headers} ${Sources})
 add_library(XRPrimer::${target} ALIAS ${target})
 
-target_compile_options(${target} PRIVATE -fPIC)
-
 include(GenerateExportHeader)
 generate_export_header(
     ${target} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/xrprimer_export.h
