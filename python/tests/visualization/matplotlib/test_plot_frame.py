@@ -19,13 +19,13 @@ RGB_COLORS = dict(
 
 
 @pytest.fixture(scope='module', autouse=True)
-def fixture():
+def fixture() -> None:
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
     os.makedirs(output_dir, exist_ok=False)
 
 
-def test_plot_points():
+def test_plot_points() -> None:
     # test default marksize, R/G/B points
     start_locations = np.array([10.0, 10.0, 10.0])
     visual_range = np.array([[0, 150], [0, 150], [0, 150]])
@@ -52,7 +52,7 @@ def test_plot_points():
     cv2.imwrite(os.path.join(output_dir, 'points_after_mask.jpg'), img_arr)
 
 
-def test_plot_lines():
+def test_plot_lines() -> None:
     # test default linewidth, R/G/B lines
     for color_str, color_list in RGB_COLORS.items():
         start_location = np.array([10.0, 10.0, 10.0])
@@ -77,7 +77,7 @@ def test_plot_lines():
     cv2.imwrite(os.path.join(output_dir, 'lines_after_mask.jpg'), img_arr)
 
 
-def test_points_and_lines():
+def test_points_and_lines() -> None:
     point_palette = PointPalette(
         point_array=[[300, 300, 300], [200, 400, 200], [400, 400, 400]],
         color_array=[255, 0, 0])
@@ -88,6 +88,3 @@ def test_points_and_lines():
     img_arr = plot_frame(
         point_palette=point_palette, line_palette=line_palette)
     cv2.imwrite(os.path.join(output_dir, 'points_and_lines.jpg'), img_arr)
-
-
-test_points_and_lines()

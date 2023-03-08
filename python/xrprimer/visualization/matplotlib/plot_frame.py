@@ -32,6 +32,47 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
                linewidth: float = 2.0,
                markersize: float = 5.0,
                logger: Union[None, str, logging.Logger] = None) -> np.ndarray:
+    """Plot 1-frame 3D points and/or lines, with matplotlib.
+
+    Args:
+        point_palette (Union[PointPalette, None], optional):
+            An instance of PointPalette. Location, color and
+            visibility are kept by point_palette.
+            Defaults to None, do not plot points.
+        line_palette (Union[LinePalette, None], optional):
+            An instance of LinePalette. Location, connection,
+            color and
+            visibility are kept by point_palette.
+            Defaults to None, do not plot lines.
+        visual_range (Union[None, np.ndarray], optional):
+            Visible range array whose shape is [3, 2],
+            ((x_min, x_max), (y_min, y_max), (z_min, z_max))
+            Defaults to None.
+        cam_latitude (float, optional):
+            Camera latitude in a polar coordinate system with
+            respect to the central of visual_range.
+            Defaults to 10.0.
+        cam_longitude (float, optional):
+            Camera longitude in a polar coordinate system with
+            respect to the central of visual_range.
+            Defaults to 45.0.
+        linewidth (float, optional):
+            Linewidth for lines.
+            Defaults to 2.0.
+        markersize (float, optional):
+            Markersize for points.
+            Defaults to 5.0.
+        logger (Union[None, str, logging.Logger], optional):
+            Logger for logging. If None, root logger will be selected.
+            Defaults to None.
+
+    Raises:
+        ImportError: matplotlib has not been installed.
+        RuntimeError: Neither point_palette nor line_palette is passed.
+
+    Returns:
+        np.ndarray: The plotted image array, in shape [h, w, 3].
+    """
     logger = get_logger(logger)
     if not has_matplotlib:
         logger.error(import_exception)
@@ -60,7 +101,7 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
             else:
                 points3d = np.concatenate((points3d, valid_points), axis=0)
         visual_range = _get_visual_range(
-            points_array=points3d, scale=1.0, logger=logger)
+            points_array=points3d, scale=1.1, logger=logger)
     # create fig
     fig = plt.figure()
     ax = Axes3D(fig, auto_add_to_figure=False)

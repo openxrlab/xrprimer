@@ -88,14 +88,14 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
 
     Raises:
         RuntimeError:
-            Both point_palette and line_palette are passed.
+            Neither point_palette nor line_palette is passed.
         RuntimeError:
             Both background_arr and [height, width] are passed.
         ValueError:
             Either height or width is None when background_arr is None.
 
     Returns:
-        np.ndarray: The plotted image array.
+        np.ndarray: The plotted image array, in shape [h, w, 3].
     """
     logger = get_logger(logger)
     # check if input is valid
