@@ -1,5 +1,4 @@
 import os
-import shutil
 from typing import Union
 
 import cv2
@@ -8,9 +7,8 @@ from tqdm import tqdm
 
 from xrprimer.utils.ffmpeg_utils import (
     VideoInfoReader,
-    array_to_video,
-    images_to_video,
-    video_to_array,
+    VideoReader,
+    VideoWriter,
 )
 from xrprimer.utils.log_utils import get_logger, logging
 from xrprimer.utils.path_utils import (
@@ -28,8 +26,10 @@ def plot_video(
     output_path: str,
     overwrite: bool = True,
     return_array: bool = False,
+    # conditional output args
+    fps: Union[float, None] = None,
+    img_format: Union[str, None] = None,
     # plot args
-    batch_size: int = 1000,
     mframe_point_data: Union[np.ndarray, None] = None,
     mframe_line_data: Union[np.ndarray, None] = None,
     mframe_point_mask: Union[np.ndarray, None] = None,
@@ -60,10 +60,12 @@ def plot_video(
             Whether to return the video array. If True,
             please make sure your RAM is enough for the video.
             Defaults to False, return None.
-        batch_size (int, optional):
-            How many frames will be in RAM at the same
-            time when plotting.
-            Defaults to 1000.
+        fps (Union[float, None], optional):
+            Frames per second for the output video.
+            Defaults to None, 30 fps when writing a video.
+        img_format (Union[str, None], optional):
+            Name format for the output image file.
+            Defaults to None, `%06d.png` when writing images.
         mframe_point_data (Union[np.ndarray, None], optional):
             Multi-frame point data,
             in shape [n_frame, n_point, 2].
@@ -132,93 +134,96 @@ def plot_video(
         mframe_line_data=mframe_line_data,
         background_len=background_len,
         logger=logger)
-    # check whether to write video directly or write images first
-    if check_path_suffix(output_path, '.mp4'):
-        write_video = True
-        if batch_size < data_len:
-            output_dir = f'{output_path}_temp'
-            os.makedirs(output_dir, exist_ok=True)
-            write_img = True
-            remove_output_dir = True
-        else:
-            write_img = False
-            remove_output_dir = False
-    else:
-        write_video = False
-        output_dir = output_path
-        write_img = True
-        remove_output_dir = False
-    # to prevent OOM
-    batch_size = min(batch_size, data_len)
-    if return_array or write_video:
-        img_list = []
+    # init some var
+    video_writer = None
+    video_reader = None
+    arr_to_return = None
     # to save time for list file and sort
     file_names_cache = None
-    for start_idx in tqdm(
-            range(0, data_len, batch_size), disable=disable_tqdm):
-        end_idx = min(start_idx + batch_size, data_len)
+    # check whether to write video or write images
+    if check_path_suffix(output_path, '.mp4'):
+        write_video = True
+        write_img = not write_video
+        fps = fps if fps is not None else 30.0
+        if img_format is not None:
+            logger.warning('Argument img_format is useless when' +
+                           ' writing a video. To suppress this warning,' +
+                           ' do not pass it.')
+    else:
+        write_video = False
+        write_img = not write_video
+        img_format = img_format \
+            if img_format is not None \
+            else '%06d.png'
+        if fps is not None:
+            logger.warning('Argument fps is useless when' +
+                           ' writing image files. To suppress this warning,' +
+                           ' do not pass it.')
+    for frame_idx in tqdm(range(0, data_len), disable=disable_tqdm):
         # prepare background array for this batch
         if background_arr is not None:
-            background_arr_batch = background_arr[start_idx:end_idx,
-                                                  ...].copy()
+            background_sframe = background_arr[frame_idx, ...].copy()
         elif background_dir is not None:
             file_names_cache = file_names_cache \
                 if file_names_cache is not None \
                 else sorted(os.listdir(background_dir))
-            file_names_batch = file_names_cache[start_idx:end_idx]
-            background_list_batch = []
-            for file_name in file_names_batch:
-                background_list_batch.append(
-                    np.expand_dims(
-                        cv2.imread(os.path.join(background_dir, file_name)),
-                        axis=0))
-            background_arr_batch = np.concatenate(
-                background_list_batch, axis=0)
+            file_name = file_names_cache[frame_idx]
+            background_sframe = cv2.imread(
+                os.path.join(background_dir, file_name))
         elif background_video is not None:
-            background_arr_batch = video_to_array(
-                background_video, start=start_idx, end=end_idx)
+            video_reader = video_reader \
+                if video_reader is not None \
+                else VideoReader(
+                    input_path=background_video,
+                    disable_log=True,
+                    logger=logger
+                )
+            background_sframe = video_reader.get_next_frame()
         else:
-            background_arr_batch = np.zeros(
-                shape=(end_idx - start_idx, height, width, 3), dtype=np.uint8)
-        # plot frames in batch one by one
-        batch_results = []
-        for abs_idx in range(start_idx, end_idx):
-            if point_palette is not None:
-                point_palette.set_point_array(mframe_point_data[abs_idx])
-                if mframe_point_mask is not None:
-                    point_palette.set_point_mask(
-                        np.expand_dims(mframe_point_mask[abs_idx], -1))
-            if line_palette is not None:
-                line_palette.set_point_array(mframe_line_data[abs_idx])
-                if mframe_line_mask is not None:
-                    line_palette.set_conn_mask(
-                        np.expand_dims(mframe_line_mask[abs_idx], -1))
-            background_sframe = background_arr_batch[abs_idx - start_idx]
-            result_sframe = plot_frame_opencv(
-                point_palette=point_palette,
-                line_palette=line_palette,
-                background_arr=background_sframe,
-                logger=logger)
-            batch_results.append(result_sframe)
-            if write_img:
-                cv2.imwrite(
-                    filename=os.path.join(output_dir, f'{abs_idx:06d}.png'),
-                    img=result_sframe)
-        if return_array or write_video:
-            img_list += batch_results
-    if return_array or write_video:
-        img_arr = np.asarray(img_list)
-    if write_video:
+            background_sframe = np.zeros(
+                shape=(height, width, 3), dtype=np.uint8)
+        if point_palette is not None:
+            point_palette.set_point_array(mframe_point_data[frame_idx])
+            if mframe_point_mask is not None:
+                point_palette.set_point_mask(
+                    np.expand_dims(mframe_point_mask[frame_idx], -1))
+        if line_palette is not None:
+            line_palette.set_point_array(mframe_line_data[frame_idx])
+            if mframe_line_mask is not None:
+                line_palette.set_conn_mask(
+                    np.expand_dims(mframe_line_mask[frame_idx], -1))
+        result_sframe = plot_frame_opencv(
+            point_palette=point_palette,
+            line_palette=line_palette,
+            background_arr=background_sframe,
+            logger=logger)
         if write_img:
-            images_to_video(
-                input_folder=output_dir,
-                output_path=output_path,
-                img_format='%06d.png')
-        else:
-            array_to_video(image_array=img_arr, output_path=output_path)
-        if remove_output_dir:
-            shutil.rmtree(output_dir)
-    return img_arr if return_array else None
+            cv2.imwrite(
+                filename=os.path.join(output_path,
+                                      f'{img_format}' % frame_idx),
+                img=result_sframe)
+        if write_video:
+            video_writer = video_writer \
+                if video_writer is not None \
+                else VideoWriter(
+                    output_path=output_path,
+                    resolution=result_sframe.shape[:2],
+                    fps=fps,
+                    n_frames=data_len,
+                    disable_log=False,
+                    logger=logger
+                )
+            video_writer.write(result_sframe)
+        if return_array:
+            unsqueezed_sframe = np.expand_dims(result_sframe, axis=0)
+            arr_to_return = unsqueezed_sframe \
+                if arr_to_return is None \
+                else np.concatenate((arr_to_return, unsqueezed_sframe), axis=0)
+    if video_writer is not None:
+        video_writer.close()
+    if video_reader is not None:
+        video_reader.close()
+    return arr_to_return if return_array else None
 
 
 def _check_output_path(output_path: str, overwrite: bool,

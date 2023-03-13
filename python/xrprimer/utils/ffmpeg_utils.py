@@ -97,6 +97,113 @@ class VideoInfoReader():
         return self.video_stream[key]
 
 
+class VideoReader:
+
+    def __init__(self,
+                 input_path: str,
+                 resolution: Union[Tuple[int, int], Tuple[float,
+                                                          float]] = None,
+                 start: int = 0,
+                 end: int = None,
+                 disable_log: bool = False,
+                 logger: Union[None, str, logging.Logger] = None) -> None:
+        """
+        Args:
+            input_path (str): Input path.
+            resolution (Union[Tuple[int, int], Tuple[float, float]],
+                    optional):
+                Resolution(height, width) of output.
+                Defaults to None.
+            start (int, optional):
+                Start frame index. Inclusive.
+                If < 0, will be converted to frame_index range in [0, n_frame].
+                Defaults to 0.
+            end (int, optional):
+                End frame index. Exclusive.
+                Could be positive int or negative int or None.
+                If None, all frames from start till the last
+                frame are included.
+                Defaults to None.
+            disable_log (bool, optional):
+                Whether close the ffmepg command info.
+                Defaults to False.
+            logger (Union[None, str, logging.Logger], optional):
+                Logger for logging. If None, root logger will be selected.
+                Defaults to None.
+
+        Raises:
+            BrokenPipeError: No buffer received from ffmpeg.
+        """
+        self.logger = get_logger(logger)
+        info = VideoInfoReader(input_path, logger=logger)
+        if resolution:
+            self.height, self.width = resolution
+        else:
+            self.width, self.height = int(info['width']), int(info['height'])
+        n_frames = int(info['nb_frames'])
+        start = min(max(0, start), n_frames - 1)
+        end = (min(end, n_frames - 1) + n_frames) % n_frames \
+            if end is not None \
+            else n_frames
+        command = [
+            'ffmpeg',
+            '-i',
+            input_path,
+            '-filter_complex',
+            f'[0]trim=start_frame={start}:end_frame={end}[v0]',
+            '-map',
+            '[v0]',
+            '-pix_fmt',
+            'bgr24',  # bgr24 for matching OpenCV
+            '-s',
+            f'{int(self.width)}x{int(self.height)}',
+            '-f',
+            'image2pipe',
+            '-vcodec',
+            'rawvideo',
+            '-loglevel',
+            'error',
+            'pipe:'
+        ]
+        if not disable_log:
+            self.logger.info(f'Running \"{" ".join(command)}\"')
+        # Execute FFmpeg as sub-process with stdout as a pipe
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, bufsize=10**8)
+        if process.stdout is None:
+            self.logger.error('No buffer received.')
+            raise BrokenPipeError
+        self.process = process
+        self.start = start
+        self.end = end
+
+    def get_next_frame(self) -> np.ndarray:
+        """Read the next frame as opencv image, from the opened video file.
+
+        Args:
+            image_array (np.ndarray):
+                An array of a single image, in shape
+                [H, W, C].
+        """
+        # Read decoded video frame (in raw video format) from stdout process.
+        buffer = self.process.stdout.read(int(self.width * self.height * 3))
+        # Return None if buffer length is not W*H*3\
+        # (when FFmpeg streaming ends).
+        if len(buffer) != self.width * self.height * 3:
+            return None
+        img = np.frombuffer(buffer, np.uint8).reshape(self.height, self.width,
+                                                      3)
+        return img
+
+    def __del__(self) -> None:
+        self.process.stdout.close()
+        self.process.wait()
+
+    def close(self) -> None:
+        """Manually close this video writer."""
+        self.__del__()
+
+
 class VideoWriter:
 
     def __init__(self,
