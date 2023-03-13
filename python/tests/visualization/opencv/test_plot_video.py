@@ -52,12 +52,30 @@ def test_output_args():
         background_arr=img_arr,
         return_array=True)
     assert ret_value.shape[0] == 5
+    # test write video fps
+    output_path = os.path.join(output_dir, 'test_output_args_fps.mp4')
+    ret_value = plot_video(
+        output_path=output_path,
+        mframe_point_data=mframe_point_data,
+        point_palette=point_palette,
+        background_arr=img_arr,
+        fps=0.9,
+        return_array=True)
+    assert ret_value.shape[0] == 5
     # test write img dir correctly
     output_path = os.path.join(output_dir, 'test_output_args_img_dir')
     plot_video(
         output_path=output_path,
         mframe_point_data=mframe_point_data,
         point_palette=point_palette,
+        background_arr=img_arr)
+    # test write img dir img_format
+    output_path = os.path.join(output_dir, 'test_output_args_img_format')
+    plot_video(
+        output_path=output_path,
+        mframe_point_data=mframe_point_data,
+        point_palette=point_palette,
+        img_format='%02d.jpg',
         background_arr=img_arr)
     # test missing parent
     output_path = os.path.join(output_dir, 'test_output_args_missing_parent',
@@ -175,11 +193,3 @@ def test_plot_args():
     output_path = os.path.join(output_dir, 'plot_args_neither.mp4')
     with pytest.raises(ValueError):
         plot_video(output_path=output_path, background_arr=img_arr)
-    # test batch_size
-    output_path = os.path.join(output_dir, 'plot_batch_size.mp4')
-    plot_video(
-        batch_size=1,
-        output_path=output_path,
-        mframe_point_data=mframe_point_data,
-        point_palette=point_palette,
-        background_arr=img_arr)
