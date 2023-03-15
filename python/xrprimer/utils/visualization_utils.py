@@ -1,11 +1,13 @@
 # yapf: disable
 import logging
+import os
 from typing import Union
 
 import numpy as np
 import torch
 
 from xrprimer.utils.log_utils import get_logger
+from .path_utils import Existence, check_path_existence, check_path_suffix
 
 # yapf: enable
 
@@ -72,3 +74,47 @@ def fix_arr_shape(
                          f' getting {array.shape}.')
             raise ValueError
     return array
+
+
+def check_data_len(mframe_point_data: Union[np.ndarray, None],
+                   mframe_line_data: Union[np.ndarray, None],
+                   background_len: int, logger: logging.Logger) -> int:
+    empty_data = True
+    len_list = []
+    if background_len > 0:
+        len_list.append(background_len)
+    if mframe_point_data is not None:
+        empty_data = False
+        len_list.append(mframe_point_data.shape[0])
+    if mframe_line_data is not None:
+        empty_data = False
+        len_list.append(mframe_line_data.shape[0])
+    if empty_data:
+        logger.error('Please pass point_data or line_data or both.')
+        raise ValueError
+    ref_len = len_list[0]
+    len_correct = True
+    for tmp_len in len_list:
+        if tmp_len != ref_len:
+            len_correct = False
+            break
+    if not len_correct:
+        logger.error('Length of point_data, line_data' +
+                     ' and background do not match.')
+        raise ValueError
+    else:
+        return ref_len
+
+
+def check_output_path(output_path: str, overwrite: bool,
+                      logger: logging.Logger) -> None:
+    existence = check_path_existence(output_path)
+    if existence == Existence.MissingParent:
+        logger.error(f'Parent of {output_path} doesn\'t exist.')
+        raise FileNotFoundError
+    elif (existence == Existence.DirectoryExistNotEmpty
+          or existence == Existence.FileExist) and not overwrite:
+        logger.error(f'{output_path} exists and overwrite not enabled.')
+        raise FileExistsError
+    if not check_path_suffix(output_path, '.mp4'):
+        os.makedirs(output_path, exist_ok=True)

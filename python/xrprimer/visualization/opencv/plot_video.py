@@ -11,10 +11,10 @@ from xrprimer.utils.ffmpeg_utils import (
     VideoWriter,
 )
 from xrprimer.utils.log_utils import get_logger, logging
-from xrprimer.utils.path_utils import (
-    Existence,
-    check_path_existence,
-    check_path_suffix,
+from xrprimer.utils.path_utils import check_path_suffix
+from xrprimer.utils.visualization_utils import (
+    check_data_len,
+    check_output_path,
 )
 from ..palette.line_palette import LinePalette
 from ..palette.point_palette import PointPalette
@@ -43,7 +43,7 @@ def plot_video(
     height: Union[int, None] = None,
     width: Union[int, None] = None,
     # verbose args
-    disable_tqdm: bool = True,
+    disable_tqdm: bool = False,
     logger: Union[None, str,
                   logging.Logger] = None) -> Union[np.ndarray, None]:
     """Plot a video(or a number of images) with opencv. For plot args, please
@@ -72,8 +72,8 @@ def plot_video(
             Defaults to None.
         mframe_line_data (Union[np.ndarray, None], optional):
             Multi-frame line data, locations for line ends,
-            in shape [n_frame, n_line, 2].
-            Defaults to None. Defaults to None.
+            in shape [n_frame, n_point, 2].
+            Defaults to None.
         mframe_point_mask (Union[np.ndarray, None], optional):
             Visibility mask of multi-frame point data,
             in shape [n_frame, n_point].
@@ -81,7 +81,7 @@ def plot_video(
         mframe_line_mask (Union[np.ndarray, None], optional):
             Visibility mask of multi-frame line data,
             in shape [n_frame, n_line].
-            Defaults to None. Defaults to None.
+            Defaults to None.
         point_palette (Union[PointPalette, None], optional):
             An instance of PointPalette. Color and
             visibility are kept by point_palette.
@@ -105,7 +105,7 @@ def plot_video(
             Width of background. Defaults to None.
         disable_tqdm (bool, optional):
             Whether to disable tqdm progress bar.
-            Defaults to True.
+            Defaults to False.
         logger (Union[None, str, logging.Logger], optional):
             Logger for logging. If None, root logger will be selected.
             Defaults to None.
@@ -118,7 +118,7 @@ def plot_video(
     """
     logger = get_logger(logger)
     # check parent and whether to overwrite
-    _check_output_path(
+    check_output_path(
         output_path=output_path, overwrite=overwrite, logger=logger)
     # check if only one background source
     background_len = _check_background(
@@ -129,7 +129,7 @@ def plot_video(
         width=width,
         logger=logger)
     # check if data matches background
-    data_len = _check_data_len(
+    data_len = check_data_len(
         mframe_point_data=mframe_point_data,
         mframe_line_data=mframe_line_data,
         background_len=background_len,
@@ -226,20 +226,6 @@ def plot_video(
     return arr_to_return if return_array else None
 
 
-def _check_output_path(output_path: str, overwrite: bool,
-                       logger: logging.Logger) -> None:
-    existence = check_path_existence(output_path)
-    if existence == Existence.MissingParent:
-        logger.error(f'Parent of {output_path} doesn\'t exist.')
-        raise FileNotFoundError
-    elif (existence == Existence.DirectoryExistNotEmpty
-          or existence == Existence.FileExist) and not overwrite:
-        logger.error(f'{output_path} exists and overwrite not enabled.')
-        raise FileExistsError
-    if not check_path_suffix(output_path, '.mp4'):
-        os.makedirs(output_path, exist_ok=True)
-
-
 def _check_background(background_arr: Union[np.ndarray, None],
                       background_dir: Union[np.ndarray, None],
                       background_video: Union[np.ndarray,
@@ -266,33 +252,3 @@ def _check_background(background_arr: Union[np.ndarray, None],
         return int(reader['nb_frames'])
     else:
         return -1
-
-
-def _check_data_len(mframe_point_data: Union[np.ndarray, None],
-                    mframe_line_data: Union[np.ndarray, None],
-                    background_len: int, logger: logging.Logger) -> int:
-    empty_data = True
-    len_list = []
-    if background_len > 0:
-        len_list.append(background_len)
-    if mframe_point_data is not None:
-        empty_data = False
-        len_list.append(mframe_point_data.shape[0])
-    if mframe_line_data is not None:
-        empty_data = False
-        len_list.append(mframe_line_data.shape[0])
-    if empty_data:
-        logger.error('Please pass point_data or line_data or both.')
-        raise ValueError
-    ref_len = len_list[0]
-    len_correct = True
-    for tmp_len in len_list:
-        if tmp_len != ref_len:
-            len_correct = False
-            break
-    if not len_correct:
-        logger.error('Length of point_data, line_data' +
-                     ' and background do not match.')
-        raise ValueError
-    else:
-        return ref_len

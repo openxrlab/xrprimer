@@ -12,7 +12,7 @@ from xrprimer.utils.ffmpeg_utils import (
 from xrprimer.visualization.opencv.plot_video import plot_video
 from xrprimer.visualization.palette import LinePalette, PointPalette
 
-output_dir = 'tests/data/output/visualization/test_plot_video'
+output_dir = 'tests/data/output/visualization/opencv/test_plot_video'
 img_dir = os.path.join(output_dir, 'input_img_dir')
 video_path = os.path.join(output_dir, 'input_video.mp4')
 

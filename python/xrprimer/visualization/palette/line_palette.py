@@ -36,14 +36,15 @@ class LinePalette(PointPalette):
             name (str, optional):
                 Name of this line palette.
                 Defaults to 'default_line_palette'.
-            point_mask (Union[list, np.ndarray, torch.Tensor, None], optional):
+            conn_mask (Union[list, np.ndarray, torch.Tensor, None], optional):
                 An array of points' visibility mask, in shape[1]
-                or [n_point, 1].
+                or [n_conn, 1].
                 Defaults to None, all visible.
             color_array (Union[
                     list, np.ndarray,
                     torch.Tensor, None], optional):
-                An array of points' color, in shape[3]
+                An uint8 array of lines' color, 0 <= value <= 255,
+                in shape[3]
                 or [n_point, 3].
                 Defaults to None, all red.
             logger (Union[None, str, logging.Logger], optional):

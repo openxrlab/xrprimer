@@ -28,9 +28,10 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
                line_palette: Union[LinePalette, None] = None,
                visual_range: Union[None, np.ndarray] = None,
                cam_latitude: float = 10.0,
-               cam_longitude: float = 45.0,
+               cam_longtitude: float = 45.0,
                linewidth: float = 2.0,
                markersize: float = 5.0,
+               dpi: float = 180.0,
                logger: Union[None, str, logging.Logger] = None) -> np.ndarray:
     """Plot 1-frame 3D points and/or lines, with matplotlib.
 
@@ -52,8 +53,8 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
             Camera latitude in a polar coordinate system with
             respect to the central of visual_range.
             Defaults to 10.0.
-        cam_longitude (float, optional):
-            Camera longitude in a polar coordinate system with
+        cam_longtitude (float, optional):
+            Camera longtitude in a polar coordinate system with
             respect to the central of visual_range.
             Defaults to 45.0.
         linewidth (float, optional):
@@ -62,6 +63,9 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
         markersize (float, optional):
             Markersize for points.
             Defaults to 5.0.
+        dpi (float, optional):
+            Resolution of the figure in dots-per-inch as a float.
+            Defaults to 180.0.
         logger (Union[None, str, logging.Logger], optional):
             Logger for logging. If None, root logger will be selected.
             Defaults to None.
@@ -109,7 +113,7 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
     ax.set_xlim(*visual_range[0])
     ax.set_ylim(*visual_range[1])
     ax.set_zlim(*visual_range[2])
-    ax.view_init(cam_latitude, cam_longitude)
+    ax.view_init(cam_latitude, cam_longtitude)
     # draw lines on canvas
     if line_palette is not None:
         color_array = line_palette.color_array.astype(np.float32) / 255.0
@@ -144,8 +148,8 @@ def plot_frame(point_palette: Union[PointPalette, None] = None,
                     marker='o',
                     markersize=markersize,
                     color=color)
-    img_arr = _get_cv2mat_from_matplotlib(fig=fig, dpi=180)
-    # img_arr = cv2.resize(img_arr, (width, height))
+    img_arr = _get_cv2mat_from_matplotlib(fig=fig, dpi=dpi)
+    plt.close()
     return img_arr
 
 
