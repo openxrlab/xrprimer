@@ -87,13 +87,15 @@ def test_plot_args():
     plot_video(
         output_path=output_path,
         mframe_point_data=mframe_point_data,
-        point_palette=point_palette)
+        point_palette=point_palette,
+        dpi=100)
     # test plot lines
     output_path = os.path.join(output_dir, 'plot_args_lines.mp4')
     plot_video(
         output_path=output_path,
         mframe_line_data=mframe_line_data,
-        line_palette=line_palette)
+        line_palette=line_palette,
+        dpi=100)
     # test plot both
     output_path = os.path.join(output_dir, 'plot_args_both.mp4')
     plot_video(
@@ -101,7 +103,16 @@ def test_plot_args():
         mframe_point_data=mframe_point_data,
         point_palette=point_palette,
         mframe_line_data=mframe_line_data,
-        line_palette=line_palette)
+        line_palette=line_palette,
+        dpi=100)
+    # test plot long video
+    output_path = os.path.join(output_dir, 'plot_args_long.mp4')
+    mframe_line_data = mframe_line_data[:1, ...].repeat(300, axis=0)
+    plot_video(
+        output_path=output_path,
+        mframe_line_data=mframe_line_data,
+        line_palette=line_palette,
+        dpi=20)
     # test plot neither
     output_path = os.path.join(output_dir, 'plot_args_neither.mp4')
     with pytest.raises(ValueError):
