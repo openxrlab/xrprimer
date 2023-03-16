@@ -60,7 +60,7 @@ TEST_CASE("Image ops", "Image") {
         }
         cv::imwrite("black_with_white.bmp", black);
 
-        const Image new_val = i_black.clone();
+        Image new_val = i_black.clone();
         REQUIRE(new_val.width() == black.cols);
         REQUIRE(new_val.height() == black.rows);
         REQUIRE(new_val.step() == black.step);

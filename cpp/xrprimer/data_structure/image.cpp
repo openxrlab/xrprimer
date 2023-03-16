@@ -1,12 +1,12 @@
 // Copyright (c) OpenXRLab. All rights reserved.
 
 #include <algorithm>
-#include <data_structure/image.h>
-#include <map>
-#include <memory>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <data_structure/image.h>
+#include <map>
+#include <memory>
 #include <vector>
 
 /**
