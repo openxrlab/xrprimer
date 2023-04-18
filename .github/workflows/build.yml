@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   build_cpp:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     defaults:
       run:
         shell: bash -l {0}
@@ -75,7 +75,7 @@ jobs:
           # gcovr ${coverage_filter} -r . --object-directory=${CI_PROJECT_DIR}/build
 
   build_py38:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     defaults:
       run:
         shell: bash -l {0}
