@@ -208,15 +208,12 @@ class CMakeBuild(build_ext):
             self.copy_output(ext)
 
     def copy_output(self, ext):
-        src_path = os.path.join(
-            self.cmake_output_lib,
-            self.get_ext_filename(ext.name)
-        )
-        dst_path = os.path.join(
-            self.build_lib,
-            self.get_ext_filename(ext.name)
-        )
+        src_path = os.path.join(self.cmake_output_lib,
+                                self.get_ext_filename(ext.name))
+        dst_path = os.path.join(self.build_lib,
+                                self.get_ext_filename(ext.name))
         self.copy_file(src_path, dst_path)
+
 
 def readme():
     with open('./README.md', encoding='utf-8') as f:
@@ -327,12 +324,6 @@ setup(
     python_requires='>=3.6, <=3.10',
     tests_require=parse_requirements('requirements/test.txt'),
     install_requires=parse_requirements('requirements/runtime.txt'),
-    ext_modules=[CMakeExtension(
-        name='xrprimer_cpp',
-        # sourcedir='',
-        # library_dirs=['build/temp.linux-x86_64-cpython-38/lib'],
-        # libraries=['xrprimer_cpp'],
-        # extra_objects = ['build/temp.linux-x86_64-cpython-38/lib/xrprimer_cpp.cpython-38-x86_64-linux-gnu.so']
-        )],
+    ext_modules=[CMakeExtension(name='xrprimer_cpp', )],
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False)
