@@ -5,7 +5,7 @@ FROM quay.io/pypa/manylinux2014_x86_64:latest
 RUN yum install wget atlas-devel \
     lapack-devel blas-devel \
     zlib libjpeg libpng \
-    libwebp \
+    libwebp libtiff \
     -y && \
     yum clean all
 # Install miniconda
@@ -31,7 +31,8 @@ RUN ln -s /opt/miniconda/bin/conan /opt/rh/devtoolset-10/root/usr/bin/conan && \
     ln -s /opt/miniconda/bin/cmake /opt/rh/devtoolset-10/root/usr/bin/cmake && \
     ln -s /usr/lib64/libjpeg.so.62 /usr/local/lib64/libjpeg.so && \
     ln -s /usr/lib64/libwebp.so.4 /usr/local/lib/libwebp.so && \
-    ln -s /usr/lib64/libpng15.so.15 /usr/local/lib/libpng.so
+    ln -s /usr/lib64/libpng15.so.15 /usr/local/lib/libpng.so && \
+    ln -s /usr/lib64/libtiff.so.5 /usr/local/lib/libtiff.so
 
 # Update in bashrc
 RUN echo "source /opt/miniconda/etc/profile.d/conda.sh" >> /root/.bashrc && \
@@ -50,8 +51,38 @@ RUN . /opt/miniconda/etc/profile.d/conda.sh && \
     pip install mmcv==1.7.0 && \
     pip cache purge
 
-# conda install cmake -y
-# pip install conan
-# pip install twine -i https://pypi.tuna.tsinghua.edu.cn/simple
-# pip install torch==1.8.0 torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple
-# pip install mmcv==1.5.0
+# Prepare py-3.7 conda env
+RUN . /opt/miniconda/etc/profile.d/conda.sh && \
+    conda create -n py-3.7 python=3.7 -y && \
+    conda activate py-3.7 && \
+    pip install --upgrade pip setuptools wheel && \
+    pip install torch==1.8.0 torchvision==0.9.0  && \
+    pip install mmcv==1.7.0 && \
+    pip cache purge
+
+# Prepare py-3.8 conda env
+RUN . /opt/miniconda/etc/profile.d/conda.sh && \
+    conda create -n py-3.8 python=3.8 -y && \
+    conda activate py-3.8 && \
+    pip install --upgrade pip setuptools wheel && \
+    pip install torch==1.8.0 torchvision==0.9.0  && \
+    pip install mmcv==1.7.0 && \
+    pip cache purge
+
+# Prepare py-3.9 conda env
+RUN . /opt/miniconda/etc/profile.d/conda.sh && \
+    conda create -n py-3.9 python=3.9 -y && \
+    conda activate py-3.9 && \
+    pip install --upgrade pip setuptools wheel && \
+    pip install torch==1.8.0 torchvision==0.9.0  && \
+    pip install mmcv==1.7.0 && \
+    pip cache purge
+
+# Prepare py-3.10 conda env
+RUN . /opt/miniconda/etc/profile.d/conda.sh && \
+    conda create -n py-3.10 python=3.10 -y && \
+    conda activate py-3.10 && \
+    pip install --upgrade pip setuptools wheel && \
+    pip install torch==1.11.0 torchvision==0.12.0  && \
+    pip install mmcv==1.7.0 && \
+    pip cache purge

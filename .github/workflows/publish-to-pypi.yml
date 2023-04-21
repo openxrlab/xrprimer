@@ -17,9 +17,12 @@ jobs:
         run: |
           source /workspace/init_env.sh && conda activate py-${{ matrix.python-version }}
           conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
-          python setup.py sdist bdist_wheel
+          python setup.py bdist_wheel
       - name: Publish distribution to PyPI
         run: |
           source /workspace/init_env.sh && conda activate py-${{ matrix.python-version }}
+          for i in $( ls dist/*.whl ); do auditwheel repair $i; done
+          for i in $( ls dist/*.whl ); do mv $i ${i%-linux*}-manylinux2014_x86_64.whl; done
           twine --h
+          rm dist/*.tar.gz
           twine upload dist/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}
