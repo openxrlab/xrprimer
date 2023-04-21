@@ -212,6 +212,8 @@ class CMakeBuild(build_ext):
                                 self.get_ext_filename(ext.name))
         dst_path = os.path.join(self.build_lib,
                                 self.get_ext_filename(ext.name))
+        # Ensure dst dir exists
+        os.makedirs(self.build_lib, exist_ok=True)
         self.copy_file(src_path, dst_path)
 
 
