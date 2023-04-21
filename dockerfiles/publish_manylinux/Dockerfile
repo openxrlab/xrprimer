@@ -86,3 +86,7 @@ RUN . /opt/miniconda/etc/profile.d/conda.sh && \
     pip install torch==1.11.0 torchvision==0.12.0  && \
     pip install mmcv==1.7.0 && \
     pip cache purge
+
+# unset proxy
+ENV HTTPS_PROXY=
+ENV HTTP_PROXY=
