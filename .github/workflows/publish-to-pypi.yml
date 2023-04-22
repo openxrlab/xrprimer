@@ -5,7 +5,6 @@ on: push
 jobs:
   build-n-publish:
     runs-on: ubuntu-22.04
-    if: startsWith(github.event.ref, 'refs/tags')
     container:
       image: openxrlab/xrprimer_ci:manylinux2014_x86_64_torch180_mmcv150
     strategy:
@@ -23,4 +22,3 @@ jobs:
           source /workspace/init_env.sh && conda activate py-${{ matrix.python-version }}
           for i in $( ls dist/*-linux_x86_64.whl ); do auditwheel repair $i; done
           for i in $( ls dist/*-linux_x86_64.whl ); do mv $i ${i%-linux*}-manylinux2014_x86_64.whl; done
-          twine upload dist/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}
