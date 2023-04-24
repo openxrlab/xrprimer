@@ -98,6 +98,10 @@ class VideoInfoReader():
 
 
 class VideoReader:
+    """VideoReader for reading video frames as an image ndarray
+    for OpenCV. It opens a PIPE from ffmpeg command and reads
+    one frame per call, friedly for poor RAM devices.
+    """
 
     def __init__(self,
                  input_path: str,
@@ -205,6 +209,10 @@ class VideoReader:
 
 
 class VideoWriter:
+    """VideoWriter for writing OpenCV image array to a
+    video file. It opens a PIPE from ffmpeg command and writes
+    one frame per call, friedly for poor RAM devices.
+    """
 
     def __init__(self,
                  output_path: str,
