@@ -192,6 +192,7 @@ class MviewFisheyeCalibrator(MviewPinholeCalibrator):
                 distorted_cam=fisheye_param_list[view_idx],
                 image_array=sview_img_arr)
             pinhole_param_list.append(pinhole_param)
+            sview_img_list = [img_arr for img_arr in undist_img_arr]
             for img, frame_idx in zip(sview_img_list, sview_idx_list):
                 path = os.path.join(
                     self.work_dir,
