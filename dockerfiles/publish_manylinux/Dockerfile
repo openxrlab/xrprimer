@@ -33,6 +33,7 @@ RUN ln -s /opt/miniconda/bin/conan /opt/rh/devtoolset-10/root/usr/bin/conan && \
 RUN echo "source /opt/miniconda/etc/profile.d/conda.sh" >> /root/.bashrc && \
     echo "conda deactivate" >> /root/.bashrc
 
+ARG MMCV_VER
 # Install py-3.6, py-3.7, py-3.8, py-3.9, py-3.10
 RUN . /opt/miniconda/etc/profile.d/conda.sh && \
     for i in 6 7 8 9 10; do \
@@ -40,7 +41,7 @@ RUN . /opt/miniconda/etc/profile.d/conda.sh && \
         conda activate "py-3.$i" && \
         pip install --upgrade pip setuptools wheel && \
         pip install torch==1.11.0 torchvision==0.12.0 && \
-        pip install mmcv==1.7.0 && \
+        pip install mmcv==$MMCV_VER && \
         pip cache purge && \
         conda clean --all; \
     done
