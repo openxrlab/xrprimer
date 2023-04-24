@@ -1,27 +1,11 @@
 name: deploy
 
-on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - "README.md"
-      - "README_CN.md"
-      - "docs/**"
-
-  pull_request:
-    paths-ignore:
-      - "README.md"
-      - "README_CN.md"
-      - "docs/**"
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+on: push
 
 jobs:
   build-n-publish:
     runs-on: ubuntu-22.04
+    if: startsWith(github.event.ref, 'refs/tags')
     container:
       image: openxrlab/xrprimer_ci:manylinux2014_x86_64_torch1110_mmcv170
     strategy:
@@ -40,4 +24,5 @@ jobs:
           for i in $( ls dist/*-linux_x86_64.whl ); do auditwheel repair $i; done
           for i in $( ls dist/*-linux_x86_64.whl ); do mv $i ${i%-linux*}-manylinux2014_x86_64.whl; done
           du -sh wheelhouse/*
-          for i in $( ls dist/*.whl ); do auditwheel show $i; done
+          for i in $( ls wheelhouse/*.whl ); do auditwheel show $i; done
+          twine upload wheelhouse/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}
