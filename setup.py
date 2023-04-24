@@ -196,10 +196,12 @@ class CMakeBuild(build_ext):
         else:
             prebuilt_args = '-D3RT_FROM_LOCAL=ON'
 
+        # Ensure temp dir exists
+        os.makedirs(build_temp, exist_ok=True)
         # get external
-        subprocess.check_call(['cmake', '-S.', '-B', '_deps', prebuilt_args] +
-                              cmake_args)
-        subprocess.check_call(['cmake', '--build', '_deps'])
+        subprocess.check_call(
+            ['cmake', '-S.', '-B', 'build_deps', prebuilt_args] + cmake_args)
+        subprocess.check_call(['cmake', '--build', 'build_deps'])
         # build project
         subprocess.check_call(['cmake', '-S.', '-B', build_temp] + cmake_args)
         subprocess.check_call(['cmake', '--build', build_temp] + build_args)
