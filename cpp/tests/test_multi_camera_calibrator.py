@@ -12,8 +12,8 @@ calib_config = """
     }
 """
 
-image_folder = 'test/data/calib_pinhole_camera/input/images/'
-camera_folder = 'test/data/calib_pinhole_camera/input/config/'
+image_folder = 'tests/data/calib_pinhole_camera/input/images/'
+camera_folder = 'tests/data/calib_pinhole_camera/input/config/'
 
 if __name__ == '__main__':
 
