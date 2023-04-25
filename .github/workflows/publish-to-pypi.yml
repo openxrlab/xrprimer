@@ -8,6 +8,22 @@ on:
       - 'v*'
 
 jobs:
+  test-loop:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: test_loop
+        run: |
+          sudo apt-add-repository ppa:brightbox/ruby-ng -y
+          for i in 6 7 8 9 10; do \
+            echo "py-3.$i" && \
+            echo "python setup.py bdist_wheel" && \
+            echo "conda deactivate"; \
+          done
   build-n-publish:
     runs-on: ubuntu-22.04
     container:
