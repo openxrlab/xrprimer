@@ -1,23 +1,28 @@
 name: deploy
 
-on: push
+on:
+  push:
+    branches:
+      - 'deploy*'
+    tags:
+      - 'v*'
 
 jobs:
   build-n-publish:
     runs-on: ubuntu-22.04
-    if: startsWith(github.event.ref, 'refs/tags')
     container:
       image: openxrlab/xrprimer_ci:manylinux2014_x86_64_torch1110_mmcv170
-    strategy:
-      matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, '3.10']
     steps:
       - uses: actions/checkout@v2
       - name: Build XRPrimer
         run: |
           source /opt/miniconda/etc/profile.d/conda.sh && conda activate py-${{ matrix.python-version }}
           conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
-          python setup.py bdist_wheel
+          for i in 6 7 8 9 10; do \
+            conda activate "py-3.$i" && \
+            python setup.py bdist_wheel && \
+            conda deactivate; \
+          done
       - name: Publish distribution to PyPI
         run: |
           source /opt/miniconda/etc/profile.d/conda.sh && conda activate py-${{ matrix.python-version }}
