@@ -21,6 +21,8 @@ jobs:
           sudo apt-add-repository ppa:brightbox/ruby-ng -y
           for i in 6 7 8 9 10; do \
             echo "py-3.$i" && \
+            export CONDA_ENV="py-3.$i" && \
+            echo "name of var: $CONDA_ENV" && \
             echo "python setup.py bdist_wheel" && \
             echo "conda deactivate"; \
           done
@@ -35,6 +37,7 @@ jobs:
           source /opt/miniconda/etc/profile.d/conda.sh && conda activate py-${{ matrix.python-version }}
           conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
           for i in 6 7 8 9 10; do \
+            echo "building py-3.$i" && \
             conda activate "py-3.$i" && \
             python setup.py bdist_wheel && \
             conda deactivate; \
