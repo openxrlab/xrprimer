@@ -3,7 +3,7 @@ name: deploy
 on:
   push:
     branches:
-      - 'deploy*'
+      - 'publish*'
     tags:
       - 'v*'
 
