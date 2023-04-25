@@ -24,7 +24,7 @@ RUN . /opt/miniconda/etc/profile.d/conda.sh && \
     conda install cmake && \
     conda clean --all
 
-# gmake[2]: *** No rule to make target `/usr/local/lib/libtiff.so', needed by `lib/xrprimer_cpp.cpython-36m-x86_64-linux-gnu.so'.  Stop.
+# Link binaries to somewhere included in PATH
 RUN ln -s /opt/miniconda/bin/conan /opt/rh/devtoolset-10/root/usr/bin/conan && \
     ln -s /opt/miniconda/bin/twine /opt/rh/devtoolset-10/root/usr/bin/twine && \
     ln -s /opt/miniconda/bin/cmake /opt/rh/devtoolset-10/root/usr/bin/cmake
