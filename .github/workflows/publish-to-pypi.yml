@@ -8,24 +8,6 @@ on:
       - 'v*'
 
 jobs:
-  test-loop:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: test_loop
-        run: |
-          sudo apt-add-repository ppa:brightbox/ruby-ng -y
-          for i in 6 7 8 9 10; do \
-            echo "py-3.$i" && \
-            export CONDA_ENV="py-3.$i" && \
-            echo "name of var: $CONDA_ENV" && \
-            echo "python setup.py bdist_wheel" && \
-            echo "conda deactivate"; \
-          done
   build-n-publish:
     runs-on: ubuntu-22.04
     container:
@@ -34,17 +16,15 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build XRPrimer
         run: |
-          source /opt/miniconda/etc/profile.d/conda.sh && conda activate py-${{ matrix.python-version }}
+          source /opt/miniconda/etc/profile.d/conda.sh
           conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
           for i in 6 7 8 9 10; do \
-            echo "building py-3.$i" && \
             conda activate "py-3.$i" && \
             python setup.py bdist_wheel && \
             conda deactivate; \
           done
       - name: Publish distribution to PyPI
         run: |
-          source /opt/miniconda/etc/profile.d/conda.sh && conda activate py-${{ matrix.python-version }}
           for i in $( ls dist/*-linux_x86_64.whl ); do auditwheel repair $i; done
           for i in $( ls dist/*-linux_x86_64.whl ); do mv $i ${i%-linux*}-manylinux2014_x86_64.whl; done
           du -sh wheelhouse/*
