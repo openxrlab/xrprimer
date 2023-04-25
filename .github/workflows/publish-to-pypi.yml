@@ -20,7 +20,7 @@ jobs:
           conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
           for i in 6 7 8 9 10; do \
             conda activate "py-3.$i" && \
-            python setup.py bdist_wheel && \
+            python3 -m build --wheel && \
             conda deactivate; \
           done
       - name: Publish distribution to PyPI
@@ -29,4 +29,4 @@ jobs:
           for i in $( ls dist/*-linux_x86_64.whl ); do mv $i ${i%-linux*}-manylinux2014_x86_64.whl; done
           du -sh wheelhouse/*
           for i in $( ls wheelhouse/*.whl ); do auditwheel show $i; done
-          twine upload wheelhouse/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}
+          twine upload wheelhouse/* -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }}
