@@ -62,8 +62,8 @@ VERSION, VERSION_INFO = parse_version_from_file('version.txt')
 # If you need multiple extensions, see scikit-build.
 class CMakeExtension(Extension):
 
-    def __init__(self, name, sourcedir=''):
-        Extension.__init__(self, name, sources=[])
+    def __init__(self, name, sourcedir='', **kwargs):
+        Extension.__init__(self, name, sources=[], **kwargs)
         self.sourcedir = os.path.abspath(sourcedir)
 
 
@@ -186,8 +186,8 @@ class CMakeBuild(build_ext):
         # cpp/pybind/CMakeList.txt, thus we also set build_lib explicitly,
         # where self.build_lib is the directory for compiled extension modules
         build_temp = self.build_temp
-        self.build_lib = os.path.join(build_temp, 'lib')
-        clean_cmake(folders=['_deps', '_exts', self.build_temp])
+        self.cmake_output_lib = os.path.join(build_temp, 'lib')
+        clean_cmake(folders=['build_deps', self.build_temp])
 
         # Build external from pre-built libs by default
         ret = os.system('conan remote list | grep xrlab')
@@ -196,13 +196,27 @@ class CMakeBuild(build_ext):
         else:
             prebuilt_args = '-D3RT_FROM_LOCAL=ON'
 
+        # Ensure temp dir exists
+        os.makedirs(build_temp, exist_ok=True)
         # get external
-        subprocess.check_call(['cmake', '-S.', '-B', '_deps', prebuilt_args] +
-                              cmake_args)
-        subprocess.check_call(['cmake', '--build', '_deps'])
+        subprocess.check_call(
+            ['cmake', '-S.', '-B', 'build_deps', prebuilt_args] + cmake_args)
+        subprocess.check_call(['cmake', '--build', 'build_deps'])
         # build project
         subprocess.check_call(['cmake', '-S.', '-B', build_temp] + cmake_args)
         subprocess.check_call(['cmake', '--build', build_temp] + build_args)
+        # Move from build temp to final position
+        for ext in self.extensions:
+            self.copy_output(ext)
+
+    def copy_output(self, ext):
+        src_path = os.path.join(self.cmake_output_lib,
+                                self.get_ext_filename(ext.name))
+        dst_path = os.path.join(self.build_lib,
+                                self.get_ext_filename(ext.name))
+        # Ensure dst dir exists
+        os.makedirs(self.build_lib, exist_ok=True)
+        self.copy_file(src_path, dst_path)
 
 
 def readme():
@@ -293,10 +307,12 @@ setup(
     author='OpenXRLab',
     author_email='openxrlab@pjlab.org.cn',
     keywords='xrprimer',
-    url='https://github.com/openxrlab/xrprimer/',
-    package_dir={'': PACKAGE_DIR},
+    project_urls={
+        'Documentation': 'https://xrprimer.readthedocs.io/en/latest/',
+        'Source': 'https://github.com/openxrlab/xrprimer/',
+    },
     packages=PACKAGES,
-    include_package_data=True,
+    package_dir={'': PACKAGE_DIR},
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: Apache Software License',
@@ -309,8 +325,9 @@ setup(
         'Programming Language :: Python :: 3.10',
     ],
     license='Apache License 2.0',
+    python_requires='>=3.6, <=3.10',
     tests_require=parse_requirements('requirements/test.txt'),
     install_requires=parse_requirements('requirements/runtime.txt'),
-    ext_modules=[CMakeExtension('xrprimer_cpp')],
+    ext_modules=[CMakeExtension(name='xrprimer_cpp', )],
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False)

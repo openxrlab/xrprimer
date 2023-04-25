@@ -54,7 +54,7 @@ jobs:
           cd build
           wget -q https://openxrlab-share-mainland.oss-cn-hangzhou.aliyuncs.com/xrprimer/xrprimer.tar.gz
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
-          ln -sfn xrprimer/test test
+          ln -sfn xrprimer/tests tests
       - name: Run unittests
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
@@ -103,7 +103,7 @@ jobs:
           cd python/tests
           wget -q https://openxrlab-share-mainland.oss-cn-hangzhou.aliyuncs.com/xrprimer/xrprimer.tar.gz
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
-          mv xrprimer/test/data ./
+          mv xrprimer/tests/data ./
           rm -rf xrprimer && cd ../../
       - name: Install pytest plugin
         run: |

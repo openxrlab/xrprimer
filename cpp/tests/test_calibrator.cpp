@@ -9,9 +9,9 @@
 TEST_CASE("test_calibrator", "MultiPinholeCamera") {
 
     const std::string images_folder =
-        "test/data/calib_pinhole_camera/input/images/";
+        "tests/data/calib_pinhole_camera/input/images/";
     const std::string config_folder =
-        "test/data/calib_pinhole_camera/input/config/";
+        "tests/data/calib_pinhole_camera/input/config/";
 
     std::vector<std::string> image_files;
     FileSysUtilsFindFilesInPath(images_folder, image_files);
