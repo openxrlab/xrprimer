@@ -187,7 +187,7 @@ class CMakeBuild(build_ext):
         # where self.build_lib is the directory for compiled extension modules
         build_temp = self.build_temp
         self.cmake_output_lib = os.path.join(build_temp, 'lib')
-        clean_cmake(folders=['_deps', '_exts', self.build_temp])
+        clean_cmake(folders=['build_deps', self.build_temp])
 
         # Build external from pre-built libs by default
         ret = os.system('conan remote list | grep xrlab')
