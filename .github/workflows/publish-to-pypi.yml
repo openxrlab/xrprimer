@@ -20,7 +20,7 @@ jobs:
           conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
           for i in 6 7 8 9 10; do \
             conda activate "py-3.$i" && \
-            python3 -m build --wheel && \
+            python -m build --wheel && \
             conda deactivate; \
           done
       - name: Publish distribution to PyPI
