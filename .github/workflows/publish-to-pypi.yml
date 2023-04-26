@@ -1,11 +1,15 @@
 name: deploy
 
-on: push
+on:
+  push:
+    branches:
+      - 'publish*'
+    tags:
+      - 'v*'
 
 jobs:
   build-n-publish:
     runs-on: ubuntu-22.04
-    if: startsWith(github.event.ref, 'refs/tags')
     container:
       image: openxrlab/xrprimer_ci:manylinux2014_x86_64_torch1110_mmcv170
     strategy:
@@ -20,9 +24,7 @@ jobs:
           python setup.py bdist_wheel
       - name: Publish distribution to PyPI
         run: |
-          source /opt/miniconda/etc/profile.d/conda.sh && conda activate py-${{ matrix.python-version }}
           for i in $( ls dist/*-linux_x86_64.whl ); do auditwheel repair $i; done
-          for i in $( ls dist/*-linux_x86_64.whl ); do mv $i ${i%-linux*}-manylinux2014_x86_64.whl; done
           du -sh wheelhouse/*
           for i in $( ls wheelhouse/*.whl ); do auditwheel show $i; done
-          twine upload wheelhouse/* -u __token__ -p ${{ secrets.PYPI_PASSWORD }}
+          twine upload wheelhouse/* -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }}
