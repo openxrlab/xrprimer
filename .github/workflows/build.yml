@@ -29,21 +29,19 @@ jobs:
       run:
         shell: bash -l {0}
     container:
-      image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
+      image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch1121_mmcv170
     steps:
       - uses: actions/checkout@v2
       - name: Show conda env
         run: |
-          source /root/miniconda3/etc/profile.d/conda.sh && conda deactivate
+          source /opt/miniconda/etc/profile.d/conda.sh && conda deactivate
           conda info -e
           conda activate openxrlab
           conda list | grep -e torch -e mmcv
       - name: Build and install
         run: |
           rm -rf xrprimer.egg-info
-          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
-          pip3 install conan
-          apt update && apt install ninja-build -y
+          source /opt/miniconda/etc/profile.d/conda.sh && conda activate openxrlab
           conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
           cmake -S. -Bbuild_dep -D3RT_FROM_CONAN=ON -G "Ninja"
           cmake --build build_dep -j4
@@ -57,7 +55,7 @@ jobs:
           ln -sfn xrprimer/tests tests
       - name: Run unittests
         run: |
-          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          source /opt/miniconda/etc/profile.d/conda.sh && conda activate openxrlab
           cd build
           ./bin/test_calibrator
           ./bin/test_image
@@ -80,22 +78,21 @@ jobs:
       run:
         shell: bash -l {0}
     container:
-      image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch181_mmcv150
+      image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch1121_mmcv170
       env:
         GITHUB_ACTIONS: true
     steps:
       - uses: actions/checkout@v2
       - name: Show conda env
         run: |
-          source /root/miniconda3/etc/profile.d/conda.sh && conda deactivate
+          source /opt/miniconda/etc/profile.d/conda.sh && conda deactivate
           conda info -e
           conda activate openxrlab
           conda list | grep -e torch -e mmcv
       - name: Build and install
         run: |
           rm -rf xrprimer.egg-info
-          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
-          pip install conan
+          source /opt/miniconda/etc/profile.d/conda.sh && conda activate openxrlab
           conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
           pip install -e .
       - name: Prepare test data
@@ -107,15 +104,15 @@ jobs:
           rm -rf xrprimer && cd ../../
       - name: Install pytest plugin
         run: |
-          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          source /opt/miniconda/etc/profile.d/conda.sh && conda activate openxrlab
           pip install pytest-github-actions-annotate-failures
       - name: Run unittests
         run: |
-          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          source /opt/miniconda/etc/profile.d/conda.sh && conda activate openxrlab
           cd python && coverage run --source xrprimer -m pytest tests/ && cd ..
       - name: Generate coverage report
         run: |
-          source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
+          source /opt/miniconda/etc/profile.d/conda.sh && conda activate openxrlab
           cd python && coverage xml && coverage report -m && cd ..
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

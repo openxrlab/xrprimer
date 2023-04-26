@@ -48,7 +48,7 @@ c. (Optional) Install conan
 
 ```shell
 # compiling with conan accelerates the compilation with pre-built libs, otherwise it builds external libs from source
-pip install conan
+pip install conan==1.51.1
 conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
 ```
 
