@@ -9,6 +9,7 @@ from xrprimer.data_structure.keypoints import Keypoints
 from xrprimer.utils.log_utils import get_logger, logging
 from . import (
     agora,
+    campus,
     coco,
     coco_wholebody,
     crowdpose,
@@ -38,6 +39,7 @@ from . import (
 KEYPOINTS_FACTORY = {
     'human_data': human_data.HUMAN_DATA,
     'agora': agora.AGORA_KEYPOINTS,
+    'campus': campus.CAMPUS_KEYPOINTS,
     'coco': coco.COCO_KEYPOINTS,
     'coco_wholebody': coco_wholebody.COCO_WHOLEBODY_KEYPOINTS,
     'crowdpose': crowdpose.CROWDPOSE_KEYPOINTS,

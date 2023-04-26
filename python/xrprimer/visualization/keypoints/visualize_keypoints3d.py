@@ -105,10 +105,14 @@ def visualize_keypoints3d_cv2(
     n_kps = keypoints.get_keypoints_number()
     # project 3d keypoints to 2d
     projected_kps2d = projector.project(
-        points=keypoints.get_keypoints().reshape(n_frame * n_person * n_kps,
-                                                 3),
+        points=keypoints.get_keypoints()[..., :3].reshape(
+            n_frame * n_person * n_kps, 3),
         points_mask=keypoints.get_mask().reshape(n_frame * n_person * n_kps,
                                                  1))
+    # concat kps2d with kps3d's confidence
+    projected_kps2d = projected_kps2d[0].reshape(n_frame, n_person, n_kps, 2)
+    projected_kps2d = np.concatenate(
+        (projected_kps2d, keypoints.get_keypoints()[..., 3:]), axis=-1)
     keypoints2d = keypoints.clone()
     # mask is not changed, set keypoints data is enough
     keypoints2d.set_keypoints(
@@ -131,15 +135,17 @@ def visualize_keypoints3d_cv2(
     return ret_value
 
 
-def visualize_keypoints2d_mpl(
+def visualize_keypoints3d_mpl(
     # input args
     keypoints: Keypoints,
     # output args
     output_path: str,
     overwrite: bool = True,
     return_array: bool = False,
+    # plot args
     plot_points: bool = True,
     plot_lines: bool = True,
+    dpi: float = 180,
     # verbose args
     disable_tqdm: bool = True,
     logger: Union[None, str,
@@ -169,18 +175,8 @@ def visualize_keypoints2d_mpl(
         plot_lines (bool, optional):
             Whether to plot lines according to keypoints'
             limbs. Defaults to True.
-        background_arr (Union[np.ndarray, None], optional):
-            Background image array. Defaults to None.
-        background_dir (Union[np.ndarray, None], optional):
-            Path to the image directory for background.
-            Defaults to None.
-        background_video (Union[np.ndarray, None], optional):
-            Path to the video for background.
-            Defaults to None.
-        height (Union[int, None], optional):
-            Height of background. Defaults to None.
-        width (Union[int, None], optional):
-            Width of background. Defaults to None.
+        dpi (float, optional):
+            Dots per inch. Defaults to 180.
         disable_tqdm (bool, optional):
             Whether to disable tqdm progress bar.
             Defaults to True.
@@ -222,8 +218,8 @@ def visualize_keypoints2d_mpl(
             point_palette_list.append(point_palette)
         # concat mperson's palette into one
         point_palette = PointPalette.concatenate(point_palette_list, logger)
-        mframe_point_data = keypoints.get_keypoints()[..., :2].reshape(
-            n_frame, n_person * n_kps, 2)
+        mframe_point_data = keypoints.get_keypoints()[..., :3].reshape(
+            n_frame, n_person * n_kps, 3)
         mframe_point_mask = keypoints.get_mask().reshape(
             n_frame, n_person * n_kps)
         # if only one person,
@@ -254,8 +250,8 @@ def visualize_keypoints2d_mpl(
             line_palette_list.append(line_palette)
         # concat mperson's palette into one
         line_palette = LinePalette.concatenate(line_palette_list, logger)
-        mframe_line_data = keypoints.get_keypoints()[..., :2].reshape(
-            n_frame, n_person * n_kps, 2)
+        mframe_line_data = keypoints.get_keypoints()[..., :3].reshape(
+            n_frame, n_person * n_kps, 3)
         mframe_line_mask = np.ones(shape=(n_frame, n_person * n_line))
         point_mask = keypoints.get_mask()
         # if both two points of a line has mask 1
@@ -293,6 +289,7 @@ def visualize_keypoints2d_mpl(
         mframe_line_mask=mframe_line_mask,
         point_palette=point_palette,
         line_palette=line_palette,
+        dpi=dpi,
         disable_tqdm=disable_tqdm,
         logger=logger)
     return ret_value
