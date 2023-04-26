@@ -1,12 +1,25 @@
 from typing import Union
 
 import numpy as np
-import torch
+
+try:
+    import torch
+    has_torch = True
+    import_exception = ''
+except (ImportError, ModuleNotFoundError):
+    has_torch = False
+    import traceback
+    stack_str = ''
+    for line in traceback.format_stack():
+        if 'frozen' not in line:
+            stack_str += line + '\n'
+    import_exception = traceback.format_exc() + '\n'
+    import_exception = stack_str + import_exception
 
 
-def switch_channel(input_array: Union[np.ndarray, torch.Tensor],
+def switch_channel(input_array: Union[np.ndarray, 'torch.Tensor'],
                    color_dim: int = -1,
-                   inplace: bool = False) -> Union[np.ndarray, torch.Tensor]:
+                   inplace: bool = False) -> Union[np.ndarray, 'torch.Tensor']:
     """Switch the 1st channel and 3rd channel at color_dim.
 
     Args:
@@ -36,6 +49,8 @@ def switch_channel(input_array: Union[np.ndarray, torch.Tensor],
     b_slice_list[color_dim] = slice(2, 3, 1)
     b_idxs = tuple(b_slice_list)
     r_idxs = tuple(r_slice_list)
+    if not has_torch:
+        raise ImportError(import_exception)
     if isinstance(input_array, torch.Tensor):
         b_backup = input_array[b_idxs].clone()
         if not inplace:
@@ -53,9 +68,9 @@ def switch_channel(input_array: Union[np.ndarray, torch.Tensor],
     return ret_array
 
 
-def rgb2bgr(input_array: Union[np.ndarray, torch.Tensor],
+def rgb2bgr(input_array: Union[np.ndarray, 'torch.Tensor'],
             color_dim: int = -1,
-            inplace: bool = False) -> Union[np.ndarray, torch.Tensor]:
+            inplace: bool = False) -> Union[np.ndarray, 'torch.Tensor']:
     """Convert RGB image array of any shape to BGR.
 
     Args:
@@ -77,9 +92,9 @@ def rgb2bgr(input_array: Union[np.ndarray, torch.Tensor],
         input_array=input_array, color_dim=color_dim, inplace=inplace)
 
 
-def bgr2rgb(input_array: Union[np.ndarray, torch.Tensor],
+def bgr2rgb(input_array: Union[np.ndarray, 'torch.Tensor'],
             color_dim: int = -1,
-            inplace: bool = False) -> Union[np.ndarray, torch.Tensor]:
+            inplace: bool = False) -> Union[np.ndarray, 'torch.Tensor']:
     """Convert BGR image array of any shape to RGB.
 
     Args:

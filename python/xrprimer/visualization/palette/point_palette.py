@@ -3,11 +3,23 @@ import logging
 from typing import List, Union
 
 import numpy as np
-import torch
 
 from xrprimer.utils.log_utils import get_logger
 from xrprimer.utils.visualization_utils import fix_arr_shape, fix_arr_type
 
+try:
+    import torch
+    has_torch = True
+    import_exception = ''
+except (ImportError, ModuleNotFoundError):
+    has_torch = False
+    import traceback
+    stack_str = ''
+    for line in traceback.format_stack():
+        if 'frozen' not in line:
+            stack_str += line + '\n'
+    import_exception = traceback.format_exc() + '\n'
+    import_exception = stack_str + import_exception
 # yapf: enable
 
 
@@ -18,11 +30,11 @@ class PointPalette:
     """
 
     def __init__(self,
-                 point_array: Union[list, np.ndarray, torch.Tensor],
+                 point_array: Union[list, np.ndarray, 'torch.Tensor'],
                  name: str = 'default_point_palette',
-                 point_mask: Union[list, np.ndarray, torch.Tensor,
+                 point_mask: Union[list, np.ndarray, 'torch.Tensor',
                                    None] = None,
-                 color_array: Union[list, np.ndarray, torch.Tensor,
+                 color_array: Union[list, np.ndarray, 'torch.Tensor',
                                     None] = None,
                  logger: Union[None, str, logging.Logger] = None) -> None:
         """
@@ -48,6 +60,9 @@ class PointPalette:
                 Defaults to None.
         """
         self.logger = get_logger(logger)
+        if not has_torch:
+            self.logger.error(import_exception)
+            raise ImportError
         self.name = name
         self.point_array = None
         self.color_array = None
@@ -67,7 +82,7 @@ class PointPalette:
             else len(self.point_array)
 
     def set_point_array(self, point_array: Union[list, np.ndarray,
-                                                 torch.Tensor]):
+                                                 'torch.Tensor']):
         """Set point_array. Type and length will be aligned automatically.
 
         Args:
@@ -86,7 +101,7 @@ class PointPalette:
         self.point_array = point_array
 
     def set_point_mask(self, point_mask: Union[list, np.ndarray,
-                                               torch.Tensor]):
+                                               'torch.Tensor']):
         """Set points' visibility mask. Type and length will be aligned
         automatically.
 
@@ -108,7 +123,7 @@ class PointPalette:
         self.point_mask = point_mask.squeeze(axis=-1).astype(np.uint8)
 
     def set_color_array(self, color_array: Union[list, np.ndarray,
-                                                 torch.Tensor]):
+                                                 'torch.Tensor']):
         """Set points' color in RGB, [0, 255]. Type and length will be aligned
         automatically.
 

@@ -1,10 +1,6 @@
 """Utils for exr format data.
 
-Requirements:
-
-```
-pip install numpy imath openexr
-```
+Requirements: requirements/synbody.txt
 
 If you encounter any problems with openexr installation,
 refer to the following link:

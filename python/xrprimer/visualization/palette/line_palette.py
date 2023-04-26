@@ -3,11 +3,24 @@ import logging
 from typing import Any, List, Union
 
 import numpy as np
-import torch
 
 from xrprimer.utils.log_utils import get_logger
 from xrprimer.utils.visualization_utils import fix_arr_shape, fix_arr_type
 from .point_palette import PointPalette
+
+try:
+    import torch
+    has_torch = True
+    import_exception = ''
+except (ImportError, ModuleNotFoundError):
+    has_torch = False
+    import traceback
+    stack_str = ''
+    for line in traceback.format_stack():
+        if 'frozen' not in line:
+            stack_str += line + '\n'
+    import_exception = traceback.format_exc() + '\n'
+    import_exception = stack_str + import_exception
 
 # yapf: enable
 
@@ -19,11 +32,12 @@ class LinePalette(PointPalette):
     """
 
     def __init__(self,
-                 conn_array: Union[list, np.ndarray, torch.Tensor],
-                 point_array: Union[list, np.ndarray, torch.Tensor],
+                 conn_array: Union[list, np.ndarray, 'torch.Tensor'],
+                 point_array: Union[list, np.ndarray, 'torch.Tensor'],
                  name: str = 'default_line_palette',
-                 conn_mask: Union[list, np.ndarray, torch.Tensor, None] = None,
-                 color_array: Union[list, np.ndarray, torch.Tensor,
+                 conn_mask: Union[list, np.ndarray, 'torch.Tensor',
+                                  None] = None,
+                 color_array: Union[list, np.ndarray, 'torch.Tensor',
                                     None] = None,
                  logger: Union[None, str, logging.Logger] = None) -> None:
         """
@@ -52,6 +66,9 @@ class LinePalette(PointPalette):
                 Defaults to None.
         """
         self.logger = get_logger(logger)
+        if not has_torch:
+            self.logger.error(import_exception)
+            raise ImportError
         self.name = name
         self.conn_array = None
         self.conn_mask = None
@@ -74,7 +91,7 @@ class LinePalette(PointPalette):
             else len(self.conn_array)
 
     def set_conn_array(self, conn_array: Union[list, np.ndarray,
-                                               torch.Tensor]):
+                                               'torch.Tensor']):
         """Set conn_array. Type and length will be aligned automatically.
 
         Args:
@@ -92,7 +109,8 @@ class LinePalette(PointPalette):
             logger=self.logger)
         self.conn_array = conn_array
 
-    def set_conn_mask(self, conn_mask: Union[list, np.ndarray, torch.Tensor]):
+    def set_conn_mask(self, conn_mask: Union[list, np.ndarray,
+                                             'torch.Tensor']):
         """Set lines' visibility mask. Type and length will be aligned
         automatically.
 

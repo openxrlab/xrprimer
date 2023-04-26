@@ -3,7 +3,20 @@ import logging
 from typing import List, Union
 
 import numpy as np
-import torch
+
+try:
+    import torch
+    has_torch = True
+    import_exception = ''
+except (ImportError, ModuleNotFoundError):
+    has_torch = False
+    import traceback
+    stack_str = ''
+    for line in traceback.format_stack():
+        if 'frozen' not in line:
+            stack_str += line + '\n'
+    import_exception = traceback.format_exc() + '\n'
+    import_exception = stack_str + import_exception
 
 from xrprimer.utils.log_utils import get_logger
 
@@ -19,11 +32,11 @@ class Limbs():
     """
 
     def __init__(self,
-                 connections: Union[np.ndarray, torch.Tensor],
+                 connections: Union[np.ndarray, 'torch.Tensor'],
                  connection_names: Union[List[str], None] = None,
                  parts: Union[List[List[int]], None] = None,
                  part_names: Union[List[str], None] = None,
-                 points: Union[np.ndarray, torch.Tensor, None] = None,
+                 points: Union[np.ndarray, 'torch.Tensor', None] = None,
                  logger: Union[None, str, logging.Logger] = None) -> None:
         """A class for person limbs data, recording connection vectors between
         keypoints. Connections are the only necessary data. Connections record
@@ -59,6 +72,9 @@ class Limbs():
                 Defaults to None.
         """
         self.logger = get_logger(logger)
+        if not has_torch:
+            self.logger.error(import_exception)
+            raise ImportError
         self.connections = None
         self.connection_names = None
         self.parts = None
@@ -72,7 +88,7 @@ class Limbs():
             self.set_points(points)
 
     def set_connections(self,
-                        conn: Union[np.ndarray, torch.Tensor],
+                        conn: Union[np.ndarray, 'torch.Tensor'],
                         conn_names: List[str] = None) -> None:
         """Set connection relations of the limbs. Names are optional.
 
@@ -167,7 +183,7 @@ class Limbs():
         else:
             self.part_names = None
 
-    def set_points(self, points: Union[np.ndarray, torch.Tensor]) -> None:
+    def set_points(self, points: Union[np.ndarray, 'torch.Tensor']) -> None:
         """Set points of the limbs.
 
         Args:

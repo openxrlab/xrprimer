@@ -4,15 +4,28 @@ import os
 from typing import Union
 
 import numpy as np
-import torch
 
 from xrprimer.utils.log_utils import get_logger
 from .path_utils import Existence, check_path_existence, check_path_suffix
 
+try:
+    import torch
+    has_torch = True
+    import_exception = ''
+except (ImportError, ModuleNotFoundError):
+    has_torch = False
+    import traceback
+    stack_str = ''
+    for line in traceback.format_stack():
+        if 'frozen' not in line:
+            stack_str += line + '\n'
+    import_exception = traceback.format_exc() + '\n'
+    import_exception = stack_str + import_exception
+
 # yapf: enable
 
 
-def fix_arr_type(array: Union[list, np.ndarray, torch.Tensor]) -> np.ndarray:
+def fix_arr_type(array: Union[list, np.ndarray, 'torch.Tensor']) -> np.ndarray:
     """Convert array-like data into ndarray.
 
     Args:
@@ -22,6 +35,8 @@ def fix_arr_type(array: Union[list, np.ndarray, torch.Tensor]) -> np.ndarray:
     Returns:
         np.ndarray
     """
+    if not has_torch:
+        raise ImportError(import_exception)
     if isinstance(array, torch.Tensor):
         array = array.detach().cpu().numpy()
     else:
