@@ -1,4 +1,4 @@
-exclude: .*/test/data/|.clang-format|(tests/catch.hpp)
+exclude: .*/tests/data/|.clang-format|(tests/catch.hpp)
 repos:
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v14.0.1
@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
-        exclude: .*/test/data/
+        exclude: .*/tests/data/
       - id: check-yaml
       - id: end-of-file-fixer
       - id: requirements-txt-fixer

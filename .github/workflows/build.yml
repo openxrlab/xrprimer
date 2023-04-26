@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   build_cpp:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     defaults:
       run:
         shell: bash -l {0}
@@ -54,7 +54,7 @@ jobs:
           cd build
           wget -q https://openxrlab-share-mainland.oss-cn-hangzhou.aliyuncs.com/xrprimer/xrprimer.tar.gz
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
-          ln -sfn xrprimer/test test
+          ln -sfn xrprimer/tests tests
       - name: Run unittests
         run: |
           source /root/miniconda3/etc/profile.d/conda.sh && conda activate openxrlab
@@ -75,7 +75,7 @@ jobs:
           # gcovr ${coverage_filter} -r . --object-directory=${CI_PROJECT_DIR}/build
 
   build_py38:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     defaults:
       run:
         shell: bash -l {0}
@@ -103,7 +103,7 @@ jobs:
           cd python/tests
           wget -q https://openxrlab-share-mainland.oss-cn-hangzhou.aliyuncs.com/xrprimer/xrprimer.tar.gz
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
-          mv xrprimer/test/data ./
+          mv xrprimer/tests/data ./
           rm -rf xrprimer && cd ../../
       - name: Install pytest plugin
         run: |

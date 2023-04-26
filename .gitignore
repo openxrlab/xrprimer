@@ -508,3 +508,4 @@ inbox/*
 doxygen/
 3rdparty
 build_*/
+/wheelhouse
