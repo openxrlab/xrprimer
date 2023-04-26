@@ -9,8 +9,15 @@ from xrprimer.data_structure.camera import (
 )
 from xrprimer.data_structure.keypoints import Keypoints
 from xrprimer.ops.projection.builder import OpencvProjector
+from xrprimer.transform.convention.world import (
+    BaseWorld,
+    MatplotlibWorld,
+    WorldClass,
+    convert_world,
+)
 from xrprimer.transform.limbs import get_limbs_from_keypoints
 from xrprimer.utils.log_utils import get_logger, logging
+from xrprimer.utils.visualization_utils import rotate_3d_data
 from ..matplotlib.plot_video import plot_video
 from ..palette import LinePalette, PointPalette, get_different_colors
 from .visualize_keypoints2d import visualize_keypoints2d
@@ -143,6 +150,7 @@ def visualize_keypoints3d_mpl(
     overwrite: bool = True,
     return_array: bool = False,
     # plot args
+    data_world: WorldClass = BaseWorld,
     plot_points: bool = True,
     plot_lines: bool = True,
     dpi: float = 180,
@@ -168,6 +176,10 @@ def visualize_keypoints3d_mpl(
             Whether to return the video array. If True,
             please make sure your RAM is enough for the video.
             Defaults to False, return None.
+        data_world (WorldClass, optional):
+            A world definition class for input keypoints3d data,
+            it shall be a subclass of BaseWorld.
+            Defaults to BaseWorld.
         plot_points (bool, optional):
             Whether to plot points according to keypoints'
             location.
@@ -279,6 +291,20 @@ def visualize_keypoints3d_mpl(
         line_palette = None
         mframe_line_data = None
         mframe_line_mask = None
+    world_rotation_mat = convert_world(
+        src_world=data_world, dst_world=MatplotlibWorld)
+    mframe_point_data = None \
+        if mframe_point_data is None \
+        else rotate_3d_data(
+            data=mframe_point_data,
+            left_mm_rotmat=world_rotation_mat,
+            logger=logger)
+    mframe_line_data = None \
+        if mframe_line_data is None \
+        else rotate_3d_data(
+            data=mframe_line_data,
+            left_mm_rotmat=world_rotation_mat,
+            logger=logger)
     ret_value = plot_video(
         output_path=output_path,
         overwrite=overwrite,

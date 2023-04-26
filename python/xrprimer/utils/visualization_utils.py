@@ -79,6 +79,26 @@ def fix_arr_shape(
 def check_data_len(mframe_point_data: Union[np.ndarray, None],
                    mframe_line_data: Union[np.ndarray, None],
                    background_len: int, logger: logging.Logger) -> int:
+    """Check length of data. Return the length if all data match.
+
+    Args:
+        mframe_point_data (Union[np.ndarray, None]):
+            Mulit-frame point data.
+        mframe_line_data (Union[np.ndarray, None]):
+            Mulit-frame line data.
+        background_len (int):
+            Length of background.
+        logger (logging.Logger):
+            Logger for logging.
+
+    Raises:
+        ValueError:
+            Length of point_data,
+            line_data and background do not match.
+
+    Returns:
+        int: Length of data.
+    """
     empty_data = True
     len_list = []
     if background_len > 0:
@@ -108,6 +128,20 @@ def check_data_len(mframe_point_data: Union[np.ndarray, None],
 
 def check_output_path(output_path: str, overwrite: bool,
                       logger: logging.Logger) -> None:
+    """Check output path.
+
+    Args:
+        output_path (str):
+            Path to output.
+        overwrite (bool):
+            Whether to overwrite existing files.
+        logger (logging.Logger):
+            Logger for logging.
+
+    Raises:
+        FileNotFoundError: Parent of output_path doesn't exist.
+        FileExistsError: output_path exists and overwrite not enabled.
+    """
     existence = check_path_existence(output_path)
     if existence == Existence.MissingParent:
         logger.error(f'Parent of {output_path} doesn\'t exist.')
@@ -118,3 +152,30 @@ def check_output_path(output_path: str, overwrite: bool,
         raise FileExistsError
     if not check_path_suffix(output_path, '.mp4'):
         os.makedirs(output_path, exist_ok=True)
+
+
+def rotate_3d_data(data: np.ndarray, left_mm_rotmat: np.ndarray,
+                   logger: logging.Logger) -> np.ndarray:
+    """Rotate 3D data.
+
+    Args:
+        data (np.ndarray):
+            3D data in shape [..., 3].
+        left_mm_rotmat (np.ndarray):
+            Rotation matrix in shape [3, 3],
+            left multiplication.
+        logger (logging.Logger):
+            Logger for logging.
+
+    Returns:
+        np.ndarray:
+            Rotated data, in the same shape as input.
+    """
+    shape_backup = data.shape
+    if shape_backup[-1] != 3:
+        logger.error('The last dimension of 3D data should be 3.')
+        raise ValueError
+    flat_data = data.copy().reshape(-1, 3)
+    rotated_data = (left_mm_rotmat @ flat_data.T).T
+    rotated_data = rotated_data.reshape(*shape_backup)
+    return rotated_data
