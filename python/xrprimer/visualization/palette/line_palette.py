@@ -45,7 +45,7 @@ class LinePalette(PointPalette):
                     torch.Tensor, None], optional):
                 An uint8 array of lines' color, 0 <= value <= 255,
                 in shape[3]
-                or [n_point, 3].
+                or [n_lines, 3].
                 Defaults to None, all red.
             logger (Union[None, str, logging.Logger], optional):
                 Logger for logging. If None, root logger will be selected.

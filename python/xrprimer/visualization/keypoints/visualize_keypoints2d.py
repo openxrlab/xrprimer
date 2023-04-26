@@ -97,7 +97,7 @@ def visualize_keypoints2d(
         mode='rgb',
         logger=logger)
     if plot_points:
-        point_template = keypoints.get_keypoints()[0, 0, ...]
+        point_template = keypoints.get_keypoints()[0, 0, ..., :2]
         point_palette_list = []
         # construct palette for each person
         for person_idx in range(n_person):
@@ -108,7 +108,11 @@ def visualize_keypoints2d(
                 logger=logger)
             point_palette_list.append(point_palette)
         # concat mperson's palette into one
-        point_palette = PointPalette.concatenate(point_palette_list, logger)
+        if len(point_palette_list) > 1:
+            point_palette = PointPalette.concatenate(point_palette_list,
+                                                     logger)
+        else:
+            point_palette = point_palette_list[0]
         mframe_point_data = keypoints.get_keypoints()[..., :2].reshape(
             n_frame, n_person * n_kps, 2)
         mframe_point_mask = keypoints.get_mask().reshape(
@@ -125,7 +129,7 @@ def visualize_keypoints2d(
         mframe_point_mask = None
     if plot_lines:
         limbs = get_limbs_from_keypoints(keypoints=keypoints, )
-        point_template = keypoints.get_keypoints()[0, 0, ...]
+        point_template = keypoints.get_keypoints()[0, 0, ..., :2]
         conn = limbs.get_connections()
         conn_array = np.asarray(conn)
         n_line = len(conn)
@@ -140,7 +144,10 @@ def visualize_keypoints2d(
                 logger=logger)
             line_palette_list.append(line_palette)
         # concat mperson's palette into one
-        line_palette = LinePalette.concatenate(line_palette_list, logger)
+        if len(line_palette_list) > 1:
+            line_palette = LinePalette.concatenate(line_palette_list, logger)
+        else:
+            line_palette = line_palette_list[0]
         mframe_line_data = keypoints.get_keypoints()[..., :2].reshape(
             n_frame, n_person * n_kps, 2)
         mframe_line_mask = np.ones(shape=(n_frame, n_person * n_line))

@@ -20,6 +20,7 @@ from xrprimer.utils.log_utils import get_logger, logging
 from xrprimer.utils.visualization_utils import rotate_3d_data
 from ..matplotlib.plot_video import plot_video
 from ..palette import LinePalette, PointPalette, get_different_colors
+from ..presets import create_coordinate_axis
 from .visualize_keypoints2d import visualize_keypoints2d
 
 # yapf: enable
@@ -151,6 +152,7 @@ def visualize_keypoints3d_mpl(
     return_array: bool = False,
     # plot args
     data_world: WorldClass = BaseWorld,
+    plot_axis: bool = False,
     plot_points: bool = True,
     plot_lines: bool = True,
     dpi: float = 180,
@@ -180,6 +182,9 @@ def visualize_keypoints3d_mpl(
             A world definition class for input keypoints3d data,
             it shall be a subclass of BaseWorld.
             Defaults to BaseWorld.
+        plot_axis (bool, optional):
+            Whether to plot an identity axis at the origin.
+            Defaults to False.
         plot_points (bool, optional):
             Whether to plot points according to keypoints'
             location.
@@ -218,7 +223,7 @@ def visualize_keypoints3d_mpl(
         mode='rgb',
         logger=logger)
     if plot_points:
-        point_template = keypoints.get_keypoints()[0, 0, ...]
+        point_template = keypoints.get_keypoints()[0, 0, ..., :3]
         point_palette_list = []
         # construct palette for each person
         for person_idx in range(n_person):
@@ -229,7 +234,11 @@ def visualize_keypoints3d_mpl(
                 logger=logger)
             point_palette_list.append(point_palette)
         # concat mperson's palette into one
-        point_palette = PointPalette.concatenate(point_palette_list, logger)
+        if len(point_palette_list) > 1:
+            point_palette = PointPalette.concatenate(point_palette_list,
+                                                     logger)
+        else:
+            point_palette = point_palette_list[0]
         mframe_point_data = keypoints.get_keypoints()[..., :3].reshape(
             n_frame, n_person * n_kps, 3)
         mframe_point_mask = keypoints.get_mask().reshape(
@@ -246,7 +255,7 @@ def visualize_keypoints3d_mpl(
         mframe_point_mask = None
     if plot_lines:
         limbs = get_limbs_from_keypoints(keypoints=keypoints, )
-        point_template = keypoints.get_keypoints()[0, 0, ...]
+        point_template = keypoints.get_keypoints()[0, 0, ..., :3]
         conn = limbs.get_connections()
         conn_array = np.asarray(conn)
         n_line = len(conn)
@@ -261,7 +270,10 @@ def visualize_keypoints3d_mpl(
                 logger=logger)
             line_palette_list.append(line_palette)
         # concat mperson's palette into one
-        line_palette = LinePalette.concatenate(line_palette_list, logger)
+        if len(line_palette_list) > 1:
+            line_palette = LinePalette.concatenate(line_palette_list, logger)
+        else:
+            line_palette = line_palette_list[0]
         mframe_line_data = keypoints.get_keypoints()[..., :3].reshape(
             n_frame, n_person * n_kps, 3)
         mframe_line_mask = np.ones(shape=(n_frame, n_person * n_line))
@@ -291,6 +303,37 @@ def visualize_keypoints3d_mpl(
         line_palette = None
         mframe_line_data = None
         mframe_line_mask = None
+    # create an identity axis at the origin
+    # of the world coordinate
+    if plot_axis:
+        axis_line_palette = create_coordinate_axis(logger=logger)
+        # No other line except axis
+        if line_palette is None:
+            line_palette = axis_line_palette
+            mframe_line_data = np.repeat(
+                np.expand_dims(axis_line_palette.point_array, axis=0),
+                repeats=n_frame,
+                axis=0)
+            mframe_line_mask = np.repeat(
+                np.expand_dims(axis_line_palette.conn_mask, axis=0),
+                repeats=n_frame,
+                axis=0)
+        # Concat axis with other lines(from keypoints3d)
+        else:
+            line_palette = LinePalette.concatenate(
+                [line_palette, axis_line_palette], logger)
+            axis_mframe_line_data = np.repeat(
+                np.expand_dims(axis_line_palette.point_array, axis=0),
+                repeats=n_frame,
+                axis=0)
+            axis_mframe_line_mask = np.repeat(
+                np.expand_dims(axis_line_palette.conn_mask, axis=0),
+                repeats=n_frame,
+                axis=0)
+            mframe_line_data = np.concatenate(
+                [mframe_line_data, axis_mframe_line_data], axis=1)
+            mframe_line_mask = np.concatenate(
+                [mframe_line_mask, axis_mframe_line_mask], axis=1)
     world_rotation_mat = convert_world(
         src_world=data_world, dst_world=MatplotlibWorld)
     mframe_point_data = None \

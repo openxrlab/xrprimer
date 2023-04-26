@@ -171,11 +171,34 @@ def test_visualize_keypoints3d_mpl_mperson_mask():
         plot_points=True,
         plot_lines=True,
         dpi=_DPI)
-    keypoints3d['mask'][20:30, 0:2, ...] = 0
+    keypoints3d['mask'][20:30, 0:1, ...] = 0
     output_path = os.path.join(output_dir, 'test_mpl_plot_person_mask.mp4')
     visualize_keypoints3d_mpl(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
         plot_lines=True,
+        dpi=_DPI)
+
+
+def test_visualize_keypoints3d_mpl_axis():
+    keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_90f_2p.npz')
+    keypoints3d = Keypoints.fromfile(keypoints3d_path)
+    # test plot only points
+    output_path = os.path.join(output_dir, 'test_mpl_plot_points_axis.mp4')
+    visualize_keypoints3d_mpl(
+        keypoints=keypoints3d,
+        output_path=output_path,
+        plot_points=True,
+        plot_lines=False,
+        plot_axis=True,
+        dpi=_DPI)
+    # test plot only lines
+    output_path = os.path.join(output_dir, 'test_mpl_plot_lines_axis.mp4')
+    visualize_keypoints3d_mpl(
+        keypoints=keypoints3d,
+        output_path=output_path,
+        plot_points=False,
+        plot_lines=True,
+        plot_axis=True,
         dpi=_DPI)
