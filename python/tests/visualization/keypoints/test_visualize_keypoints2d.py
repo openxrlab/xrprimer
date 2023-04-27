@@ -54,6 +54,16 @@ def test_visualize_keypoints2d_mperson():
         plot_lines=True,
         width=1920,
         height=1080)
+    # Plot neither points nor lines
+    output_path = os.path.join(output_dir, 'test_plot_none_mperson.mp4')
+    with pytest.raises(ValueError):
+        visualize_keypoints2d(
+            keypoints=keypoints2d,
+            output_path=output_path,
+            plot_points=False,
+            plot_lines=False,
+            width=1920,
+            height=1080)
 
 
 def test_visualize_keypoints2d_sperson():

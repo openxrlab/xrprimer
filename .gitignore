@@ -13,6 +13,7 @@
 
 # pre-commit
 python/tests/data
+*xrprimer.tar.gz
 
 # compiled file
 *.so

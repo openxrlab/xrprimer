@@ -1,10 +1,6 @@
 """Utils for exr format data.
 
-Requirements:
-
-```
-pip install numpy imath openexr
-```
+Requirements: requirements/synbody.txt
 
 If you encounter any problems with openexr installation,
 refer to the following link:
@@ -18,9 +14,17 @@ import numpy as np
 try:
     import Imath
     import OpenEXR
-except ImportError:
-    print('warning: please install Imath and OpenEXR'
-          ' in order to read .exr format files.')
+    has_exr = True
+    import_exception = ''
+except (ImportError, ModuleNotFoundError):
+    has_exr = False
+    import traceback
+    stack_str = ''
+    for line in traceback.format_stack():
+        if 'frozen' not in line:
+            stack_str += line + '\n'
+    import_exception = traceback.format_exc() + '\n'
+    import_exception = stack_str + import_exception
 
 
 class ExrReader:
@@ -32,6 +36,11 @@ class ExrReader:
         Args:
             exr_path (PathLike): path to `.exr` format file
         """
+        if not has_exr:
+            print(import_exception)
+            print('warning: please install Imath and OpenEXR'
+                  ' in order to read .exr format files.')
+            raise ImportError
         file_ = OpenEXR.InputFile(str(exr_path))
         dw = file_.header()['dataWindow']
         size = (dw.max.x - dw.min.x + 1, dw.max.y - dw.min.y + 1)

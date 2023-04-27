@@ -325,7 +325,7 @@ setup(
         'Programming Language :: Python :: 3.10',
     ],
     license='Apache License 2.0',
-    python_requires='>=3.6, <=3.10',
+    python_requires='>=3.6, <3.11',
     tests_require=parse_requirements('requirements/test.txt'),
     install_requires=parse_requirements('requirements/runtime.txt'),
     ext_modules=[CMakeExtension(name='xrprimer_cpp', )],

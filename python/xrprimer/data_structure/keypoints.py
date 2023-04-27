@@ -3,7 +3,6 @@ import logging
 from typing import Any, Union
 
 import numpy as np
-import torch
 
 from xrprimer.utils.log_utils import get_logger
 from xrprimer.utils.path_utils import (
@@ -16,6 +15,21 @@ try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal
+
+# tolerate the import error of torch
+try:
+    import torch
+    has_torch = True
+    import_exception = ''
+except (ImportError, ModuleNotFoundError):
+    has_torch = False
+    import traceback
+    stack_str = ''
+    for line in traceback.format_stack():
+        if 'frozen' not in line:
+            stack_str += line + '\n'
+    import_exception = traceback.format_exc() + '\n'
+    import_exception = stack_str + import_exception
 
 # yapf: enable
 
@@ -32,8 +46,8 @@ class Keypoints(dict):
     def __init__(self,
                  src_dict: dict = None,
                  dtype: Literal['torch', 'numpy', 'auto'] = 'auto',
-                 kps: Union[np.ndarray, torch.Tensor, None] = None,
-                 mask: Union[np.ndarray, torch.Tensor, None] = None,
+                 kps: Union[np.ndarray, 'torch.Tensor', None] = None,
+                 mask: Union[np.ndarray, 'torch.Tensor', None] = None,
                  convention: Union[str, None] = None,
                  logger: Union[None, str, logging.Logger] = None) -> None:
         """Construct a Keypoints instance with pre-set values. If any of kps,
@@ -74,12 +88,15 @@ class Keypoints(dict):
         else:
             super().__init__()
         self.logger = get_logger(logger)
+        if not has_torch:
+            self.logger.error(import_exception)
+            raise ImportError
 
         if dtype == 'auto':
             if kps is not None:
-                dtype = __get_array_type_str__(kps, logger)
+                dtype = _get_array_type_str(kps, logger)
             elif src_dict is not None and 'keypoints' in src_dict:
-                dtype = __get_array_type_str__(src_dict['keypoints'], logger)
+                dtype = _get_array_type_str(src_dict['keypoints'], logger)
         self.dtype = dtype
 
         if convention is not None:
@@ -111,7 +128,7 @@ class Keypoints(dict):
         ret_instance.load(npz_path)
         return ret_instance
 
-    def set_keypoints(self, kps: Union[np.ndarray, torch.Tensor]) -> None:
+    def set_keypoints(self, kps: Union[np.ndarray, 'torch.Tensor']) -> None:
         """Set keypoints array.
 
         Args:
@@ -128,8 +145,8 @@ class Keypoints(dict):
             ValueError: Shape of kps is wrong.
         """
         if self.dtype == 'auto':
-            self.dtype = __get_array_type_str__(kps, self.logger)
-        keypoints = __get_array_in_type__(
+            self.dtype = _get_array_type_str(kps, self.logger)
+        keypoints = _get_array_in_type(
             array=kps, type=self.dtype, logger=self.logger)
         # shape: frame_n, person_n, kp_n, dim+score
         if keypoints.shape[-1] not in (3, 4):
@@ -164,7 +181,7 @@ class Keypoints(dict):
             raise TypeError
         super().__setitem__('convention', convention)
 
-    def set_mask(self, mask: Union[np.ndarray, torch.Tensor]) -> None:
+    def set_mask(self, mask: Union[np.ndarray, 'torch.Tensor']) -> None:
         """Set mask of the keypoints. It should be called after the
         corresponding keypoints has been set.
 
@@ -181,9 +198,9 @@ class Keypoints(dict):
             ValueError: Shape of mask is wrong.
         """
         if self.dtype == 'auto':
-            self.dtype = __get_array_type_str__(mask, self.logger)
+            self.dtype = _get_array_type_str(mask, self.logger)
 
-        mask = __get_array_in_type__(
+        mask = _get_array_in_type(
             array=mask, type=self.dtype, logger=self.logger)
 
         if self.dtype == 'torch':
@@ -227,7 +244,7 @@ class Keypoints(dict):
         else:
             super().__setitem__(__k, __v)
 
-    def get_keypoints(self) -> Union[np.ndarray, torch.Tensor]:
+    def get_keypoints(self) -> Union[np.ndarray, 'torch.Tensor']:
         """Get keypoints array.
 
         Returns:
@@ -235,7 +252,7 @@ class Keypoints(dict):
         """
         return self['keypoints']
 
-    def get_mask(self) -> Union[np.ndarray, torch.Tensor]:
+    def get_mask(self) -> Union[np.ndarray, 'torch.Tensor']:
         """Get keypoints mask.
 
         Returns:
@@ -276,7 +293,7 @@ class Keypoints(dict):
         return self.get_keypoints().shape[2]
 
     def to_tensor(self,
-                  device: Union[torch.device, str] = 'cpu') -> 'Keypoints':
+                  device: Union['torch.device', str] = 'cpu') -> 'Keypoints':
         """Return all the necessary values for keypoints expression in another
         Keypoints instance, convert ndarray into Tensor.
 
@@ -372,14 +389,14 @@ class Keypoints(dict):
         """
         ret_kps = self.__class__(
             dtype=self.dtype,
-            kps=__copy_array_tensor__(self.get_keypoints()),
-            mask=__copy_array_tensor__(self.get_mask()),
+            kps=_copy_array_tensor(self.get_keypoints()),
+            mask=_copy_array_tensor(self.get_mask()),
             convention=self.get_convention(),
             logger=self.logger)
         return ret_kps
 
 
-def __get_array_type_str__(array, logger) -> Literal['torch', 'numpy']:
+def _get_array_type_str(array, logger) -> Literal['torch', 'numpy']:
     if isinstance(array, torch.Tensor):
         return 'torch'
     elif isinstance(array, np.ndarray):
@@ -391,9 +408,9 @@ def __get_array_type_str__(array, logger) -> Literal['torch', 'numpy']:
         raise TypeError
 
 
-def __get_array_in_type__(array: Union[torch.Tensor, np.ndarray],
-                          type: Literal['torch', 'numpy'],
-                          logger: Union[None, str, logging.Logger]):
+def _get_array_in_type(array: Union['torch.Tensor', np.ndarray],
+                       type: Literal['torch', 'numpy'],
+                       logger: Union[None, str, logging.Logger]):
     logger = get_logger(logger)
     if type == 'numpy':
         if isinstance(array, torch.Tensor):
@@ -410,9 +427,9 @@ def __get_array_in_type__(array: Union[torch.Tensor, np.ndarray],
     return array
 
 
-def __copy_array_tensor__(
-        data: Union[np.ndarray,
-                    torch.Tensor]) -> Union[np.ndarray, torch.Tensor]:
+def _copy_array_tensor(
+    data: Union[np.ndarray,
+                'torch.Tensor']) -> Union[np.ndarray, 'torch.Tensor']:
     if isinstance(data, np.ndarray):
         return data.copy()
     else:

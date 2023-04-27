@@ -3,12 +3,12 @@ from collections import defaultdict
 from typing import List, Union
 
 import numpy as np
-import torch
 
 from xrprimer.data_structure.keypoints import Keypoints
 from xrprimer.utils.log_utils import get_logger, logging
 from . import (
     agora,
+    campus,
     coco,
     coco_wholebody,
     crowdpose,
@@ -35,9 +35,24 @@ from . import (
     star,
 )
 
+try:
+    import torch
+    has_torch = True
+    import_exception = ''
+except (ImportError, ModuleNotFoundError):
+    has_torch = False
+    import traceback
+    stack_str = ''
+    for line in traceback.format_stack():
+        if 'frozen' not in line:
+            stack_str += line + '\n'
+    import_exception = traceback.format_exc() + '\n'
+    import_exception = stack_str + import_exception
+
 KEYPOINTS_FACTORY = {
     'human_data': human_data.HUMAN_DATA,
     'agora': agora.AGORA_KEYPOINTS,
+    'campus': campus.CAMPUS_KEYPOINTS,
     'coco': coco.COCO_KEYPOINTS,
     'coco_wholebody': coco_wholebody.COCO_WHOLEBODY_KEYPOINTS,
     'crowdpose': crowdpose.CROWDPOSE_KEYPOINTS,
@@ -285,14 +300,17 @@ def convert_keypoints(
             An instance of Keypoints class, whose convention is dst,
             and dtype, device are same as input.
     """
+    logger = get_logger(logger)
     src = keypoints.get_convention()
     src_arr = keypoints.get_keypoints()
     n_frame, n_person, kps_n, dim = src_arr.shape
     flat_arr = src_arr.reshape(-1, kps_n, dim)
     flat_mask = keypoints.get_mask().reshape(-1, kps_n)
 
+    if not has_torch:
+        logger.error(import_exception)
+        raise ImportError
     if isinstance(src_arr, torch.Tensor):
-
         def new_array_func(shape, value, ref_data, if_uint8):
             if if_uint8:
                 dtype = torch.uint8

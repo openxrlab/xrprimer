@@ -1,11 +1,12 @@
+# yapf: disable
 import os
-from typing import Union
+from typing import List, Tuple, Union
 
 import cv2
 import numpy as np
 from tqdm import tqdm
 
-from xrprimer.utils.ffmpeg_utils import VideoReader, VideoWriter
+from xrprimer.utils.ffmpeg_utils import VideoWriter
 from xrprimer.utils.log_utils import get_logger, logging
 from xrprimer.utils.path_utils import check_path_suffix
 from xrprimer.utils.visualization_utils import (
@@ -15,7 +16,10 @@ from xrprimer.utils.visualization_utils import (
 )
 from ..palette.line_palette import LinePalette
 from ..palette.point_palette import PointPalette
-from .plot_frame import plot_frame as plot_frame_opencv
+from .plot_frame import _get_visual_range
+from .plot_frame import plot_frame as plot_frame_matplotlib
+
+# yapf: enable
 
 
 def plot_video(
@@ -27,25 +31,20 @@ def plot_video(
     fps: Union[float, None] = None,
     img_format: Union[str, None] = None,
     # plot args
+    visual_range: Union[None, np.ndarray] = None,
     mframe_point_data: Union[np.ndarray, None] = None,
     mframe_line_data: Union[np.ndarray, None] = None,
     mframe_point_mask: Union[np.ndarray, None] = None,
     mframe_line_mask: Union[np.ndarray, None] = None,
     point_palette: Union[PointPalette, None] = None,
     line_palette: Union[LinePalette, None] = None,
-    # background args
-    background_arr: Union[np.ndarray, None] = None,
-    background_dir: Union[np.ndarray, None] = None,
-    background_video: Union[np.ndarray, None] = None,
-    height: Union[int, None] = None,
-    width: Union[int, None] = None,
+    dpi: float = 180.0,
     # verbose args
     disable_tqdm: bool = False,
     logger: Union[None, str,
                   logging.Logger] = None) -> Union[np.ndarray, None]:
-    """Plot a video(or a number of images) with opencv. For plot args, please
-    offer either points or lines, or both. For background args, please offer
-    only one of them.
+    """Plot a video(or a number of images) with matplotlib. For plot args,
+    please offer either points or lines, or both.
 
     Args:
         output_path (str):
@@ -63,13 +62,17 @@ def plot_video(
         img_format (Union[str, None], optional):
             Name format for the output image file.
             Defaults to None, `%06d.png` when writing images.
+        visual_range (Union[None, np.ndarray], optional):
+            Visible range array whose shape is [3, 2],
+            ((x_min, x_max), (y_min, y_max), (z_min, z_max))
+            Defaults to None, calculated from data whose mask==1.
         mframe_point_data (Union[np.ndarray, None], optional):
             Multi-frame point data,
-            in shape [n_frame, n_point, 2].
+            in shape [n_frame, n_point, 3].
             Defaults to None.
         mframe_line_data (Union[np.ndarray, None], optional):
             Multi-frame line data, locations for line ends,
-            in shape [n_frame, n_point, 2].
+            in shape [n_frame, n_point, 3].
             Defaults to None.
         mframe_point_mask (Union[np.ndarray, None], optional):
             Visibility mask of multi-frame point data,
@@ -88,18 +91,9 @@ def plot_video(
             color and
             visibility are kept by point_palette.
             Defaults to None, do not plot lines.
-        background_arr (Union[np.ndarray, None], optional):
-            Background image array. Defaults to None.
-        background_dir (Union[np.ndarray, None], optional):
-            Path to the image directory for background.
-            Defaults to None.
-        background_video (Union[np.ndarray, None], optional):
-            Path to the video for background.
-            Defaults to None.
-        height (Union[int, None], optional):
-            Height of background. Defaults to None.
-        width (Union[int, None], optional):
-            Width of background. Defaults to None.
+        dpi (float, optional):
+            Resolution of the figure in dots-per-inch as a float.
+            Defaults to 180.0.
         disable_tqdm (bool, optional):
             Whether to disable tqdm progress bar.
             Defaults to False.
@@ -108,23 +102,12 @@ def plot_video(
             Defaults to None.
 
     Returns:
-        Union[np.ndarray, None]:
-            Plotted multi-frame image array or None.
-            If it's an array, its shape shall be
-            [n_frame, height, width, 3].
+        Union[np.ndarray, None]: _description_
     """
     logger = get_logger(logger)
     # check parent and whether to overwrite
     check_output_path(
         output_path=output_path, overwrite=overwrite, logger=logger)
-    # check if only one background source
-    _check_background_src(
-        background_arr=background_arr,
-        background_dir=background_dir,
-        background_video=background_video,
-        height=height,
-        width=width,
-        logger=logger)
     # check if no fewer than one mframe data source
     check_mframe_data_src(
         mframe_point_data=mframe_point_data,
@@ -132,16 +115,13 @@ def plot_video(
         logger=logger)
     # check if data matches background
     data_to_check = [
-        mframe_point_data, mframe_line_data, background_arr, background_dir,
-        background_video
+        mframe_point_data,
+        mframe_line_data,
     ]
     data_len = check_data_len(data_list=data_to_check, logger=logger)
     # init some var
     video_writer = None
-    video_reader = None
     arr_to_return = None
-    # to save time for list file and sort
-    file_names_cache = None
     # check whether to write video or write images
     if check_path_suffix(output_path, '.mp4'):
         write_video = True
@@ -161,29 +141,44 @@ def plot_video(
             logger.warning('Argument fps is useless when' +
                            ' writing image files. To suppress this warning,' +
                            ' do not pass it.')
-    for frame_idx in tqdm(range(0, data_len), disable=disable_tqdm):
-        # prepare background array for this batch
-        if background_arr is not None:
-            background_sframe = background_arr[frame_idx, ...].copy()
-        elif background_dir is not None:
-            file_names_cache = file_names_cache \
-                if file_names_cache is not None \
-                else sorted(os.listdir(background_dir))
-            file_name = file_names_cache[frame_idx]
-            background_sframe = cv2.imread(
-                os.path.join(background_dir, file_name))
-        elif background_video is not None:
-            video_reader = video_reader \
-                if video_reader is not None \
-                else VideoReader(
-                    input_path=background_video,
-                    disable_log=True,
-                    logger=logger
+    # auto visual_range if None
+    if visual_range is None:
+        points3d = None
+        if point_palette is not None:
+            if mframe_point_mask is not None:
+                n_frame, n_point = mframe_point_mask.shape
+                valid_idxs = np.where(mframe_point_mask.reshape(-1) == 1)
+                points3d = mframe_point_data.reshape(n_frame * n_point,
+                                                     -1)[valid_idxs[0], :]
+            else:
+                n_frame, n_point, _ = mframe_point_data.shape
+                points3d = mframe_point_data.reshape(n_frame * n_point, -1)
+        if line_palette is not None:
+            if mframe_line_mask is not None:
+                valid_idxs = np.where(mframe_line_mask == 1)
+            else:
+                n_line = len(line_palette.conn_mask)
+                n_frame = mframe_line_data.shape[0]
+                valid_idxs = (
+                    np.arange(n_frame).reshape(1,
+                                               -1).repeat(n_line,
+                                                          axis=0).reshape(-1),
+                    np.arange(n_line).reshape(-1,
+                                              1).repeat(n_frame,
+                                                        axis=1).reshape(-1),
                 )
-            background_sframe = video_reader.get_next_frame()
-        else:
-            background_sframe = np.zeros(
-                shape=(height, width, 3), dtype=np.uint8)
+            for frame_idx, line_idx in zip(valid_idxs[0], valid_idxs[1]):
+                valid_point_idxs = line_palette.conn_array[line_idx, :]
+                valid_points = mframe_line_data[frame_idx, valid_point_idxs, :]
+                if points3d is None:
+                    points3d = valid_points
+                else:
+                    points3d = np.concatenate((points3d, valid_points), axis=0)
+        visual_range = _get_visual_range(
+            points_array=points3d, scale=1.1, logger=logger)
+    lat_long_list = _get_camera_positions(n_frames=data_len)
+    # to save time for list file and sort
+    for frame_idx in tqdm(range(0, data_len), disable=disable_tqdm):
         if point_palette is not None:
             point_palette.set_point_array(mframe_point_data[frame_idx])
             if mframe_point_mask is not None:
@@ -194,10 +189,13 @@ def plot_video(
             if mframe_line_mask is not None:
                 line_palette.set_conn_mask(
                     np.expand_dims(mframe_line_mask[frame_idx], -1))
-        result_sframe = plot_frame_opencv(
+        result_sframe = plot_frame_matplotlib(
             point_palette=point_palette,
             line_palette=line_palette,
-            background_arr=background_sframe,
+            visual_range=visual_range,
+            cam_latitude=lat_long_list[frame_idx][0],
+            cam_longtitude=lat_long_list[frame_idx][1],
+            dpi=dpi,
             logger=logger)
         if write_img:
             cv2.imwrite(
@@ -223,28 +221,35 @@ def plot_video(
                 else np.concatenate((arr_to_return, unsqueezed_sframe), axis=0)
     if video_writer is not None:
         video_writer.close()
-    if video_reader is not None:
-        video_reader.close()
     return arr_to_return if return_array else None
 
 
-def _check_background_src(background_arr: Union[np.ndarray, None],
-                          background_dir: Union[np.ndarray, None],
-                          background_video: Union[str,
-                                                  None], height: Union[int,
-                                                                       None],
-                          width: Union[int,
-                                       None], logger: logging.Logger) -> int:
-    candidates = [background_arr, background_dir, background_video]
-    not_none_count = 0
-    for candidate in candidates:
-        if candidate is not None:
-            not_none_count += 1
-    if height is not None and width is not None:
-        not_none_count += 1
-    if not_none_count != 1:
-        logger.error('Please pass only one background source' +
-                     ' among background_arr, background_dir,' +
-                     ' background_video and height+width.')
-        raise ValueError
-    return 0
+def _get_camera_positions(
+        n_frames: int,
+        latitude_speed: float = 0.0,
+        longtitude_speed: float = 0.5) -> List[Tuple[float, float]]:
+    cam_polar_positions = [
+        (10.0, 45.0),
+    ]
+    latitude_sign = 1
+    longtitude_sign = 1
+    for _ in range(n_frames - 1):
+        last_latitude = cam_polar_positions[-1][0]
+        # try to go forward with the current sign
+        new_latitude = latitude_sign * latitude_speed + last_latitude
+        if new_latitude >= 90 - 2 * latitude_speed or \
+                new_latitude <= 2 * latitude_speed:
+            # reaching border, go backward
+            latitude_sign *= -1
+            new_latitude = latitude_sign * latitude_speed + last_latitude
+        last_longtitude = cam_polar_positions[-1][1]
+        # try to go forward with the current sign
+        new_longtitude = longtitude_sign * longtitude_speed + last_longtitude
+        if new_longtitude >= 90 - 2 * longtitude_speed or \
+                new_longtitude <= 2 * longtitude_speed:
+            # reaching border, go backward
+            longtitude_sign *= -1
+            new_longtitude = longtitude_sign * \
+                longtitude_speed + last_longtitude
+        cam_polar_positions.append([new_latitude, new_longtitude])
+    return cam_polar_positions
