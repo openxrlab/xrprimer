@@ -1,9 +1,6 @@
 # Download base image ubuntu 18.04
 FROM ubuntu:18.04
 
-ENV HTTPS_PROXY http://172.16.1.135:3128
-ENV HTTP_PROXY http://172.16.1.135:3128
-
 # Install apt packages
 RUN apt-get update && \
     apt-get install -y \
@@ -20,7 +17,7 @@ RUN wget -q \
     && bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/miniconda \
     && rm -f Miniconda3-latest-Linux-x86_64.sh
 
-# Update in bashrc
+# Update gcc/g++/conda in bashrc
 RUN echo "export CXX=/usr/bin/g++-7" >> /root/.bashrc && \
     echo "export CC=/usr/bin/gcc-7" >> /root/.bashrc && \
     echo "source /opt/miniconda/etc/profile.d/conda.sh" >> /root/.bashrc && \
@@ -70,6 +67,3 @@ RUN . /opt/miniconda/etc/profile.d/conda.sh && \
     pip uninstall opencv-python opencv-python-headless -y && \
     pip install opencv-python-headless && \
     pip cache purge
-
-ENV HTTPS_PROXY=
-ENV HTTP_PROXY=

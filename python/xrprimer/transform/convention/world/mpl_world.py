@@ -4,7 +4,7 @@ from .base_world import BaseWorld
 
 
 class MatplotlibWorld(BaseWorld):
-    """A world class for SenseMoCap coordinate convention.
+    """A world class for Matplotlib coordinate convention.
 
     A human subject in this word faces to z- and his head is up towards y-. By
     using the rotation rotation matrix of this world(left multiplication), 3D

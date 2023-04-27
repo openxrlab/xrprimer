@@ -12,7 +12,7 @@ from xrprimer.data_structure.camera import (
 from xrprimer.data_structure.keypoints import Keypoints
 from xrprimer.visualization.keypoints.visualize_keypoints3d import (
     visualize_keypoints3d_cv2,
-    visualize_keypoints3d_mpl,
+    visualize_keypoints3d_plt,
 )
 
 # yapf: enable
@@ -102,28 +102,28 @@ def test_visualize_keypoints3d_cv2():
             background_dir=background_dir)
 
 
-def test_visualize_keypoints3d_mpl_sperson():
+def test_visualize_keypoints3d_plt_sperson():
     keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_90f_1p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     # test plot only points
-    output_path = os.path.join(output_dir, 'test_mpl_plot_points_sperson.mp4')
-    visualize_keypoints3d_mpl(
+    output_path = os.path.join(output_dir, 'test_ply_plot_points_sperson.mp4')
+    visualize_keypoints3d_plt(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
         plot_lines=False,
         dpi=_DPI)
     # test plot only lines
-    output_path = os.path.join(output_dir, 'test_mpl_plot_lines_sperson.mp4')
-    visualize_keypoints3d_mpl(
+    output_path = os.path.join(output_dir, 'test_ply_plot_lines_sperson.mp4')
+    visualize_keypoints3d_plt(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=False,
         plot_lines=True,
         dpi=_DPI)
     # test plot both points and lines
-    output_path = os.path.join(output_dir, 'test_mpl_plot_both_sperson.mp4')
-    visualize_keypoints3d_mpl(
+    output_path = os.path.join(output_dir, 'test_ply_plot_both_sperson.mp4')
+    visualize_keypoints3d_plt(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
@@ -131,28 +131,28 @@ def test_visualize_keypoints3d_mpl_sperson():
         dpi=_DPI)
 
 
-def test_visualize_keypoints3d_mpl_mperson():
+def test_visualize_keypoints3d_plt_mperson():
     keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_90f_2p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     # test plot only points
-    output_path = os.path.join(output_dir, 'test_mpl_plot_points_mperson.mp4')
-    visualize_keypoints3d_mpl(
+    output_path = os.path.join(output_dir, 'test_ply_plot_points_mperson.mp4')
+    visualize_keypoints3d_plt(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
         plot_lines=False,
         dpi=_DPI)
     # test plot only lines
-    output_path = os.path.join(output_dir, 'test_mpl_plot_lines_mperson.mp4')
-    visualize_keypoints3d_mpl(
+    output_path = os.path.join(output_dir, 'test_ply_plot_lines_mperson.mp4')
+    visualize_keypoints3d_plt(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=False,
         plot_lines=True,
         dpi=_DPI)
     # test plot both points and lines
-    output_path = os.path.join(output_dir, 'test_mpl_plot_both_mperson.mp4')
-    visualize_keypoints3d_mpl(
+    output_path = os.path.join(output_dir, 'test_ply_plot_both_mperson.mp4')
+    visualize_keypoints3d_plt(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
@@ -160,20 +160,20 @@ def test_visualize_keypoints3d_mpl_mperson():
         dpi=_DPI)
 
 
-def test_visualize_keypoints3d_mpl_mperson_mask():
+def test_visualize_keypoints3d_plt_mperson_mask():
     keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_90f_2p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     keypoints3d['mask'][20:30, 0:1, 0:10, ...] = 0
-    output_path = os.path.join(output_dir, 'test_mpl_plot_point_mask.mp4')
-    visualize_keypoints3d_mpl(
+    output_path = os.path.join(output_dir, 'test_ply_plot_point_mask.mp4')
+    visualize_keypoints3d_plt(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
         plot_lines=True,
         dpi=_DPI)
     keypoints3d['mask'][20:30, 0:1, ...] = 0
-    output_path = os.path.join(output_dir, 'test_mpl_plot_person_mask.mp4')
-    visualize_keypoints3d_mpl(
+    output_path = os.path.join(output_dir, 'test_ply_plot_person_mask.mp4')
+    visualize_keypoints3d_plt(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
@@ -181,12 +181,12 @@ def test_visualize_keypoints3d_mpl_mperson_mask():
         dpi=_DPI)
 
 
-def test_visualize_keypoints3d_mpl_axis():
+def test_visualize_keypoints3d_plt_axis():
     keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_90f_2p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     # test plot only points
-    output_path = os.path.join(output_dir, 'test_mpl_plot_points_axis.mp4')
-    visualize_keypoints3d_mpl(
+    output_path = os.path.join(output_dir, 'test_ply_plot_points_axis.mp4')
+    visualize_keypoints3d_plt(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
@@ -194,8 +194,8 @@ def test_visualize_keypoints3d_mpl_axis():
         plot_axis=True,
         dpi=_DPI)
     # test plot only lines
-    output_path = os.path.join(output_dir, 'test_mpl_plot_lines_axis.mp4')
-    visualize_keypoints3d_mpl(
+    output_path = os.path.join(output_dir, 'test_ply_plot_lines_axis.mp4')
+    visualize_keypoints3d_plt(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=False,

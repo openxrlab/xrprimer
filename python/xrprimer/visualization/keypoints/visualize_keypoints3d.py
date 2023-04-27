@@ -16,8 +16,8 @@ from xrprimer.transform.convention.world import (
     convert_world,
 )
 from xrprimer.transform.limbs import get_limbs_from_keypoints
+from xrprimer.transform.point import Points3DRotation
 from xrprimer.utils.log_utils import get_logger, logging
-from xrprimer.utils.visualization_utils import rotate_3d_data
 from ..matplotlib.plot_video import plot_video
 from ..palette import LinePalette, PointPalette, get_different_colors
 from ..presets import create_coordinate_axis
@@ -143,7 +143,7 @@ def visualize_keypoints3d_cv2(
     return ret_value
 
 
-def visualize_keypoints3d_mpl(
+def visualize_keypoints3d_plt(
     # input args
     keypoints: Keypoints,
     # output args
@@ -336,18 +336,14 @@ def visualize_keypoints3d_mpl(
                 [mframe_line_mask, axis_mframe_line_mask], axis=1)
     world_rotation_mat = convert_world(
         src_world=data_world, dst_world=MatplotlibWorld)
+    rotation = Points3DRotation(
+        rotmat=world_rotation_mat, left_mm=True, logger=logger)
     mframe_point_data = None \
         if mframe_point_data is None \
-        else rotate_3d_data(
-            data=mframe_point_data,
-            left_mm_rotmat=world_rotation_mat,
-            logger=logger)
+        else rotation(mframe_point_data)
     mframe_line_data = None \
         if mframe_line_data is None \
-        else rotate_3d_data(
-            data=mframe_line_data,
-            left_mm_rotmat=world_rotation_mat,
-            logger=logger)
+        else rotation(mframe_point_data)
     ret_value = plot_video(
         output_path=output_path,
         overwrite=overwrite,

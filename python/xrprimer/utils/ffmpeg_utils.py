@@ -100,7 +100,7 @@ class VideoInfoReader():
 class VideoReader:
     """VideoReader for reading video frames as an image ndarray for OpenCV.
 
-    It opens a PIPE from ffmpeg command and reads one frame per call, friedly
+    It opens a PIPE from ffmpeg command and reads one frame per call, friendly
     for poor RAM devices.
     """
 
@@ -212,7 +212,7 @@ class VideoReader:
 class VideoWriter:
     """VideoWriter for writing OpenCV image array to a video file.
 
-    It opens a PIPE from ffmpeg command and writes one frame per call, friedly
+    It opens a PIPE from ffmpeg command and writes one frame per call, friendly
     for poor RAM devices.
     """
 
