@@ -1,0 +1,5 @@
+pyzmq==25.0.2
+pyngrok==5.2.1
+tornado
+umsgpack==0.1.0
+opencv-contrib-python==4.5.3.56
