@@ -3,7 +3,7 @@ from typing import TypeVar
 import numpy as np
 
 from .base_world import BaseWorld
-from .mpl_world import MatplotlibWorld
+from .plt_world import MatplotlibWorld
 from .smc_world import SenseMoCapWorld
 
 __all__ = ['BaseWorld', 'MatplotlibWorld', 'SenseMoCapWorld']
