@@ -11,8 +11,8 @@ from xrprimer.data_structure.camera import (
 )
 from xrprimer.data_structure.keypoints import Keypoints
 from xrprimer.visualization.keypoints.visualize_keypoints3d import (
-    visualize_keypoints3d_cv2,
-    visualize_keypoints3d_plt,
+    visualize_keypoints3d,
+    visualize_keypoints3d_projected,
 )
 
 # yapf: enable
@@ -53,7 +53,7 @@ def fixture():
         os.path.join(output_dir, 'keypoints_3d_32f_2p.npz'))
 
 
-def test_visualize_keypoints3d_cv2():
+def test_visualize_keypoints3d_projected():
     keypoints3d_path = os.path.join(input_dir, 'Shelf_unittest',
                                     'xrmocap_meta_perception2d', 'scene_0',
                                     'keypoints3d_GT.npz')
@@ -65,8 +65,8 @@ def test_visualize_keypoints3d_cv2():
     fisheye_param = FisheyeCameraParameter.fromfile(fisheye_param_path)
     background_dir = os.path.join(input_dir, 'Shelf_unittest', 'Camera0')
     # test plot from a fish eye camera
-    output_path = os.path.join(output_dir, 'test_cv2_fisheye.mp4')
-    visualize_keypoints3d_cv2(
+    output_path = os.path.join(output_dir, 'test_projected_fisheye.mp4')
+    visualize_keypoints3d_projected(
         keypoints=keypoints3d,
         camera=fisheye_param,
         output_path=output_path,
@@ -83,8 +83,8 @@ def test_visualize_keypoints3d_cv2():
         world2cam=fisheye_param.world2cam,
         convention=fisheye_param.convention,
     )
-    output_path = os.path.join(output_dir, 'test_cv2_pinhole.mp4')
-    visualize_keypoints3d_cv2(
+    output_path = os.path.join(output_dir, 'test_projected_pinhole.mp4')
+    visualize_keypoints3d_projected(
         keypoints=keypoints3d,
         camera=pinhole_param,
         output_path=output_path,
@@ -93,7 +93,7 @@ def test_visualize_keypoints3d_cv2():
         background_dir=background_dir)
     # Plot neither points nor lines
     with pytest.raises(ValueError):
-        visualize_keypoints3d_cv2(
+        visualize_keypoints3d_projected(
             keypoints=keypoints3d,
             camera=pinhole_param,
             output_path=output_path,
@@ -102,12 +102,12 @@ def test_visualize_keypoints3d_cv2():
             background_dir=background_dir)
 
 
-def test_visualize_keypoints3d_plt_sperson():
+def test_visualize_keypoints3d_sperson():
     keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_32f_1p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     # test plot only points
     output_path = os.path.join(output_dir, 'test_ply_plot_points_sperson.mp4')
-    visualize_keypoints3d_plt(
+    visualize_keypoints3d(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
@@ -115,7 +115,7 @@ def test_visualize_keypoints3d_plt_sperson():
         dpi=_DPI)
     # test plot only lines
     output_path = os.path.join(output_dir, 'test_ply_plot_lines_sperson.mp4')
-    visualize_keypoints3d_plt(
+    visualize_keypoints3d(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=False,
@@ -123,7 +123,7 @@ def test_visualize_keypoints3d_plt_sperson():
         dpi=_DPI)
     # test plot both points and lines
     output_path = os.path.join(output_dir, 'test_ply_plot_both_sperson.mp4')
-    visualize_keypoints3d_plt(
+    visualize_keypoints3d(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
@@ -131,12 +131,12 @@ def test_visualize_keypoints3d_plt_sperson():
         dpi=_DPI)
 
 
-def test_visualize_keypoints3d_plt_mperson():
+def test_visualize_keypoints3d_mperson():
     keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_32f_2p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     # test plot only points
     output_path = os.path.join(output_dir, 'test_ply_plot_points_mperson.mp4')
-    visualize_keypoints3d_plt(
+    visualize_keypoints3d(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
@@ -144,7 +144,7 @@ def test_visualize_keypoints3d_plt_mperson():
         dpi=_DPI)
     # test plot only lines
     output_path = os.path.join(output_dir, 'test_ply_plot_lines_mperson.mp4')
-    visualize_keypoints3d_plt(
+    visualize_keypoints3d(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=False,
@@ -152,7 +152,7 @@ def test_visualize_keypoints3d_plt_mperson():
         dpi=_DPI)
     # test plot both points and lines
     output_path = os.path.join(output_dir, 'test_ply_plot_both_mperson.mp4')
-    visualize_keypoints3d_plt(
+    visualize_keypoints3d(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
@@ -160,12 +160,12 @@ def test_visualize_keypoints3d_plt_mperson():
         dpi=_DPI)
 
 
-def test_visualize_keypoints3d_plt_mperson_mask():
+def test_visualize_keypoints3d_mperson_mask():
     keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_32f_2p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     keypoints3d['mask'][20:30, 0:1, 0:10, ...] = 0
     output_path = os.path.join(output_dir, 'test_ply_plot_point_mask.mp4')
-    visualize_keypoints3d_plt(
+    visualize_keypoints3d(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
@@ -173,7 +173,7 @@ def test_visualize_keypoints3d_plt_mperson_mask():
         dpi=_DPI)
     keypoints3d['mask'][20:30, 0:1, ...] = 0
     output_path = os.path.join(output_dir, 'test_ply_plot_person_mask.mp4')
-    visualize_keypoints3d_plt(
+    visualize_keypoints3d(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
@@ -181,12 +181,12 @@ def test_visualize_keypoints3d_plt_mperson_mask():
         dpi=_DPI)
 
 
-def test_visualize_keypoints3d_plt_axis():
+def test_visualize_keypoints3d_axis():
     keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_32f_2p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     # test plot only points
     output_path = os.path.join(output_dir, 'test_ply_plot_points_axis.mp4')
-    visualize_keypoints3d_plt(
+    visualize_keypoints3d(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=True,
@@ -195,7 +195,7 @@ def test_visualize_keypoints3d_plt_axis():
         dpi=_DPI)
     # test plot only lines
     output_path = os.path.join(output_dir, 'test_ply_plot_lines_axis.mp4')
-    visualize_keypoints3d_plt(
+    visualize_keypoints3d(
         keypoints=keypoints3d,
         output_path=output_path,
         plot_points=False,

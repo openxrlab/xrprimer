@@ -26,7 +26,7 @@ from .visualize_keypoints2d import visualize_keypoints2d
 # yapf: enable
 
 
-def visualize_keypoints3d_cv2(
+def visualize_keypoints3d_projected(
     # input args
     keypoints: Keypoints,
     camera: Union[PinholeCameraParameter, FisheyeCameraParameter],
@@ -143,7 +143,7 @@ def visualize_keypoints3d_cv2(
     return ret_value
 
 
-def visualize_keypoints3d_plt(
+def visualize_keypoints3d(
     # input args
     keypoints: Keypoints,
     # output args
