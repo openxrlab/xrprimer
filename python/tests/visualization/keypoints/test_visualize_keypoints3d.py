@@ -32,25 +32,25 @@ def fixture():
     os.makedirs(output_dir, exist_ok=False)
     keypoints3d_path = os.path.join(input_dir, 'keypoints_3d.npz')
     keypoints3d_1f_1p = Keypoints.fromfile(keypoints3d_path)
-    # repeat sperson keypoints for 90 frames
-    keypoints3d_90f_1p = keypoints3d_1f_1p.clone()
-    kps3d_90f_1p = keypoints3d_1f_1p.get_keypoints().repeat(90, axis=0)
-    mask_90f_1p = keypoints3d_1f_1p.get_mask().repeat(90, axis=0)
-    keypoints3d_90f_1p.set_keypoints(kps3d_90f_1p)
-    keypoints3d_90f_1p.set_mask(mask_90f_1p)
-    keypoints3d_90f_1p.dump(
-        os.path.join(output_dir, 'keypoints_3d_90f_1p.npz'))
-    # translate 2 person keypoints for 90 frames
-    keypoints3d_90f_2p = keypoints3d_90f_1p.clone()
-    kps3d_90f_1st = keypoints3d_90f_1p.get_keypoints().copy()
-    kps3d_90f_2nd = keypoints3d_90f_1p.get_keypoints().copy()
-    kps3d_90f_2nd[..., 0] += 2
-    kps3d_90f_2p = np.concatenate([kps3d_90f_1st, kps3d_90f_2nd], axis=1)
-    mask_90f_2p = np.repeat(keypoints3d_90f_1p.get_mask(), 2, axis=1)
-    keypoints3d_90f_2p.set_keypoints(kps3d_90f_2p)
-    keypoints3d_90f_2p.set_mask(mask_90f_2p)
-    keypoints3d_90f_2p.dump(
-        os.path.join(output_dir, 'keypoints_3d_90f_2p.npz'))
+    # repeat sperson keypoints for 32 frames
+    keypoints3d_32f_1p = keypoints3d_1f_1p.clone()
+    kps3d_32f_1p = keypoints3d_1f_1p.get_keypoints().repeat(32, axis=0)
+    mask_32f_1p = keypoints3d_1f_1p.get_mask().repeat(32, axis=0)
+    keypoints3d_32f_1p.set_keypoints(kps3d_32f_1p)
+    keypoints3d_32f_1p.set_mask(mask_32f_1p)
+    keypoints3d_32f_1p.dump(
+        os.path.join(output_dir, 'keypoints_3d_32f_1p.npz'))
+    # translate 2 person keypoints for 32 frames
+    keypoints3d_32f_2p = keypoints3d_32f_1p.clone()
+    kps3d_32f_1st = keypoints3d_32f_1p.get_keypoints().copy()
+    kps3d_32f_2nd = keypoints3d_32f_1p.get_keypoints().copy()
+    kps3d_32f_2nd[..., 0] += 2
+    kps3d_32f_2p = np.concatenate([kps3d_32f_1st, kps3d_32f_2nd], axis=1)
+    mask_32f_2p = np.repeat(keypoints3d_32f_1p.get_mask(), 2, axis=1)
+    keypoints3d_32f_2p.set_keypoints(kps3d_32f_2p)
+    keypoints3d_32f_2p.set_mask(mask_32f_2p)
+    keypoints3d_32f_2p.dump(
+        os.path.join(output_dir, 'keypoints_3d_32f_2p.npz'))
 
 
 def test_visualize_keypoints3d_cv2():
@@ -103,7 +103,7 @@ def test_visualize_keypoints3d_cv2():
 
 
 def test_visualize_keypoints3d_plt_sperson():
-    keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_90f_1p.npz')
+    keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_32f_1p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     # test plot only points
     output_path = os.path.join(output_dir, 'test_ply_plot_points_sperson.mp4')
@@ -132,7 +132,7 @@ def test_visualize_keypoints3d_plt_sperson():
 
 
 def test_visualize_keypoints3d_plt_mperson():
-    keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_90f_2p.npz')
+    keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_32f_2p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     # test plot only points
     output_path = os.path.join(output_dir, 'test_ply_plot_points_mperson.mp4')
@@ -161,7 +161,7 @@ def test_visualize_keypoints3d_plt_mperson():
 
 
 def test_visualize_keypoints3d_plt_mperson_mask():
-    keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_90f_2p.npz')
+    keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_32f_2p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     keypoints3d['mask'][20:30, 0:1, 0:10, ...] = 0
     output_path = os.path.join(output_dir, 'test_ply_plot_point_mask.mp4')
@@ -182,7 +182,7 @@ def test_visualize_keypoints3d_plt_mperson_mask():
 
 
 def test_visualize_keypoints3d_plt_axis():
-    keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_90f_2p.npz')
+    keypoints3d_path = os.path.join(output_dir, 'keypoints_3d_32f_2p.npz')
     keypoints3d = Keypoints.fromfile(keypoints3d_path)
     # test plot only points
     output_path = os.path.join(output_dir, 'test_ply_plot_points_axis.mp4')

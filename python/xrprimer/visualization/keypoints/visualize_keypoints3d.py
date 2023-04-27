@@ -343,7 +343,7 @@ def visualize_keypoints3d_plt(
         else rotation(mframe_point_data)
     mframe_line_data = None \
         if mframe_line_data is None \
-        else rotation(mframe_point_data)
+        else rotation(mframe_line_data)
     ret_value = plot_video(
         output_path=output_path,
         overwrite=overwrite,
