@@ -145,6 +145,7 @@ def check_data_len(data_list: list,
     Returns:
         int: Length of data.
     """
+    logger = get_logger(logger)
     len_list = []
     for data in data_list:
         if data is not None:
