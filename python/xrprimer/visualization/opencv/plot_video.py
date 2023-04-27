@@ -5,15 +5,12 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 
-from xrprimer.utils.ffmpeg_utils import (
-    VideoInfoReader,
-    VideoReader,
-    VideoWriter,
-)
+from xrprimer.utils.ffmpeg_utils import VideoReader, VideoWriter
 from xrprimer.utils.log_utils import get_logger, logging
 from xrprimer.utils.path_utils import check_path_suffix
 from xrprimer.utils.visualization_utils import (
     check_data_len,
+    check_mframe_data_src,
     check_output_path,
 )
 from ..palette.line_palette import LinePalette
@@ -121,19 +118,24 @@ def plot_video(
     check_output_path(
         output_path=output_path, overwrite=overwrite, logger=logger)
     # check if only one background source
-    background_len = _check_background(
+    _check_background_src(
         background_arr=background_arr,
         background_dir=background_dir,
         background_video=background_video,
         height=height,
         width=width,
         logger=logger)
-    # check if data matches background
-    data_len = check_data_len(
+    # check if no fewer than one mframe data source
+    check_mframe_data_src(
         mframe_point_data=mframe_point_data,
         mframe_line_data=mframe_line_data,
-        background_len=background_len,
         logger=logger)
+    # check if data matches background
+    data_to_check = [
+        mframe_point_data, mframe_line_data, background_arr, background_dir,
+        background_video
+    ]
+    data_len = check_data_len(data_list=data_to_check, logger=logger)
     # init some var
     video_writer = None
     video_reader = None
@@ -226,11 +228,13 @@ def plot_video(
     return arr_to_return if return_array else None
 
 
-def _check_background(background_arr: Union[np.ndarray, None],
-                      background_dir: Union[np.ndarray, None],
-                      background_video: Union[np.ndarray,
-                                              None], height: Union[int, None],
-                      width: Union[int, None], logger: logging.Logger) -> int:
+def _check_background_src(background_arr: Union[np.ndarray, None],
+                          background_dir: Union[np.ndarray, None],
+                          background_video: Union[str,
+                                                  None], height: Union[int,
+                                                                       None],
+                          width: Union[int,
+                                       None], logger: logging.Logger) -> int:
     candidates = [background_arr, background_dir, background_video]
     not_none_count = 0
     for candidate in candidates:
@@ -243,12 +247,4 @@ def _check_background(background_arr: Union[np.ndarray, None],
                      ' among background_arr, background_dir,' +
                      ' background_video and height+width.')
         raise ValueError
-    if background_arr is not None:
-        return background_arr.shape[0]
-    elif background_dir is not None:
-        return len(os.listdir(background_dir))
-    elif background_video is not None:
-        reader = VideoInfoReader(background_video, logger)
-        return int(reader['nb_frames'])
-    else:
-        return -1
+    return 0

@@ -11,6 +11,7 @@ from xrprimer.utils.log_utils import get_logger, logging
 from xrprimer.utils.path_utils import check_path_suffix
 from xrprimer.utils.visualization_utils import (
     check_data_len,
+    check_mframe_data_src,
     check_output_path,
 )
 from ..palette.line_palette import LinePalette
@@ -107,12 +108,17 @@ def plot_video(
     # check parent and whether to overwrite
     check_output_path(
         output_path=output_path, overwrite=overwrite, logger=logger)
-    # check if data matches background
-    data_len = check_data_len(
+    # check if no fewer than one mframe data source
+    check_mframe_data_src(
         mframe_point_data=mframe_point_data,
         mframe_line_data=mframe_line_data,
-        background_len=-1,
         logger=logger)
+    # check if data matches background
+    data_to_check = [
+        mframe_point_data,
+        mframe_line_data,
+    ]
+    data_len = check_data_len(data_list=data_to_check, logger=logger)
     # init some var
     video_writer = None
     arr_to_return = None

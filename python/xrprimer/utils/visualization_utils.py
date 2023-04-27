@@ -5,7 +5,8 @@ from typing import Union
 
 import numpy as np
 
-from xrprimer.utils.log_utils import get_logger
+from .ffmpeg_utils import VideoInfoReader
+from .log_utils import get_logger
 from .path_utils import Existence, check_path_existence, check_path_suffix
 
 try:
@@ -91,9 +92,9 @@ def fix_arr_shape(
     return array
 
 
-def check_data_len(mframe_point_data: Union[np.ndarray, None],
-                   mframe_line_data: Union[np.ndarray, None],
-                   background_len: int, logger: logging.Logger) -> int:
+def check_mframe_data_src(mframe_point_data: Union[np.ndarray, None],
+                          mframe_line_data: Union[np.ndarray, None],
+                          logger: logging.Logger) -> int:
     """Check length of data. Return the length if all data match.
 
     Args:
@@ -101,8 +102,6 @@ def check_data_len(mframe_point_data: Union[np.ndarray, None],
             Mulit-frame point data.
         mframe_line_data (Union[np.ndarray, None]):
             Mulit-frame line data.
-        background_len (int):
-            Length of background.
         logger (logging.Logger):
             Logger for logging.
 
@@ -112,12 +111,10 @@ def check_data_len(mframe_point_data: Union[np.ndarray, None],
             line_data and background do not match.
 
     Returns:
-        int: Length of data.
+        int: 0 for success.
     """
     empty_data = True
     len_list = []
-    if background_len > 0:
-        len_list.append(background_len)
     if mframe_point_data is not None:
         empty_data = False
         len_list.append(mframe_point_data.shape[0])
@@ -127,6 +124,46 @@ def check_data_len(mframe_point_data: Union[np.ndarray, None],
     if empty_data:
         logger.error('Please pass point_data or line_data or both.')
         raise ValueError
+    return 0
+
+
+def check_data_len(data_list: list,
+                   logger: Union[None, str, logging.Logger] = None) -> int:
+    """Check length of data. Return the length if all data match.
+
+    Args:
+        data_list (list):
+            List of data. Each one is an array-like data,
+            or list, or path to a video.
+
+    Raises:
+        ValueError:
+            Please pass at list one data in data_list.
+        ValueError:
+            Length of data in data_list do not match.
+
+    Returns:
+        int: Length of data.
+    """
+    len_list = []
+    for data in data_list:
+        if data is not None:
+            # path data
+            if isinstance(data, str):
+                # path to a video
+                if check_path_suffix(data, '.mp4'):
+                    reader = VideoInfoReader(data, logger)
+                    tmp_len = int(reader['nb_frames'])
+                # path to a folder
+                else:
+                    tmp_len = len(os.listdir(data))
+            # array data or list data
+            else:
+                tmp_len = len(data)
+            len_list.append(tmp_len)
+    if len(len_list) == 0:
+        logger.error('Please pass at list one data in data_list.')
+        raise ValueError
     ref_len = len_list[0]
     len_correct = True
     for tmp_len in len_list:
@@ -134,11 +171,11 @@ def check_data_len(mframe_point_data: Union[np.ndarray, None],
             len_correct = False
             break
     if not len_correct:
-        logger.error('Length of point_data, line_data' +
-                     ' and background do not match.')
+        logger.error('Length of data in data_list do not match.\n' +
+                     'Length list: ' + str(len_list) + '\n' +
+                     'Reference length: ' + str(ref_len))
         raise ValueError
-    else:
-        return ref_len
+    return ref_len
 
 
 def check_output_path(output_path: str, overwrite: bool,
