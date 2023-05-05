@@ -153,8 +153,8 @@ bool MultiCalibrator::Init() {
         std::vector<cv::Point3f> p3ds;
         for (int row = 0; row < pattern_size.height; row++)
             for (int col = 0; col < pattern_size.width; col++)
-                p3ds.emplace_back(cv::Point3f(col * square_size.width,
-                                              row * square_size.height, 0.f));
+                p3ds.emplace_back(col * square_size.width,
+                                  row * square_size.height, 0.f);
 
         int camId = 0;
         // camera/points
@@ -349,7 +349,9 @@ struct ReprojCostFunctor {
 void MultiCalibrator::OptimizeExtrinsics() {
     printf("Start bundle.\n");
     std::vector<Eigen::Vector3d> rs;
+    rs.reserve(pinhole_params.size());
     std::vector<Eigen::Vector3d> ts;
+    ts.reserve(pinhole_params.size());
     for (const auto &cam : pinhole_params) {
         Eigen::AngleAxisf angleAxis(cam.extrinsic_r_);
         rs.push_back(Eigen::Vector3f(angleAxis.axis() * angleAxis.angle())
@@ -366,10 +368,9 @@ void MultiCalibrator::OptimizeExtrinsics() {
 
     ceres::Problem problem;
     for (int img_idx = 0; img_idx < point2d_lists.size(); img_idx++) {
-        std::vector<std::vector<Eigen::Vector2f>> point2ds;
-        std::vector<std::vector<MathUtil::Matrix34f>> projs;
-        point2ds.resize(point_count);
-        projs.resize(point_count);
+        std::vector<std::vector<Eigen::Vector2f>> point2ds(point_count);
+        std::vector<std::vector<MathUtil::Matrix34f>> projs(point_count);
+
         // triangulate
         int cam_idx = 0;
         for (const auto &iter : point2d_lists[img_idx]) {

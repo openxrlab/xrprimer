@@ -1,12 +1,12 @@
 // Copyright (c) OpenXRLab. All rights reserved.
 
 #include <algorithm>
+#include <cstdint>
+#include <cstdio>
+#include <cstring>
 #include <data_structure/image.h>
 #include <map>
 #include <memory>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
 #include <vector>
 
 /**
@@ -93,9 +93,8 @@ class Image::Impl {
 
         if (impl->format_ == format_ && impl->width_ == width_ &&
             impl->height_ == height_) {
-            for (int h = 0; h < height_; ++h) {
-                memcpy(impl->data_, this->data_, impl->width_);
-            }
+
+            std::memcpy(impl->data_, this->data_, this->height_ * this->step_);
 
         } else {
             // TODO: mismatch format, maybe data is external
