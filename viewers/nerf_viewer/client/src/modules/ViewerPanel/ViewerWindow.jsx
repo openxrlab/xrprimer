@@ -111,6 +111,12 @@ function ViewerWindow(props){
     // *********************** handle window resize ***********************
 
     // *********************** spawn roaming camera ***********************
+
+    // the HUD camera must share the same sensibility configurations with the roaming camera
+    const panningSensibility = 2000;
+    const angularSensibilityX = 2000;
+    const angularSensibilityY = 2000;
+
     const camera = new ArcRotateCamera(
       "camera",
       -Math.PI / 3, 
@@ -121,9 +127,9 @@ function ViewerWindow(props){
     );
     camera.attachControl();
     camera.fov = BABYLON.Tools.ToRadians(cameraFOV);
-    camera.panningSensibility = 2000;
-    camera.angularSensibilityX = 2000;
-    camera.angularSensibilityY = 2000;
+    camera.panningSensibility = panningSensibility;
+    camera.angularSensibilityX = angularSensibilityX;
+    camera.angularSensibilityY = angularSensibilityY;
     camera.maxZ = 999;
     camera.minZ = 0;
     camera.wheelPrecision = 50;
@@ -186,7 +192,10 @@ function ViewerWindow(props){
     cameraHUD.lowerRadiusLimit = 0.1;
     cameraHUD.layerMask = 0x20000000;
     cameraHUD.viewport = new Viewport(0.90, 0.85, 0.12, 0.17);
-
+    cameraHUD.panningSensibility = panningSensibility;
+    cameraHUD.angularSensibilityX = angularSensibilityX;
+    cameraHUD.angularSensibilityY = angularSensibilityY;
+    
     scene.activeCameras = [camera, cameraHUD];  // HUD camera must be the last
     // *********************** spawn HUD camera ***********************
     
