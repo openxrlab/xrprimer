@@ -86,10 +86,7 @@ Pose Pose::Scale(double s) const {
 }
 
 Eigen::Vector3d Pose::Center() const {
-    if (this) {
-        return -(this->quaternion_.inverse() * this->position_);
-    }
-    return Eigen::Vector3d::Zero();
+    return -(this->quaternion_.inverse() * this->position_);
 }
 
 void Pose::PoseMult(const Pose &lhs, const Pose &rhs) {

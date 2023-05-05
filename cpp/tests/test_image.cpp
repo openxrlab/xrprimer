@@ -64,12 +64,18 @@ TEST_CASE("Image ops", "Image") {
         REQUIRE(new_val.width() == black.cols);
         REQUIRE(new_val.height() == black.rows);
         REQUIRE(new_val.step() == black.step);
+        REQUIRE(std::memcmp(new_val.data(), black.data,
+                            new_val.width() * new_val.height() *
+                                new_val.elemSize()) == 0);
 
         Image new_val2;
         i_black.copyTo(&new_val2);
         REQUIRE(new_val2.width() == black.cols);
         REQUIRE(new_val2.height() == black.rows);
         REQUIRE(new_val2.step() == black.step);
+        REQUIRE(std::memcmp(new_val2.data(), black.data,
+                            new_val2.width() * new_val2.height() *
+                                new_val2.elemSize()) == 0);
     }
 
     SECTION("image_to_opencv") {
