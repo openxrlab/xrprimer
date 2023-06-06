@@ -13,16 +13,16 @@ import umsgpack
 
 # ZeroMQ: for messaging
 import zmq
-import zmq.eventloop.ioloop
+# import zmq.eventloop.ioloop
 from zmq.eventloop.zmqstream import ZMQStream
-
-from pyngrok import ngrok
 
 from actions import \
     UPDATE_CAMERA_FOV, UPDATE_CAMERA_ROTATION, UPDATE_CAMERA_TRANSLATION, \
     UPDATE_RENDER_TYPE, UPDATE_RESOLUTION, UPDATE_STATE, UPDATE_RENDER_RESULT
 
 from state import State
+from typer import Option, run
+from rich import print
 
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):  # pylint: disable=abstract-method
@@ -37,7 +37,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):  # pylint: disable=a
 
     def open(self, *args: str, **kwargs: str):
         self.bridge.websocket_pool.add(self)
-        print("opened:", self, file=sys.stderr)
+        print(f"[bold green]Viewer connected.[/bold green]")
 
     async def on_message(self, message: bytearray): # pylint: disable=invalid-overridden-method
         """parses the message from viewer and calls the appropriate function"""
@@ -65,7 +65,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):  # pylint: disable=a
 
     def on_close(self) -> None:
         self.bridge.websocket_pool.remove(self)
-        print("closed: ", self, file=sys.stderr)
+        print("[bold red]Viewer disconnected.[/bold red]")
 
 
 class ZMQWebSocketBridge:
@@ -91,12 +91,7 @@ class ZMQWebSocketBridge:
         # state
         self.state = State()
 
-    def __str__(self) -> str:
-        class_name = self.__class__.__name__
-        return f'{class_name} using zmq_port="{self.zmq_port}" and websocket_port="{self.websocket_port}"'
-
     def make_app(self):
-        # create an application for the websocket server
         return tornado.web.Application([(r"/", WebSocketHandler, {"bridge": self})])
 
     def handle_zmq(self, frames: List[bytes]):
@@ -141,6 +136,7 @@ class ZMQWebSocketBridge:
 
     def run(self):
         """starts and runs the websocet bridge"""
+        print(f"[bold blue]Start bridge server, ZeroMQ port: {self.zmq_port}, websocket port: {self.websocket_port}[/bold blue]")
         self.ioloop.start()
 
 
@@ -148,20 +144,12 @@ def run_bridge_server(
         zmq_port: int = 6000,
         websocket_port: int = 4567,
         ip_address: str = "127.0.0.1",
-        use_ngrok: bool = False
 ):
-    # whether expose the zmq port
-    if use_ngrok:
-        http_tunnel = ngrok.connect(addr=str(zmq_port), proto="tcp")
-        print(http_tunnel)
-
     bridge = ZMQWebSocketBridge(
         zmq_port=zmq_port,
         websocket_port=websocket_port,
         ip_address=ip_address
     )
-
-    print(bridge)
 
     try:
         bridge.run()
@@ -169,5 +157,13 @@ def run_bridge_server(
         pass
 
 
+def wrapper(
+        zmq_port: int = Option(6000, help="ZeroMQ port that exposed to the backend", exists=False),
+        websocket_port: int = Option(4567, help="websocket port that exposed to web renderer", exists=False),
+        ip_address: str = Option("127.0.0.1", help="ip address of the bridge server")
+):
+    run_bridge_server(zmq_port=zmq_port, websocket_port=websocket_port, ip_address=ip_address)
+
+
 if __name__ == "__main__":
-    run_bridge_server()
+    run(wrapper)

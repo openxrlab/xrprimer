@@ -6,18 +6,19 @@ from typing import Tuple
 import numpy as np
 import cv2 as cv
 from actions import UPDATE_STATE, UPDATE_RENDER_RESULT
-from bridge_server_subprocess import run_bridge_server_as_subprocess
+from bridge_server import start_bridge_server
 from visualizer import Viewer
 
 
 class ViewerState:
-    def __init__(self):
+    def __init__(
+        self,
+        websocket_port: int = 4567,
+        zmq_port: int = 6000,
+        ip_address: str = "127.0.0.1"
+    ):
         # launch the bridge server
-        websocket_port = 4567
-        zmq_port = 6000
-        ip_address = "127.0.0.1"
-
-        zmq_port = run_bridge_server_as_subprocess(
+        zmq_port = start_bridge_server(
             websocket_port=websocket_port,
             zmq_port=zmq_port,
             ip_address=ip_address

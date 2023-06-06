@@ -35,7 +35,7 @@ def get_free_port(default_port: int = None):
     return port
 
 
-def run_bridge_server_as_subprocess(
+def start_bridge_server(
     websocket_port: int,
     zmq_port: Optional[int] = None,
     ip_address: str = "127.0.0.1",
@@ -73,6 +73,7 @@ def run_bridge_server_as_subprocess(
         cleanup(process)
 
         # windows system do not have signal.SIGKILL
+        # TODO: make sure the kill operation still works on Linux systems
         # os.kill(os.getpid(), signal.SIGKILL)
         os.kill(os.getpid(), signal.SIGINT)
 

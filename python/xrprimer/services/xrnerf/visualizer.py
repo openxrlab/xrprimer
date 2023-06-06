@@ -4,6 +4,7 @@ from typing import Optional, Union, Dict
 import umsgpack
 from threading import Thread
 import zmq
+from rich import print
 
 
 class ViewerWindow:
@@ -63,7 +64,7 @@ class ViewerWindow:
             thread.start()
             thread.join(timeout_in_sec)
         except Exception as e:
-            print("Failed to start thread")
+            print("[bold red]Failed to start thread[/bold red]")
             raise e
 
         ret = res[0]
@@ -77,9 +78,9 @@ class ViewerWindow:
         Check whether the connection has been established properly
         """
         try:
-            print("Sending ping to the bridge server")
+            print("[bold blue]Sending ping to the bridge server[bold blue]")
             _ = self.timeout_ping(timeout_in_sec)
-            print("Successfully connected to bridge server.")
+            print("[bold green]Successfully connected to bridge server.[/bold green]")
         except Exception as e:
             print(e)
             sys.exit()
