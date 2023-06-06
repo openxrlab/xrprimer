@@ -10,23 +10,15 @@ import { Menu, MenuItem } from 'react-pro-sidebar';
 
 import { sendMessage } from '../../actions'
 import { UPDATE_CAMERA_FOV, UPDATE_RENDER_TYPE, UPDATE_RESOLUTION } from "../../actions";
+import { WebSocketContext } from "../WebSocket/WebSocket";
+// import * as BABYLON from '@babylonjs/core';
 
-import * as BABYLON from '@babylonjs/core';
-
-export function SidePanel(props){
-    const {
-        webSocket
-    } = props;
-
+export function SidePanel(){
+    // const {
+    //     webSocket
+    // } = props;
+    const webSocket = React.useContext(WebSocketContext).socket;
     const dispatch = useDispatch();
-
-    const cameraTranslation = useSelector(
-        (state) => state.cameraTranslation
-    );
-
-    const cameraRotation = useSelector(
-        (state) => state.cameraRotation
-    )
 
     const cameraFOV = useSelector(
         (state) => state.cameraFOV
@@ -44,28 +36,9 @@ export function SidePanel(props){
         (state) => state.resolution
     );
 
-    const canvasSize = useSelector(
-        (state) => state.canvasSize
-    );
-
     const webSocketConnectedText = webSocketConnected ? "connected" : "disconnected";
     const webSocketConnectedColor = webSocketConnected ? "#008000" : "#DC143C";
-    
-
-    let cameraQuatRotation = BABYLON.Quaternion.FromRotationMatrix(
-        BABYLON.Matrix.FromValues(
-            cameraRotation[0], cameraRotation[1], cameraRotation[2], 0,
-            cameraRotation[3], cameraRotation[4], cameraRotation[5], 0,
-            cameraRotation[6], cameraRotation[7], cameraRotation[8], 0,
-            0                , 0                , 0,                 1,
-        )
-    );
-    let cameraEulerRotationRadians = cameraQuatRotation.toEulerAngles();
-    let cameraEulerRotationDegrees = new BABYLON.Vector3(
-        BABYLON.Tools.ToDegrees(cameraEulerRotationRadians.x),
-        BABYLON.Tools.ToDegrees(cameraEulerRotationRadians.y),
-        BABYLON.Tools.ToDegrees(cameraEulerRotationRadians.z)
-    )
+    console.log(Date.now());
 
     return (
         <div className='SidePanel'>
@@ -105,7 +78,7 @@ export function SidePanel(props){
                 <div className='SidePanel-canvas-size' >
                     <b>Canvas Size: </b>
                     <font id='canvasSizeDiv'>
-                        {canvasSize[0]}x{canvasSize[1]}
+                        <font id='canvasSizeX'>0</font>x<font id='canvasSizeY'>0</font>
                     </font>
                 </div>
             </Stack>
@@ -119,17 +92,17 @@ export function SidePanel(props){
                                 <React.Fragment>
                                     <Grid item xs={4}>
                                         <Button variant='outlined' size='small'>
-                                            {cameraTranslation[0].toFixed(2)}
+                                            <font id='cameraTransX'>0.0</font>
                                         </Button>
                                     </Grid>
                                     <Grid item xs={4}>
                                         <Button variant='outlined' size='small'>
-                                            {cameraTranslation[1].toFixed(2)}
+                                            <font id='cameraTransY'>0.0</font>
                                         </Button>
                                     </Grid>
                                     <Grid item xs={4}>
                                         <Button variant='outlined' size='small'>
-                                            {cameraTranslation[2].toFixed(2)}
+                                            <font id='cameraTransZ'>0.0</font>
                                         </Button>
                                     </Grid>
                                 </React.Fragment>
@@ -146,17 +119,17 @@ export function SidePanel(props){
                             <React.Fragment>
                                 <Grid item xs={4}>
                                     <Button variant='outlined' size='small'>
-                                        {cameraEulerRotationDegrees.x.toFixed(2)}
+                                        <font id='cameraRotationX'>0.0</font>
                                     </Button>
                                 </Grid>
                                 <Grid item xs={4}>
                                     <Button variant='outlined' size='small'>
-                                        {cameraEulerRotationDegrees.y.toFixed(2)}
+                                        <font id='cameraRotationY'>0.0</font>
                                     </Button>
                                 </Grid>
                                 <Grid item xs={4}>
                                     <Button variant='outlined' size='small'>
-                                        {cameraEulerRotationDegrees.z.toFixed(2)}
+                                        <font id='cameraRotationZ'>0.0</font>
                                     </Button>
                                 </Grid>
                             </React.Fragment>

@@ -1,28 +1,20 @@
 import {useContext, useRef} from "react";
 
 import { 
-  Color3, Color4, Vector3,
-  Matrix, StandardMaterial, ArcRotateCamera, Quaternion, MeshBuilder,
-  HemisphericLight, TransformNode, Viewport,
-  Mesh,
-  ActionManager,
-  ExecuteCodeAction
+  Color3, Color4, Vector3, Matrix, StandardMaterial, ArcRotateCamera, Quaternion, Mesh, MeshBuilder,
+  HemisphericLight, TransformNode, Viewport, ActionManager, ExecuteCodeAction
 } from "@babylonjs/core";
-
 import * as BABYLON from '@babylonjs/core';
-
+import '@babylonjs/loaders';
 import { GridMaterial } from "@babylonjs/materials";
 
 import { RenderResContainer } from "../RenderResContainer/RenderResContainer";
-import { SidePanel } from '../SidePanel/SidePanel';
 
 import { connect } from "react-redux";
 
-import '@babylonjs/loaders';
 
 import { 
-  Scene, Engine,
-  SceneEventArgs,
+  Scene, Engine, SceneEventArgs,
 } from 'react-babylonjs';
 import {
   sendMessage,
@@ -31,7 +23,6 @@ import {
 } from "../../actions";
 
 import { WebSocketContext } from "../WebSocket/WebSocket";
-import {  } from '../../actions';
 
 function ViewerWindow(props){
   const {
@@ -85,12 +76,18 @@ function ViewerWindow(props){
     // *********************** spawn light ***********************
 
     // *********************** handle window resize ***********************
+    const canvasSizeXDiv = document.getElementById('canvasSizeX');
+    const canvasSizeYDiv = document.getElementById('canvasSizeY');
+    canvasSizeXDiv.innerText = canvas.width.toFixed(0);
+    canvasSizeYDiv.innerText = canvas.height.toFixed(0);
     onUpdateCanvasSize([canvas.width, canvas.height]);
 
     function callback(){
       const width = canvas.width;
       const height = canvas.height;
       onUpdateCanvasSize([width, height]);
+      canvasSizeXDiv.innerText = width.toFixed(0);
+      canvasSizeYDiv.innerText = height.toFixed(0);
     }
 
     function setResizeHandler(callback, timeout){
@@ -152,25 +149,51 @@ function ViewerWindow(props){
 
     function get_camera_translation_and_rotation(camera: BABYLON.Camera){
       let cameraWorldMatrix = camera.getWorldMatrix();
-      // let cameraTransformationMatrix = camera.getTransformationMatrix();
-      // let cameraProjectionMatrix = camera.getProjectionMatrix();
       let cameraViewMatrix = camera.getViewMatrix();
-       cameraWorldMatrix.decompose(null, null, translation);
-      // cameraTransformationMatrix.decompose(null, rotation, null);
-      // cameraProjectionMatrix.decompose(null, rotation, translation);
+      cameraWorldMatrix.decompose(null, null, translation);
       cameraViewMatrix.decompose(null, rotation, null);
       const rotMat = Matrix.Zero();
       rotation.toRotationMatrix(rotMat);
       
-      return [translation.asArray(), Array.from(Matrix.GetAsMatrix3x3(rotMat))]
+      return {
+        trans_vec: translation,
+        rot_mat: rotMat
+      }
     }
 
+    const cameraTransXDiv = document.getElementById('cameraTransX');
+    const cameraTransYDiv = document.getElementById('cameraTransY');
+    const cameraTransZDiv = document.getElementById('cameraTransZ');
+    const cameraRotationXDiv = document.getElementById('cameraRotationX');
+    const cameraRotationYDiv = document.getElementById('cameraRotationY');
+    const cameraRotationZDiv = document.getElementById('cameraRotationZ');
+
     camera.onViewMatrixChangedObservable.add(() => {
-      let [camera_translation, camera_roation] = get_camera_translation_and_rotation(camera);
-      onUpdateCameraTranslation(camera_translation);
-      onUpdateCameraRotation(camera_roation);
-      sendMessage(webSocket, UPDATE_CAMERA_TRANSLATION, camera_translation);
-      sendMessage(webSocket, UPDATE_CAMERA_ROTATION, camera_roation);
+      let camera_extrinsic = get_camera_translation_and_rotation(camera);
+      let camera_translation = camera_extrinsic.trans_vec;
+      let camera_rotation = camera_extrinsic.rot_mat;
+      let cameraEulerRotationRadians = Quaternion.FromRotationMatrix(camera_rotation).toEulerAngles();
+      let cameraEulerRotationDegrees = new BABYLON.Vector3(
+        BABYLON.Tools.ToDegrees(cameraEulerRotationRadians.x),
+        BABYLON.Tools.ToDegrees(cameraEulerRotationRadians.y),
+        BABYLON.Tools.ToDegrees(cameraEulerRotationRadians.z)
+      );
+      
+      // set side panel camera extrinsic display
+      cameraTransXDiv.innerText = camera_translation.x.toFixed(2);
+      cameraTransYDiv.innerText = camera_translation.y.toFixed(2);
+      cameraTransZDiv.innerText = camera_translation.z.toFixed(2);
+      cameraRotationXDiv.innerText = cameraEulerRotationDegrees.x.toFixed(2);
+      cameraRotationYDiv.innerText = cameraEulerRotationDegrees.y.toFixed(2);
+      cameraRotationZDiv.innerText = cameraEulerRotationDegrees.z.toFixed(2);
+      
+      // send camera extrinsic to bridge server
+      let trans_arr = camera_translation.asArray();
+      let rot_arr = Array.from(Matrix.GetAsMatrix3x3(camera_rotation));
+      onUpdateCameraTranslation(trans_arr);
+      onUpdateCameraRotation(rot_arr);
+      sendMessage(webSocket, UPDATE_CAMERA_TRANSLATION, trans_arr);
+      sendMessage(webSocket, UPDATE_CAMERA_ROTATION, rot_arr);
     });
 
     camera.onProjectionMatrixChangedObservable.add(() => {
@@ -235,7 +258,7 @@ function ViewerWindow(props){
       
       if(sign < 0){   // negative axis
         mat.alpha = 0.3;
-        mat.alphaMode = BABYLON.Engine.ALPHA_MAXIMIZED;
+        mat.alphaMode = BABYLON.Engine.ALPHA_COMBINE;
       }
       let mesh = MeshBuilder.CreateSphere(name, {diameter: size, segments: 8}, scene);
 
@@ -345,12 +368,14 @@ function ViewerWindow(props){
     engine.runRenderLoop(() => {
       if(scene){
         if(bInitialStateSent === false){
-          let [cameraTranslation, cameraRotation] = get_camera_translation_and_rotation(camera);
-          onUpdateCameraTranslation(cameraTranslation);
-          onUpdateCameraRotation(cameraRotation);
+          let camera_extrinsic = get_camera_translation_and_rotation(camera);
+          let trans_arr = camera_extrinsic.trans_vec.asArray();
+          let rot_arr = Array.from(Matrix.GetAsMatrix3x3(camera_extrinsic.rot_mat));
+          onUpdateCameraTranslation(trans_arr);
+          onUpdateCameraRotation(rot_arr);
 
-          let bSent = sendMessage(webSocket, UPDATE_CAMERA_TRANSLATION, cameraTranslation);
-          sendMessage(webSocket, UPDATE_CAMERA_ROTATION, cameraRotation);
+          let bSent = sendMessage(webSocket, UPDATE_CAMERA_TRANSLATION, trans_arr);
+          sendMessage(webSocket, UPDATE_CAMERA_ROTATION, rot_arr);
           sendMessage(webSocket, UPDATE_CAMERA_FOV, cameraFOV);
           sendMessage(webSocket, UPDATE_RENDER_TYPE, renderType);
           sendMessage(webSocket, UPDATE_RESOLUTION, resolution);
@@ -386,9 +411,6 @@ function ViewerWindow(props){
           </Scene>
         </Engine>
       </div>
-      <SidePanel
-        webSocket={webSocket}
-      />
     </>
   );
 }
