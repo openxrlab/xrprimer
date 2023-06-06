@@ -1,5 +1,6 @@
 import {useContext, useRef} from "react";
-
+import { connect } from "react-redux";
+import { Scene, Engine, SceneEventArgs} from 'react-babylonjs';
 import { 
   Color3, Color4, Vector3, Matrix, StandardMaterial, ArcRotateCamera, Quaternion, Mesh, MeshBuilder,
   HemisphericLight, TransformNode, Viewport, ActionManager, ExecuteCodeAction
@@ -7,33 +8,18 @@ import {
 import * as BABYLON from '@babylonjs/core';
 import '@babylonjs/loaders';
 import { GridMaterial } from "@babylonjs/materials";
-
 import { RenderResContainer } from "../RenderResContainer/RenderResContainer";
-
-import { connect } from "react-redux";
-
-
-import { 
-  Scene, Engine, SceneEventArgs,
-} from 'react-babylonjs';
+import { WebSocketContext } from "../WebSocket/WebSocket";
 import {
   sendMessage,
-  updateCameraTranslation, updateCameraRotation, updateCanvasSize,
   UPDATE_CAMERA_TRANSLATION, UPDATE_CAMERA_ROTATION, UPDATE_CAMERA_FOV, UPDATE_RENDER_TYPE, UPDATE_RESOLUTION
 } from "../../actions";
-
-import { WebSocketContext } from "../WebSocket/WebSocket";
 
 function ViewerWindow(props){
   const {
     cameraFOV, renderType, resolution,
-    onUpdateCameraTranslation,
-    onUpdateCameraRotation,
-    onUpdateCanvasSize,
   } = props;
-
   const webSocket = useContext(WebSocketContext).socket;
-
   const cameraRef = useRef(null);
 
   const onSceneMount = (e: SceneEventArgs) => {
@@ -80,12 +66,12 @@ function ViewerWindow(props){
     const canvasSizeYDiv = document.getElementById('canvasSizeY');
     canvasSizeXDiv.innerText = canvas.width.toFixed(0);
     canvasSizeYDiv.innerText = canvas.height.toFixed(0);
-    onUpdateCanvasSize([canvas.width, canvas.height]);
+    // onUpdateCanvasSize([canvas.width, canvas.height]);
 
     function callback(){
       const width = canvas.width;
       const height = canvas.height;
-      onUpdateCanvasSize([width, height]);
+      // onUpdateCanvasSize([width, height]);
       canvasSizeXDiv.innerText = width.toFixed(0);
       canvasSizeYDiv.innerText = height.toFixed(0);
     }
@@ -190,8 +176,8 @@ function ViewerWindow(props){
       // send camera extrinsic to bridge server
       let trans_arr = camera_translation.asArray();
       let rot_arr = Array.from(Matrix.GetAsMatrix3x3(camera_rotation));
-      onUpdateCameraTranslation(trans_arr);
-      onUpdateCameraRotation(rot_arr);
+      // onUpdateCameraTranslation(trans_arr);
+      // onUpdateCameraRotation(rot_arr);
       sendMessage(webSocket, UPDATE_CAMERA_TRANSLATION, trans_arr);
       sendMessage(webSocket, UPDATE_CAMERA_ROTATION, rot_arr);
     });
@@ -371,8 +357,6 @@ function ViewerWindow(props){
           let camera_extrinsic = get_camera_translation_and_rotation(camera);
           let trans_arr = camera_extrinsic.trans_vec.asArray();
           let rot_arr = Array.from(Matrix.GetAsMatrix3x3(camera_extrinsic.rot_mat));
-          onUpdateCameraTranslation(trans_arr);
-          onUpdateCameraRotation(rot_arr);
 
           let bSent = sendMessage(webSocket, UPDATE_CAMERA_TRANSLATION, trans_arr);
           sendMessage(webSocket, UPDATE_CAMERA_ROTATION, rot_arr);
@@ -380,6 +364,7 @@ function ViewerWindow(props){
           sendMessage(webSocket, UPDATE_RENDER_TYPE, renderType);
           sendMessage(webSocket, UPDATE_RESOLUTION, resolution);
 
+          // make sure the camera params are successfully sent to the backend
           if(bSent){
             bInitialStateSent = true;
           }
@@ -417,15 +402,6 @@ function ViewerWindow(props){
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onUpdateCameraTranslation: (cameraTranslation) => {
-      dispatch(updateCameraTranslation(cameraTranslation))
-    },
-    onUpdateCameraRotation: (cameraRotation) => {
-      dispatch(updateCameraRotation(cameraRotation))
-    },
-    onUpdateCanvasSize: (canvasSize) => {
-      dispatch(updateCanvasSize(canvasSize))
-    }
   }
 }
 

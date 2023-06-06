@@ -7,31 +7,6 @@ export const UPDATE_RENDER_RESULT = "UPDATE_RENDER_RESULT"
 export const UPDATE_CANVAS_SIZE = "UPDATE_CANVAS_SIZE"
 export const UPDATE_WEBSOCKET_CONNECTED= "UPDATE_WEBSOCKET_CONNECTED"
 
-export const updateCameraFOV = (cameraFOV) => ({
-    type: UPDATE_CAMERA_FOV,
-    data: cameraFOV
-});
-
-export const updateCameraTranslation = (cameraTranslation) => ({
-    type: UPDATE_CAMERA_TRANSLATION,
-    data: cameraTranslation
-});
-
-export const updateCameraRotation = (cameraRotation) => ({
-    type: UPDATE_CAMERA_ROTATION,
-    data: cameraRotation
-});
-
-export const updateResolution = (resolution) => ({
-    type: UPDATE_RESOLUTION,
-    data: resolution
-});
-
-export const updateCanvasSize = (canvasSize) => ({
-    type: UPDATE_CANVAS_SIZE,
-    data: canvasSize
-});
-
 const msgpack = require("msgpack-lite");
 
 export function sendMessage(_webSocket: WebSocket, _type: String, _data){

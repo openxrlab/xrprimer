@@ -11,12 +11,8 @@ import { Menu, MenuItem } from 'react-pro-sidebar';
 import { sendMessage } from '../../actions'
 import { UPDATE_CAMERA_FOV, UPDATE_RENDER_TYPE, UPDATE_RESOLUTION } from "../../actions";
 import { WebSocketContext } from "../WebSocket/WebSocket";
-// import * as BABYLON from '@babylonjs/core';
 
 export function SidePanel(){
-    // const {
-    //     webSocket
-    // } = props;
     const webSocket = React.useContext(WebSocketContext).socket;
     const dispatch = useDispatch();
 
