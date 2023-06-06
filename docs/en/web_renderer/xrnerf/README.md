@@ -1,4 +1,4 @@
-# XRNerf Viewer 
+# XRNeRF Viewer 
 
 ## 1 Overview
 
