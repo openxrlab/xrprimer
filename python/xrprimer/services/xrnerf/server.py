@@ -7,6 +7,20 @@ import tornado.web
 import tornado.websocket
 import umsgpack
 import zmq
+# TODO: use import paths relative to `xrprimer` rather than the current parent
+# TODO: directory to separate the entrypoint and libraries. Unfortunately, the
+# TODO: xrprimer cannot be installed on a Windows machine. Need to be tested on
+# TODO: MacOS later.
+# from xrprimer.services.xrnerf.actions import (
+#     UPDATE_CAMERA_FOV,
+#     UPDATE_CAMERA_ROTATION,
+#     UPDATE_CAMERA_TRANSLATION,
+#     UPDATE_RENDER_RESULT,
+#     UPDATE_RENDER_TYPE,
+#     UPDATE_RESOLUTION,
+#     UPDATE_STATE,
+# )
+# from xrprimer.services.xrnerf.state import State
 from actions import (
     UPDATE_CAMERA_FOV,
     UPDATE_CAMERA_ROTATION,

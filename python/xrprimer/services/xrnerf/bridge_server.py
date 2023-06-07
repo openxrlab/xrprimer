@@ -8,6 +8,11 @@ import threading
 import time
 from typing import Optional
 
+# TODO: use import paths relative to `xrprimer` rather than the current parent
+# TODO: directory to separate the entrypoint and libraries. Unfortunately, the
+# TODO: xrprimer cannot be installed on a Windows machine. Need to be tested on
+# TODO: MacOS later.
+# import xrprimer.services.xrnerf.server as server
 import server
 from rich import print
 

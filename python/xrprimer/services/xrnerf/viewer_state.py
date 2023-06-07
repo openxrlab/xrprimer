@@ -6,6 +6,16 @@ from typing import Tuple
 import cv2 as cv
 import numpy as np
 import umsgpack
+# TODO: use import paths relative to `xrprimer` rather than the current parent
+# TODO: directory to separate the entrypoint and libraries. Unfortunately, the
+# TODO: xrprimer cannot be installed on a Windows machine. Need to be tested on
+# TODO: MacOS later.
+# from xrprimer.services.xrnerf.actions import (
+#   UPDATE_RENDER_RESULT,
+#   UPDATE_STATE
+# )
+# from xrprimer.services.xrnerf.bridge_server import start_bridge_server
+# from xrprimer.services.xrnerf.visualizer import Viewer
 from actions import UPDATE_RENDER_RESULT, UPDATE_STATE
 from bridge_server import start_bridge_server
 from visualizer import Viewer
@@ -69,7 +79,7 @@ class ViewerState:
                    color, 1)
         scaled_resolution = self.get_resolution()
         cv.putText(
-            img, 'resolution: {scaled_resolution[0]}x{scaled_resolution[1]}',
+            img, f'resolution: {scaled_resolution[0]}x{scaled_resolution[1]}',
             (10, 500), font, 1, color, 1)
         scaled_image = cv.resize(
             img, scaled_resolution, interpolation=cv.INTER_AREA)
