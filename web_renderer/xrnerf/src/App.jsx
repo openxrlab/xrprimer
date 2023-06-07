@@ -1,4 +1,3 @@
-import './App.css';
 // TODO: determine whether we need a banner
 // import Banner from './modules/Banner/Banner';
 import { SidePanel } from './modules/SidePanel/SidePanel';
