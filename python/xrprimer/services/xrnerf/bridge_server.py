@@ -29,10 +29,13 @@ def is_port_open(port: int):
         return False
 
 
-def get_free_port(default_port: int = None):
-    if default_port:
-        if is_port_open(default_port):
-            return default_port
+def bind_port(target_port: Optional[int] = None) -> int:
+    # the user specified a port
+    if target_port:
+        if is_port_open(target_port):
+            return target_port
+
+    # no port specified, returns an available port
     sock = socket.socket()
     sock.bind(('', 0))
     port = sock.getsockname()[1]
@@ -50,7 +53,7 @@ def start_bridge_server(
 
     # find an available port for zmq
     if zmq_port is None:
-        zmq_port = get_free_port()
+        zmq_port = bind_port(zmq_port)
         print(f'Using ZMQ port: {zmq_port}')
 
     args.append('--zmq-port')
@@ -60,7 +63,7 @@ def start_bridge_server(
     args.append('--ip-address')
     args.append(str(ip_address))
 
-    process = subprocess.Popen(args, start_new_session=True)
+    bridge_server_process = subprocess.Popen(args, start_new_session=True)
 
     def cleanup(process):
         process.kill()
@@ -72,13 +75,13 @@ def start_bridge_server(
 
         If it fails, alert the user and exit the entire program.
         """
-        while process.poll() is None:
+        while bridge_server_process.poll() is None:
             time.sleep(0.5)
 
         print('[bold red]'
-              'The bridge server subprocess failed.'
+              'The bridge server subprocess dumped.'
               '[/bold red]')
-        cleanup(process)
+        cleanup(bridge_server_process)
 
         # windows system do not have signal.SIGKILL
         # TODO: make sure the kill operation still works on Linux systems
@@ -89,6 +92,6 @@ def start_bridge_server(
     watcher_thread.daemon = True
     watcher_thread.start()
     # clean up process when it has shut down
-    atexit.register(cleanup, process)
+    atexit.register(cleanup, bridge_server_process)
 
     return zmq_port

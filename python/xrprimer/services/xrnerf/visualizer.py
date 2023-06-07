@@ -91,11 +91,11 @@ class Viewer:
 
         return viewer
 
-    def write(self, type: str, data: Union[Dict, str, None] = None):
+    def write(self, _type: str, _data: Union[Dict, str, None] = None):
         """write data to bridge server."""
-        return self.window.send({'type': type, 'data': data})
+        return self.window.send({'type': _type, 'data': _data})
 
-    def read(self, type: str):
+    def read(self, _type: str):
         """read data from bridge server."""
-        res = self.window.send({'type': type})
+        res = self.window.send({'type': _type})
         return res

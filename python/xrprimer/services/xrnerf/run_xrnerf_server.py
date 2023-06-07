@@ -9,7 +9,7 @@ from viewer_state import ViewerState
 
 def run_viewer():
     """start the viewer."""
-    viewer_state = ViewerState()
+    viewer_state = ViewerState(zmq_port=6000, ip_address='127.0.0.1')
     while True:
         viewer_state.update_scene()
 

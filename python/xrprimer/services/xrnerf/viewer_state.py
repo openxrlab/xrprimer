@@ -1,7 +1,7 @@
 import base64
 import pickle
 import time
-from typing import Tuple
+from typing import Optional, Tuple
 
 import cv2 as cv
 import numpy as np
@@ -25,7 +25,7 @@ class ViewerState:
 
     def __init__(self,
                  websocket_port: int = 4567,
-                 zmq_port: int = 6000,
+                 zmq_port: Optional[int] = None,
                  ip_address: str = '127.0.0.1'):
         # launch the bridge server
         zmq_port = start_bridge_server(
