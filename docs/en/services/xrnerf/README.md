@@ -21,7 +21,7 @@ pip install -r service_xrnerf.txt
 Once you have dependencies installed, start the server using: 
 
 ```shell
-# make sure that your current working directory is xrprimer/python/
+# make sure that your current working directory is xrprimer/python/xrprimer/services/xrnerf
 cd xrprimer/python/xrprimer/services/xrnerf
 
 # start the bridge server
