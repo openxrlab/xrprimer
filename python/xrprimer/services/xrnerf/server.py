@@ -1,35 +1,35 @@
 import pickle
-import sys
-from typing import List, Optional, Tuple
+from typing import Awaitable, List, Optional, Tuple
 
-# for web networking
 import tornado.gen
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
-
-# for data conversion
 import umsgpack
-
-# ZeroMQ: for messaging
 import zmq
-# import zmq.eventloop.ioloop
-from zmq.eventloop.zmqstream import ZMQStream
-
-from actions import \
-    UPDATE_CAMERA_FOV, UPDATE_CAMERA_ROTATION, UPDATE_CAMERA_TRANSLATION, \
-    UPDATE_RENDER_TYPE, UPDATE_RESOLUTION, UPDATE_STATE, UPDATE_RENDER_RESULT
-
+from actions import (
+    UPDATE_CAMERA_FOV,
+    UPDATE_CAMERA_ROTATION,
+    UPDATE_CAMERA_TRANSLATION,
+    UPDATE_RENDER_RESULT,
+    UPDATE_RENDER_TYPE,
+    UPDATE_RESOLUTION,
+    UPDATE_STATE,
+)
+from rich import print
 from state import State
 from typer import Option, run
-from rich import print
+from zmq.eventloop.zmqstream import ZMQStream
 
 
-class WebSocketHandler(tornado.websocket.WebSocketHandler):  # pylint: disable=abstract-method
-    """for receiving and sending commands from/to the viewer"""
+class WebSocketHandler(tornado.websocket.WebSocketHandler):
+    """For receiving and sending commands from/to the viewer."""
+
+    def data_received(self, chunk: bytes) -> Optional[Awaitable[None]]:
+        pass
 
     def __init__(self, *args, **kwargs):
-        self.bridge = kwargs.pop("bridge")
+        self.bridge = kwargs.pop('bridge')
         super().__init__(*args, **kwargs)
 
     def check_origin(self, origin: str) -> bool:
@@ -37,17 +37,15 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):  # pylint: disable=a
 
     def open(self, *args: str, **kwargs: str):
         self.bridge.websocket_pool.add(self)
-        print(f"[bold green]Viewer connected.[/bold green]")
+        print('[bold green]Viewer connected.[/bold green]')
 
-    async def on_message(self, message: bytearray): # pylint: disable=invalid-overridden-method
-        """parses the message from viewer and calls the appropriate function"""
-        data = message
+    async def on_message(self, message: bytearray):
+        """parses the message from viewer and calls the appropriate
+        function."""
         unpacked_message = umsgpack.unpackb(message)
 
-        type = unpacked_message["type"]
-        data = unpacked_message["data"]
-        # type_ = m["type"]
-        # path = list(filter(lambda x: len(x) > 0, m["path"].split("/")))
+        type = unpacked_message['type']
+        data = unpacked_message['data']
 
         if type == UPDATE_CAMERA_TRANSLATION:
             self.bridge.state.camera_translation = data
@@ -65,7 +63,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):  # pylint: disable=a
 
     def on_close(self) -> None:
         self.bridge.websocket_pool.remove(self)
-        print("[bold red]Viewer disconnected.[/bold red]")
+        print('[bold red]Viewer disconnected.[/bold red]')
 
 
 class ZMQWebSocketBridge:
@@ -79,44 +77,45 @@ class ZMQWebSocketBridge:
         self.ioloop = tornado.ioloop.IOLoop.current()
 
         # zmq
-        zmq_url = f"tcp://{ip_address}:{self.zmq_port:d}"
-        self.zmq_socket, self.zmq_stream, self.zmq_url = self.setup_zmq(zmq_url)
+        zmq_url = f'tcp://{ip_address}:{self.zmq_port:d}'
+        self.zmq_socket, self.zmq_stream, self.zmq_url = \
+            self.setup_zmq(zmq_url)
 
         # websocket
-        listen_kwargs = {"address" : "0.0.0.0"}
+        listen_kwargs = {'address': '0.0.0.0'}
         self.app.listen(websocket_port, **listen_kwargs)
         self.websocket_port = websocket_port
-        self.websocket_url = f"0.0.0.0:{self.websocket_port}"
+        self.websocket_url = f'0.0.0.0:{self.websocket_port}'
 
         # state
         self.state = State()
 
     def make_app(self):
-        return tornado.web.Application([(r"/", WebSocketHandler, {"bridge": self})])
+        return tornado.web.Application([(r'/', WebSocketHandler, {
+            'bridge': self
+        })])
 
     def handle_zmq(self, frames: List[bytes]):
 
-        type_ = frames[0].decode("utf-8")
-        data = frames[1]
+        _type = frames[0].decode('utf-8')
 
-        if type_ == UPDATE_RENDER_RESULT:
+        if _type == UPDATE_RENDER_RESULT:
             self.forward_to_websockets(frames)
-            self.zmq_socket.send(umsgpack.packb(b"ok"))
-        elif type_ == UPDATE_STATE:
+            self.zmq_socket.send(umsgpack.packb(b'ok'))
+        elif _type == UPDATE_STATE:
             serialized = pickle.dumps(self.state)
             self.zmq_socket.send(serialized)
-        elif type_ == "ping":
-            self.zmq_socket.send(umsgpack.packb(b"ping received"))
+        elif _type == 'ping':
+            self.zmq_socket.send(umsgpack.packb(b'ping received'))
         else:
-            print("type: " + str(type_))
-            self.zmq_socket.send(umsgpack.packb(b"error: unknown command"))
+            print('type: ' + str(_type))
+            self.zmq_socket.send(umsgpack.packb(b'error: unknown command'))
 
     def forward_to_websockets(
-        self,
-        frames: Tuple[str, str, bytes],
-        websocket_to_skip: Optional[WebSocketHandler] = None
-    ):
-        """forward a zmq message to all websockets"""
+            self,
+            frames: Tuple[str, str, bytes],
+            websocket_to_skip: Optional[WebSocketHandler] = None):
+        """forward a zmq message to all websockets."""
         """nerf backend -> viewer"""
         _type, _data = frames  # cmd, data
         for websocket in self.websocket_pool:
@@ -126,7 +125,7 @@ class ZMQWebSocketBridge:
                 websocket.write_message(_data, binary=True)
 
     def setup_zmq(self, url: str):
-        """setup a zmq socket and connect it to the given url"""
+        """setup a zmq socket and connect it to the given url."""
         zmq_socket = self.context.socket(zmq.REP)  # pylint: disable=no-member
         zmq_socket.bind(url)
         zmq_stream = ZMQStream(zmq_socket)
@@ -135,21 +134,22 @@ class ZMQWebSocketBridge:
         return zmq_socket, zmq_stream, url
 
     def run(self):
-        """starts and runs the websocet bridge"""
-        print(f"[bold blue]Start bridge server, ZeroMQ port: {self.zmq_port}, websocket port: {self.websocket_port}[/bold blue]")
+        """starts and runs the websocet bridge."""
+        print(f'[bold blue]Start bridge server, '
+              f'ZeroMQ port: {self.zmq_port}, '
+              f'websocket port: {self.websocket_port}[/bold blue]')
         self.ioloop.start()
 
 
 def run_bridge_server(
-        zmq_port: int = 6000,
-        websocket_port: int = 4567,
-        ip_address: str = "127.0.0.1",
+    zmq_port: int = 6000,
+    websocket_port: int = 4567,
+    ip_address: str = '127.0.0.1',
 ):
     bridge = ZMQWebSocketBridge(
         zmq_port=zmq_port,
         websocket_port=websocket_port,
-        ip_address=ip_address
-    )
+        ip_address=ip_address)
 
     try:
         bridge.run()
@@ -157,13 +157,14 @@ def run_bridge_server(
         pass
 
 
-def wrapper(
-        zmq_port: int = Option(6000, help="ZeroMQ port that exposed to the backend", exists=False),
-        websocket_port: int = Option(4567, help="websocket port that exposed to web renderer", exists=False),
-        ip_address: str = Option("127.0.0.1", help="ip address of the bridge server")
-):
-    run_bridge_server(zmq_port=zmq_port, websocket_port=websocket_port, ip_address=ip_address)
+def wrapper(zmq_port: int = Option(6000, exists=False),
+            websocket_port: int = Option(4567, exists=False),
+            ip_address: str = Option('127.0.0.1', exists=False)):
+    run_bridge_server(
+        zmq_port=zmq_port,
+        websocket_port=websocket_port,
+        ip_address=ip_address)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run(wrapper)

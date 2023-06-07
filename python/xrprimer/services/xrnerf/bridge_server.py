@@ -6,17 +6,17 @@ import subprocess
 import sys
 import threading
 import time
+from typing import Optional
 
 import server
-
-from typing import Optional
+from rich import print
 
 
 def is_port_open(port: int):
     # check whether the given port is open
     try:
         sock = socket.socket()
-        sock.bind(("", port))
+        sock.bind(('', port))
         sock.close()
 
         return True
@@ -29,7 +29,7 @@ def get_free_port(default_port: int = None):
         if is_port_open(default_port):
             return default_port
     sock = socket.socket()
-    sock.bind(("", 0))
+    sock.bind(('', 0))
     port = sock.getsockname()[1]
 
     return port
@@ -38,21 +38,21 @@ def get_free_port(default_port: int = None):
 def start_bridge_server(
     websocket_port: int,
     zmq_port: Optional[int] = None,
-    ip_address: str = "127.0.0.1",
+    ip_address: str = '127.0.0.1',
 ):
     # run bridge server as a sub-process
-    args = [sys.executable, "-u", "-m", server.__name__]
+    args = [sys.executable, '-u', '-m', server.__name__]
 
     # find an available port for zmq
     if zmq_port is None:
         zmq_port = get_free_port()
-        print(f"Using ZMQ port: {zmq_port}")
+        print(f'Using ZMQ port: {zmq_port}')
 
-    args.append("--zmq-port")
+    args.append('--zmq-port')
     args.append(str(zmq_port))
-    args.append("--websocket-port")
+    args.append('--websocket-port')
     args.append(str(websocket_port))
-    args.append("--ip-address")
+    args.append('--ip-address')
     args.append(str(ip_address))
 
     process = subprocess.Popen(args, start_new_session=True)
@@ -62,14 +62,17 @@ def start_bridge_server(
         process.wait()
 
     def poll_process():
-        """
-        Continually check to see if the viewer bridge server process is still running and has not failed.
+        """Continually check to see if the viewer bridge server process is
+        still running and has not failed.
+
         If it fails, alert the user and exit the entire program.
         """
         while process.poll() is None:
             time.sleep(0.5)
 
-        message = "The bridge server subprocess failed."
+        print('[bold red]'
+              'The bridge server subprocess failed.'
+              '[/bold red]')
         cleanup(process)
 
         # windows system do not have signal.SIGKILL
