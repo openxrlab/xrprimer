@@ -4,7 +4,7 @@
 
 The following figure illustrates how the XRNeRF viewer works: 
 
-![alt architecture](./architecture.png)
+![alt architecture](/resources/web_renderer/xrnerf/architecture.png)
 
 - ***Web Viewer***. This is where the users can view the XRNeRF render output in an interactive manner. Taking the user desired render config(e.g., camera extrinsic, render resolution) as input, the web viewer send the render config to the bridge server via WebSocket connection. Once the bridge server offers a rendered image, the web viewer receives and displays the image with overlayed scene components(e.g., grid, axis viewer). The web viewer is developed using [Babylon.js](https://www.babylonjs.com/) and packaged into a [React](https://react.dev/) application utilizing [Create React App](https://create-react-app.dev/).
 
