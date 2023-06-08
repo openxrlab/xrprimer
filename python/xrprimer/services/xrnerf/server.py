@@ -11,25 +11,9 @@ import zmq
 # TODO: directory to separate the entrypoint and libraries. Unfortunately, the
 # TODO: xrprimer cannot be installed on a Windows machine. Need to be tested on
 # TODO: MacOS later.
-# from xrprimer.services.xrnerf.actions import (
-#     UPDATE_CAMERA_FOV,
-#     UPDATE_CAMERA_ROTATION,
-#     UPDATE_CAMERA_TRANSLATION,
-#     UPDATE_RENDER_RESULT,
-#     UPDATE_RENDER_TYPE,
-#     UPDATE_RESOLUTION,
-#     UPDATE_STATE,
-# )
+# from xrprimer.services.xrnerf.actions import ViewerActionEnum
 # from xrprimer.services.xrnerf.state import State
-from actions import (
-    UPDATE_CAMERA_FOV,
-    UPDATE_CAMERA_ROTATION,
-    UPDATE_CAMERA_TRANSLATION,
-    UPDATE_RENDER_RESULT,
-    UPDATE_RENDER_TYPE,
-    UPDATE_RESOLUTION,
-    UPDATE_STATE,
-)
+from actions import BackendActionsEnum, ViewerActionEnum
 from rich import print
 from state import State
 from typer import Option, run
@@ -61,15 +45,15 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         type = unpacked_message['type']
         data = unpacked_message['data']
 
-        if type == UPDATE_CAMERA_TRANSLATION:
+        if type == ViewerActionEnum.UPDATE_CAMERA_TRANSLATION:
             self.bridge.state.camera_translation = data
-        elif type == UPDATE_CAMERA_ROTATION:
+        elif type == ViewerActionEnum.UPDATE_CAMERA_ROTATION:
             self.bridge.state.camera_rotation = data
-        elif type == UPDATE_RENDER_TYPE:
+        elif type == ViewerActionEnum.UPDATE_RENDER_TYPE:
             self.bridge.state.render_type = data
-        elif type == UPDATE_CAMERA_FOV:
+        elif type == ViewerActionEnum.UPDATE_CAMERA_FOV:
             self.bridge.state.camera_fov = data
-        elif type == UPDATE_RESOLUTION:
+        elif type == ViewerActionEnum.UPDATE_RESOLUTION:
             self.bridge.state.resolution = data
         else:
             # TODO: handle exception
@@ -110,16 +94,15 @@ class ZMQWebSocketBridge:
         })])
 
     def handle_zmq(self, frames: List[bytes]):
-
         _type = frames[0].decode('utf-8')
 
-        if _type == UPDATE_RENDER_RESULT:
+        if _type == BackendActionsEnum.UPDATE_RENDER_RESULT:
             self.forward_to_websockets(frames)
             self.zmq_socket.send(umsgpack.packb(b'ok'))
-        elif _type == UPDATE_STATE:
+        elif _type == BackendActionsEnum.UPDATE_STATE:
             serialized = pickle.dumps(self.state)
             self.zmq_socket.send(serialized)
-        elif _type == 'ping':
+        elif _type == BackendActionsEnum.PING:
             self.zmq_socket.send(umsgpack.packb(b'ping received'))
         else:
             print('type: ' + str(_type))
@@ -130,7 +113,6 @@ class ZMQWebSocketBridge:
             frames: Tuple[str, str, bytes],
             websocket_to_skip: Optional[WebSocketHandler] = None):
         """forward a zmq message to all websockets."""
-        """nerf backend -> viewer"""
         _type, _data = frames  # cmd, data
         for websocket in self.websocket_pool:
             if websocket_to_skip and websocket == websocket_to_skip:

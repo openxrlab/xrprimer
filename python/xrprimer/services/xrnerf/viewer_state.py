@@ -3,7 +3,7 @@ import pickle
 import time
 from typing import Optional, Tuple
 
-import cv2 as cv
+import cv2
 import numpy as np
 import umsgpack
 # TODO: use import paths relative to `xrprimer` rather than the current parent
@@ -16,7 +16,7 @@ import umsgpack
 # )
 # from xrprimer.services.xrnerf.bridge_server import start_bridge_server
 # from xrprimer.services.xrnerf.visualizer import Viewer
-from actions import UPDATE_RENDER_RESULT, UPDATE_STATE
+from actions import BackendActionsEnum
 from bridge_server import start_bridge_server
 from visualizer import Viewer
 
@@ -40,7 +40,8 @@ class ViewerState:
     def update_scene(self) -> None:
         """update the scene using rendered results."""
         while True:
-            serialized_state = umsgpack.unpackb(self.viewer.read(UPDATE_STATE))
+            serialized_state = umsgpack.unpackb(
+                self.viewer.read(BackendActionsEnum.UPDATE_STATE))
             self.state = pickle.loads(serialized_state)
             self.render_image_in_viewer()
 
@@ -56,43 +57,42 @@ class ViewerState:
 
     def render_image_in_viewer(self) -> None:
         """Draw an image using current camera configuration."""
-        """fetch data from state"""
+        # fetch data from state
         camera_translation = np.array(self.state.camera_translation)
         camera_rotation = np.array(self.state.camera_rotation)
         camera_fov = self.state.camera_fov
         render_type = self.state.render_type
-
         camera_translation = np.round(camera_translation, 2)
         camera_rotation = np.round(camera_rotation, 2)
-        """generate a fake image"""
+        # generate a fake image
         img = np.zeros((1080, 1920, 3), np.uint8)
         img.fill(230)
-        font = cv.FONT_HERSHEY_COMPLEX
+        font = cv2.FONT_HERSHEY_COMPLEX
         color = (10, 20, 20)
-        cv.putText(img, 'translation: ' + str(camera_translation), (10, 100),
-                   font, 1, color, 1)
-        cv.putText(img, 'rotation: ' + str(camera_rotation), (10, 200), font,
-                   1, color, 1)
-        cv.putText(img, 'fov: ' + str(camera_fov), (10, 300), font, 1, color,
-                   1)
-        cv.putText(img, 'render type: ' + str(render_type), (10, 400), font, 1,
-                   color, 1)
+        cv2.putText(img, 'translation: ' + str(camera_translation), (10, 100),
+                    font, 1, color, 1)
+        cv2.putText(img, 'rotation: ' + str(camera_rotation), (10, 200), font,
+                    1, color, 1)
+        cv2.putText(img, 'fov: ' + str(camera_fov), (10, 300), font, 1, color,
+                    1)
+        cv2.putText(img, 'render type: ' + str(render_type), (10, 400), font,
+                    1, color, 1)
         scaled_resolution = self.get_resolution()
-        cv.putText(
+        cv2.putText(
             img, f'resolution: {scaled_resolution[0]}x{scaled_resolution[1]}',
             (10, 500), font, 1, color, 1)
-        scaled_image = cv.resize(
-            img, scaled_resolution, interpolation=cv.INTER_AREA)
+        scaled_image = cv2.resize(
+            img, scaled_resolution, interpolation=cv2.INTER_AREA)
 
         image_format = 'jpeg'
 
-        data = cv.imencode(
+        data = cv2.imencode(
             ext=f'.{image_format}',
             img=scaled_image,
-            params=[cv.IMWRITE_JPEG_QUALITY, 90])[1].tobytes()
+            params=[cv2.IMWRITE_JPEG_QUALITY, 90])[1].tobytes()
         data = str(f'data:image/{image_format};base64,' +
                    base64.b64encode(data).decode('ascii'))
-        self.viewer.write(UPDATE_RENDER_RESULT, data)
+        self.viewer.write(BackendActionsEnum.UPDATE_RENDER_RESULT, data)
         """
         Let the renderer relief for some time
         to avoid websocket blocking
