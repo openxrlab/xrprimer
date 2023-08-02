@@ -4,29 +4,30 @@
 
 if(NOT IOS)
     find_package(Eigen3 REQUIRED CONFIG)
-    find_package(Ceres REQUIRED CONFIG)
 
-    if(NOT TARGET Ceres::ceres)
-        add_library(Ceres::ceres INTERFACE IMPORTED)
-        set_target_properties(
-            Ceres::ceres PROPERTIES INTERFACE_LINK_LIBRARIES ceres
-        )
-    endif()
+    # find_package(Ceres REQUIRED CONFIG)
 
-    find_package(OpenCV REQUIRED CONFIG)
+    # if(NOT TARGET Ceres::ceres)
+    # add_library(Ceres::ceres INTERFACE IMPORTED)
+    # set_target_properties(
+    # Ceres::ceres PROPERTIES INTERFACE_LINK_LIBRARIES ceres
+    # )
+    # endif()
 
-    if(OpenCV_FOUND)
-        add_library(OpenCV::OpenCV INTERFACE IMPORTED GLOBAL)
-        target_include_directories(
-            OpenCV::OpenCV INTERFACE ${OpenCV_INCLUDE_DIRS}
-        )
-        target_link_libraries(OpenCV::OpenCV INTERFACE ${OpenCV_LIBS})
-    endif()
+    # find_package(OpenCV REQUIRED CONFIG)
 
+    # if(OpenCV_FOUND)
+    # add_library(OpenCV::OpenCV INTERFACE IMPORTED GLOBAL)
+    # target_include_directories(
+    # OpenCV::OpenCV INTERFACE ${OpenCV_INCLUDE_DIRS}
+    # )
+    # target_link_libraries(OpenCV::OpenCV INTERFACE ${OpenCV_LIBS})
+    # endif()
     find_package(pybind11 REQUIRED CONFIG)
     find_package(jsoncpp REQUIRED CONFIG)
     find_package(spdlog REQUIRED CONFIG)
-    find_package(PnpSolver REQUIRED CONFIG)
+
+# find_package(PnpSolver REQUIRED CONFIG)
 else()
     # 指定opencv_framework_path
     if(EXISTS ${xrprimer_framework_path})
@@ -38,7 +39,7 @@ else()
     else()
         message(
             FATAL_ERROR
-                "[XRPrimer] can not found opencv2 framework on IOS, please check xrprimer_framework_path ${xrprimer_framework_path}"
+            "[XRPrimer] can not found opencv2 framework on IOS, please check xrprimer_framework_path ${xrprimer_framework_path}"
         )
     endif()
 endif()

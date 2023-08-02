@@ -31,18 +31,18 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Setup dependencies library, when first run
 #
 option(3RT_FROM_LOCAL
-       "Dependencies library will be built or find in local host." OFF
+    "Dependencies library will be built or find in local host." OFF
 )
 option(3RT_FROM_CONAN
-       "Dependencies library will be download from openxrlab conan remote" OFF
+    "Dependencies library will be download from openxrlab conan remote" OFF
 )
 
 # set external project install prefix
 set(STAGED_INSTALL_PREFIX
     ${CMAKE_SOURCE_DIR}/3rdparty
     CACHE
-        STRING
-        "dependencies install directory, if not exist, need setup You need to get the dependencies first"
+    STRING
+    "dependencies install directory, if not exist, need setup You need to get the dependencies first"
 )
 
 # add cmake prefix path for find external project, find_package(<xxx>)
@@ -57,11 +57,11 @@ endif()
 install(DIRECTORY ${STAGED_INSTALL_PREFIX}/ DESTINATION 3rdparty/)
 
 if(NOT EXISTS ${STAGED_INSTALL_PREFIX} AND NOT 3RT_FROM_LOCAL
-   AND NOT 3RT_FROM_CONAN
+    AND NOT 3RT_FROM_CONAN
 )
     message(
         FATAL_ERROR
-            "
+        "
     ---------------------------------------------------------------------------
     You need to get the dependencies first, Configure cmake with `-D3RT_FROM_LOCAL=ON` OR `-D3RT_FROM_CONAN=ON`
     and cmake --build <build_path>
@@ -95,9 +95,9 @@ cmake_policy(SET CMP0063 NEW) # ENABLE CMP0063: Honor visibility properties for
 cmake_policy(SET CMP0077 NEW) # ENABLE CMP0077: option() honors normal variables
 
 #
-# c++11
+# c++14
 #
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
