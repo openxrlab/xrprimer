@@ -67,7 +67,7 @@ void pybind_pnpsolver(py::module &m) {
     m.def("prior_guided_pnp", &prior_guided_pnp, py::return_value_policy::copy);
 }
 
-void xrprimer_pybind_pnpsolver(py::module &m) {
-    py::module m_submodule = m.def_submodule("ops");
-    pybind_pnpsolver(m_submodule);
-}
+// void xrprimer_pybind_pnpsolver(py::module &m) {
+//     py::module m_submodule = m.def_submodule("ops");
+//     pybind_pnpsolver(m_submodule);
+// }

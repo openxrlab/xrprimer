@@ -190,8 +190,8 @@ PYBIND11_MODULE(xrprimer_cpp, m) {
 
     pybind_eigen_classes(m);
     xrprimer_pybind_camera(m);
-    xrprimer_pybind_calibrator(m);
+    // xrprimer_pybind_calibrator(m);
     xrprimer_pybind_version(m);
     xrprimer_pybind_pose(m);
-    xrprimer_pybind_pnpsolver(m);
+    // xrprimer_pybind_pnpsolver(m);
 }

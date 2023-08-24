@@ -12,6 +12,13 @@ include(cmake/version.cmake)
 
 project(${META_PROJECT_NAME} VERSION ${META_VERSION} LANGUAGES C CXX)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set(CMAKE_C_FLAGS "-static-libgcc")
+        set(CMAKE_CXX_FLAGS "-static-libgcc -static-libstdc++")
+    endif()
+endif()
+
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(_DEFAULT_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install)
     set(CMAKE_INSTALL_PREFIX ${_DEFAULT_INSTALL_PREFIX}
