@@ -148,7 +148,10 @@ class CMakeBuild(build_ext):
             # Specify the arch if using MSVC generator, but only if it doesn't
             # contain a backward-compatibility arch spec already in the
             # generator name.
-            if not single_config and not contains_arch:
+
+            # skip this if on windows
+            if (not single_config and not contains_arch
+                    and not self.plat_name.startswith('win')):
                 cmake_args += ['-A', PLAT_TO_CMAKE[self.plat_name]]
 
             # Multi-config generators have a different way to specify configs
@@ -190,20 +193,29 @@ class CMakeBuild(build_ext):
         clean_cmake(folders=['build_deps', self.build_temp])
 
         # Build external from pre-built libs by default
-        ret = os.system('conan remote list | grep xrlab')
-        if ret == 0:  # remote exists
-            prebuilt_args = '-D3RT_FROM_CONAN=ON'
-        else:
-            prebuilt_args = '-D3RT_FROM_LOCAL=ON'
+        # ret = os.system('conan remote list | findstr xrlab')
+        # if ret == 0:  # remote exists
+        #     prebuilt_args = '-D3RT_FROM_CONAN=ON'
+        # else:
+        #     prebuilt_args = '-D3RT_FROM_LOCAL=ON'
+        # always build from local
+        prebuilt_args = '-D3RT_FROM_LOCAL=ON'
+
+        platform_args = []
+        if self.plat_name.startswith('win'):
+            platform_args = ['-G', 'MinGW Makefiles']
 
         # Ensure temp dir exists
         os.makedirs(build_temp, exist_ok=True)
         # get external
-        subprocess.check_call(
-            ['cmake', '-S.', '-B', 'build_deps', prebuilt_args] + cmake_args)
+        subprocess.check_call(['cmake'] + platform_args +
+                              ['-S.', '-B', 'build_deps', prebuilt_args] +
+                              cmake_args)
         subprocess.check_call(['cmake', '--build', 'build_deps'])
+
         # build project
-        subprocess.check_call(['cmake', '-S.', '-B', build_temp] + cmake_args)
+        subprocess.check_call(['cmake'] + platform_args +
+                              ['-S.', '-B', build_temp] + cmake_args)
         subprocess.check_call(['cmake', '--build', build_temp] + build_args)
         # Move from build temp to final position
         for ext in self.extensions:
@@ -215,6 +227,9 @@ class CMakeBuild(build_ext):
         dst_path = os.path.join(self.build_lib,
                                 self.get_ext_filename(ext.name))
         # Ensure dst dir exists
+        if not os.path.exists(src_path):
+            return
+
         os.makedirs(self.build_lib, exist_ok=True)
         self.copy_file(src_path, dst_path)
 
@@ -318,14 +333,14 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
     license='Apache License 2.0',
-    python_requires='>=3.6, <3.11',
+    python_requires='>=3.7, <3.12',
     tests_require=parse_requirements('requirements/test.txt'),
     install_requires=parse_requirements('requirements/runtime.txt'),
     ext_modules=[CMakeExtension(name='xrprimer_cpp', )],
