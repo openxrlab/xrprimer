@@ -8,7 +8,6 @@ import subprocess
 from pathlib import Path
 from typing import Any, Tuple, Union
 
-import cv2
 import numpy as np
 
 from .log_utils import get_logger
@@ -484,6 +483,8 @@ def images_to_array_opencv(
     Returns:
         np.ndarray: shape will be (f * h * w * 3).
     """
+    import cv2
+
     check_path(
         input_path=input_folder,
         allowed_existence=[Existence.DirectoryExistNotEmpty],

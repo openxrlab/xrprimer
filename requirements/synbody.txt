@@ -1,3 +1,4 @@
 imath
 numpy
 openexr
+scipy

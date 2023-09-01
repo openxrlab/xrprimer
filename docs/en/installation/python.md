@@ -2,9 +2,12 @@
 
 <!-- TOC -->
 
-- [Requirements](#requirements)
-- [Prepare environment](#prepare-environment)
-- [Install XRPrimer(python)](#install-xrprimerpython)
+- [Installation (Python)](#installation-python)
+  - [Requirements](#requirements)
+  - [Prepare environment](#prepare-environment)
+  - [Install XRPrimer (python)](#install-xrprimer-python)
+    - [Install with pip](#install-with-pip)
+    - [Install by compiling from source](#install-by-compiling-from-source)
 
 <!-- TOC -->
 
@@ -52,7 +55,17 @@ pip install conan==1.51.1
 conan remote add openxrlab http://conan.openxrlab.org.cn/artifactory/api/conan/openxrlab
 ```
 
-d. Install PyTorch and MMCV
+d. Install Opencv
+
+```shell
+pip install opencv-python
+
+# or install opencv in headless mode
+pip install opencv-python-headless
+```
+
+
+e. Install PyTorch and MMCV
 
 Install PyTorch and torchvision following [official instructions](https://pytorch.org/).
 
