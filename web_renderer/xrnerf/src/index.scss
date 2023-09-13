@@ -1,0 +1,138 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  overflow: hidden;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.App {
+  position: relative;
+  height: 100vh;
+}
+
+div {
+  font-size: 8px;
+}
+
+$base-color1: #292d39;
+// $base-color2: #201f2e;
+$base-color2: #222831;
+$base-color3: #393e46;
+$base-color4: #5071a8;
+$base-color5: #ffffff;
+$accent-color1: #db5200;
+$accent-color2: #ff8600;
+$accent-color3: #ffd369;
+$highlight-color1: #606980;
+$highlight-color2: #eeeeee;
+$highlight-color3: #ffffff;
+
+// banner
+
+.banner{
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  width: 100%;
+  z-index: 1000;
+  background-color: $base-color1;
+
+  .banner-button{
+    margin: 10px;
+    float: left;
+  }
+
+  .banner-logo{
+    margin: 10px;
+    margin-right: 120px;
+    float: right;
+  }
+}
+
+.App-body{
+  position: absolute;
+  top: 0px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+$custom-border: solid 1px $base-color1;
+
+
+.SidePanel{
+  position: absolute;
+  background-color: $base-color2;
+  color: $highlight-color2;
+  top: 0;
+  //width: $SidePanel-width;
+  width: 20%;
+  right: 0;
+  bottom: 0;
+  border: $custom-border;
+  z-index: 999;
+  text-align: center;
+  overflow-y: scroll;
+}
+
+// Your variable overrides
+$sidebar-color: $accent-color3 !default;
+$sidebar-width: 100% !default;
+//@import '~react-pro-sidebar/dist/scss/styles.scss';
+// Scrollbar
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #454651;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: $accent-color3;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: $highlight-color2;
+}
+
+// viewer
+.canvas-container
+.RenderResContainer{
+  top: 0px;
+  left: 0px;
+  border: $custom-border;
+}
+
+.RenderResContainer{
+  position: absolute;
+  width: 80%;
+  height: 100%;
+  margin-left: 0px;
+  z-index: 1;
+}
+
+.canvas-container{
+  position: absolute;
+  width: 80%;
+  height: 100%;
+  margin-left: 0px;
+  z-index: 2;
+}
