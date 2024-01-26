@@ -69,6 +69,7 @@ It is currently tested on Linux and iOS. Ideally it can be also compiled on macO
 ```bash
 #1. First run, get external dependencies, will install external deps to 3rdparty
 cmake -S. -Bbuild_deps <-D3RT_FROM_LOCAL=ON/-D3RT_FROM_CONAN=ON>
+cmake -S. -Bbuild_deps -D3RT_FROM_LOCAL=ON
 cmake --build build_deps
 
 #2. build xrprimer

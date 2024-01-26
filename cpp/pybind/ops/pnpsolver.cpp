@@ -1,5 +1,11 @@
-#include <pnp_solver.h>
+
 #include <pybind/ops/pnpsolver.h>
+
+#ifdef XRPRIMER_BUILD_BASE
+void xrprimer_pybind_pnpsolver(py::module &m) {}
+#else
+
+#include <pnp_solver.h>
 
 py::dict prior_guided_pnp(
     const Eigen::Ref<Eigen::Matrix<float, 2, Eigen::Dynamic, Eigen::RowMajor>>
@@ -71,3 +77,4 @@ void xrprimer_pybind_pnpsolver(py::module &m) {
     py::module m_submodule = m.def_submodule("ops");
     pybind_pnpsolver(m_submodule);
 }
+#endif

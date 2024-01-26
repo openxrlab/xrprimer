@@ -1,0 +1,3 @@
+add_library(calibrator_obj OBJECT)
+target_sources(calibrator_obj PUBLIC calibrator.cpp calibrator_api.cpp)
+target_include_directories(calibrator_obj PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../)

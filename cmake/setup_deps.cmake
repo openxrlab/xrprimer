@@ -3,14 +3,21 @@
 #
 
 if(3RT_FROM_LOCAL)
+    if(POLICY CMP0135)
+        cmake_policy(SET CMP0135 NEW)
+    endif()
+
     include(${CMAKE_SOURCE_DIR}/cmake/external/common.cmake)
     include(${CMAKE_SOURCE_DIR}/cmake/external/eigen.cmake)
-    include(${CMAKE_SOURCE_DIR}/cmake/external/ceres.cmake)
-    include(${CMAKE_SOURCE_DIR}/cmake/external/opencv.cmake)
     include(${CMAKE_SOURCE_DIR}/cmake/external/pybind11.cmake)
     include(${CMAKE_SOURCE_DIR}/cmake/external/spdlog.cmake)
     include(${CMAKE_SOURCE_DIR}/cmake/external/jsoncpp.cmake)
-    include(${CMAKE_SOURCE_DIR}/cmake/external/pnpsolver.cmake)
+
+    if(NOT BUILD_ONLY_BASE)
+        include(${CMAKE_SOURCE_DIR}/cmake/external/ceres.cmake)
+        include(${CMAKE_SOURCE_DIR}/cmake/external/opencv.cmake)
+        include(${CMAKE_SOURCE_DIR}/cmake/external/pnpsolver.cmake)
+    endif()
 endif()
 
 if(3RT_FROM_CONAN)

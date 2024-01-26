@@ -1,60 +1,42 @@
-set(Headers
-    common/version.h
-    calibration/calibrator.h
-    calibration/calibrator_api.h
-    data_structure/math_util.h
-    data_structure/camera/camera.h
-    data_structure/camera/pinhole_camera.h
-    data_structure/camera/omni_camera.h
-    data_structure/camera/fisheye_camera.h
-    data_structure/image.h
-    data_structure/pose.h
-    utils/logging.h
-)
-source_group("Headers" FILES ${Headers})
+if(NOT BUILD_ONLY_BASE)
+    add_subdirectory(calibration)
+endif()
 
-set(Sources
-    common/version.cpp
-    calibration/calibrator.cpp
-    calibration/calibrator_api.cpp
-    data_structure/camera/camera.cpp
-    data_structure/camera/pinhole_camera.cpp
-    data_structure/camera/omni_camera.cpp
-    data_structure/camera/fisheye_camera.cpp
-    data_structure/image.cpp
-    data_structure/pose.cpp
-    utils/logging.cpp
+add_library(xrprimer)
+add_library(XRPrimer::xrprimer ALIAS xrprimer)
+
+target_sources(
+    xrprimer
+    PRIVATE common/version.cpp
+            data_structure/image.cpp
+            data_structure/pose.cpp
+            data_structure/camera/camera.cpp
+            data_structure/camera/fisheye_camera.cpp
+            data_structure/camera/omni_camera.cpp
+            data_structure/camera/pinhole_camera.cpp
 )
 
-source_group("Sources" FILES ${Sources})
-
-set(target xrprimer)
-
-add_library(${target} ${Headers} ${Sources})
-add_library(XRPrimer::${target} ALIAS ${target})
-
-target_compile_options(${target} PRIVATE -fPIC)
+target_compile_options(xrprimer PRIVATE -fPIC)
 
 include(GenerateExportHeader)
 generate_export_header(
-    ${target} EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/xrprimer_export.h
+    xrprimer EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/xrprimer_export.h
 )
 
 target_include_directories(
-    ${target}
+    xrprimer
     PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/cpp/xrprimer>
            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/>
            $<INSTALL_INTERFACE:include/xrprimer>
 )
 
 target_link_libraries(
-    ${target}
-    PUBLIC $<$<NOT:$<PLATFORM_ID:IOS>>:PnpSolver::pnpsolver> OpenCV::OpenCV
-           Eigen3::Eigen Ceres::ceres jsoncpp_static spdlog::spdlog_header_only
+    xrprimer PUBLIC $<$<TARGET_EXISTS:calibrator_obj>:calibrator_obj>
+                    ${XRPRIMER_PUBLIC_TARGET}
 )
 
-install(TARGETS ${target} DESTINATION lib EXPORT ${target}-targets)
-install(EXPORT ${target}-targets DESTINATION lib/cmake/xrprimer
+install(TARGETS xrprimer DESTINATION lib EXPORT xrprimer-targets)
+install(EXPORT xrprimer-targets DESTINATION lib/cmake/xrprimer
         NAMESPACE XRPrimer::
 )
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING
