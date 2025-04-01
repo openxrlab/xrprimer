@@ -50,7 +50,7 @@ jobs:
       - name: Prepare test data
         run: |
           cd build
-          wget -q https://openxrlab-share-mainland.oss-cn-hangzhou.aliyuncs.com/xrprimer/xrprimer.tar.gz
+          wget -q https://drive.google.com/file/d/1MJx367I2_ezK3vKdV4eJ9d0cBzgs2jtR/view?usp=sharing
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
           ln -sfn xrprimer/tests tests
       - name: Run unittests
@@ -98,7 +98,7 @@ jobs:
       - name: Prepare test data
         run: |
           cd python/tests
-          wget -q https://openxrlab-share-mainland.oss-cn-hangzhou.aliyuncs.com/xrprimer/xrprimer.tar.gz
+          wget -q https://drive.google.com/file/d/1MJx367I2_ezK3vKdV4eJ9d0cBzgs2jtR/view?usp=sharing
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
           mv xrprimer/tests/data ./
           rm -rf xrprimer && cd ../../
