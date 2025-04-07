@@ -18,6 +18,9 @@ on:
       - "README_CN.md"
       - "docs/**"
 
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -49,8 +52,9 @@ jobs:
           cmake --build build --target install -j4
       - name: Prepare test data
         run: |
+          pip install gdown
           cd build
-          wget -q https://openxrlab-share-mainland.oss-cn-hangzhou.aliyuncs.com/xrprimer/xrprimer.tar.gz
+          gdown https://docs.google.com/uc?id=1MJx367I2_ezK3vKdV4eJ9d0cBzgs2jtR
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
           ln -sfn xrprimer/tests tests
       - name: Run unittests
@@ -80,6 +84,7 @@ jobs:
     container:
       image: openxrlab/xrprimer_runtime:ubuntu1804_x64_gcc7_py38_torch1121_mmcv170
       env:
+        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
         GITHUB_ACTIONS: true
     steps:
       - uses: actions/checkout@v2
@@ -98,7 +103,8 @@ jobs:
       - name: Prepare test data
         run: |
           cd python/tests
-          wget -q https://openxrlab-share-mainland.oss-cn-hangzhou.aliyuncs.com/xrprimer/xrprimer.tar.gz
+          pip install gdown
+          gdown https://docs.google.com/uc?id=1MJx367I2_ezK3vKdV4eJ9d0cBzgs2jtR
           tar -xzf xrprimer.tar.gz && rm xrprimer.tar.gz
           mv xrprimer/tests/data ./
           rm -rf xrprimer && cd ../../
